@@ -1,0 +1,3 @@
+[[template]]
+input = "~/.config/quickshell/spex/templates/qs.qml"
+output = "~/.config/quickshell/colors.qml"
