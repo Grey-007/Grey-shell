@@ -7,6 +7,9 @@ import Quickshell
 Item {
     id: root
 
+    layer.enabled: true
+    layer.smooth: true
+
     property int cardWidth: 450
     property int cardHeight: 434
     property int flareWidth: 54
@@ -38,7 +41,7 @@ Item {
         ctx.fill();
         ctx.shadowColor = "transparent";
         ctx.strokeStyle = borderColor;
-        ctx.lineWidth = 1.2;
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.moveTo(w - 0.5, 0.5);
         ctx.bezierCurveTo(w * 0.95, h * 0.28, w * 0.76, h * 0.64, w * 0.34, h * 0.82);
