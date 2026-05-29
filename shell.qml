@@ -1,7 +1,7 @@
-import "AppLauncher" as LauncherModule
 import "Bar"
 import "Bar/modules" as BarModules
 import "ControlCentre" as ControlCentreModule
+import "launcher" as LauncherModule
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -13,8 +13,9 @@ ShellRoot {
         onPowerClicked: powerMenu.open()
     }
 
-    LauncherModule.AppLauncher {
+    LauncherModule.Launcher {
         id: launcher
+        visible: false
     }
 
     BarModules.PowerMenu {
@@ -30,7 +31,19 @@ ShellRoot {
 
     IpcHandler {
         function toggle() {
-            launcher.toggle();
+            launcher.visible = !launcher.visible;
+
+            if (launcher.visible)
+                launcher.focusOnOpen();
+        }
+
+        function open() {
+            launcher.visible = true;
+            launcher.focusOnOpen();
+        }
+
+        function close() {
+            launcher.visible = false;
         }
 
         target: "launcher"
