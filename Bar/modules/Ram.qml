@@ -4,7 +4,7 @@ import Quickshell.Io
 Item {
     id: root
 
-    width: 36
+    width: ramRing.implicitWidth
     height: 36
     implicitWidth: width
     implicitHeight: height
@@ -38,11 +38,13 @@ Item {
     }
 
     MetricRing {
-        iconXOffset: -2
+        id: ramRing
+
         anchors.centerIn: parent
-        icon: ""
+        icon: "▦"
         value: root.usage
         valueText: Math.round(root.usage).toString()
         acceptedButtons: Qt.NoButton
+        iconSize: 13
     }
 }

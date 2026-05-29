@@ -3,23 +3,29 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 import "modules"
-import Qt5Compat.GraphicalEffects
 
-// Bar.qml — minimal floating top panel bar for Hyprland
-// Left: logo | divider | workspace dots
-// Center: focused window title (click → MPRIS popup)
-// Right: tray, system meters, volume, and power controls
+// Bar.qml — floating top panel for Hyprland
 PanelWindow {
     id: bar
 
     signal mediaClicked()
     signal powerClicked()
 
-    readonly property int barHeight: 36
-    readonly property int topInset: 10
-    readonly property int sideInset: Math.max(24, Math.round((screen?.width ?? 1360) * 0.14))
+    readonly property int barHeight: 42
+    readonly property int topInset: 8
+    readonly property int edgeInset: 14
+    readonly property int contentInset: 8
+    readonly property int modulePadding: 10
+    readonly property int sectionGap: Math.max(10, Math.round((screen?.width ?? 1360) * 0.01))
+    readonly property color bg: "#071006"
+    readonly property color bgRaised: "#101a0c"
+    readonly property color bgInset: "#172512"
+    readonly property color accent: "#b7ff3c"
+    readonly property color accentSoft: "#7ee022"
+    readonly property color fg: "#eef8de"
+    readonly property color muted: "#a9b99a"
+    readonly property color border: "#b7ff3c"
 
-    // Pin to the top edge while margins make it a smaller floating panel.
     anchors {
         top: true
         left: true
@@ -28,120 +34,194 @@ PanelWindow {
 
     margins {
         top: topInset
-        left: sideInset
-        right: sideInset
+        left: edgeInset
+        right: edgeInset
     }
 
     exclusionMode: ExclusionMode.Normal
-    exclusiveZone: topInset + barHeight - 8
+    exclusiveZone: topInset + barHeight + 4
 
     implicitHeight: barHeight
     color: "transparent"
 
-    // ── Background ─────────────────────────────────────────────────
-    Item {
-    anchors.fill: parent
+    Rectangle {
+        anchors {
+            fill: panelBackground
+            topMargin: 5
+            leftMargin: 2
+            rightMargin: 2
+            bottomMargin: -3
+        }
+        radius: panelBackground.radius
+        color: "#7ee022"
+        opacity: 0.18
+        antialiasing: true
+    }
 
-    DropShadow {
-        anchors.fill: panelBackground
-        source: panelBackground
-
-        horizontalOffset: 0
-        verticalOffset: 2
-        radius: 20
-        samples: 40
-        color: "#00000000"
-        transparentBorder: true   // VERY important
+    Rectangle {
+        anchors {
+            fill: panelBackground
+            topMargin: 2
+            leftMargin: 1
+            rightMargin: 1
+            bottomMargin: -1
+        }
+        radius: panelBackground.radius
+        color: "#000000"
+        opacity: 0.28
+        antialiasing: true
     }
 
     Rectangle {
         id: panelBackground
+
         anchors.fill: parent
-        anchors.margins: 1
-        radius: height / 2 - 1
-        color: "#f8f7f2"
-        border.color: "#000000"
+        radius: 11
+        color: bar.bg
+        border.color: bar.accent
         border.width: 2
         antialiasing: true
         border.pixelAligned: false
-    }
-  }
 
-    // ── Content layout ─────────────────────────────────────────────
-    Item {
-        anchors.fill: parent
-
-        // LEFT: logo + divider + workspaces
-        RowLayout {
-            id: leftSection
+        Rectangle {
             anchors {
                 left: parent.left
-                leftMargin: 10
-                verticalCenter: parent.verticalCenter
-            }
-            spacing: 15
-
-            Image {
-                id: logoImg
-                source: Qt.resolvedUrl("assets/logo.svg")
-                sourceSize.width: 14
-                width: 18
-                height: 18
-                fillMode: Image.PreserveAspectFit
-                smooth: true
-                ColorOverlay {
-                  source: logoImg
-                  color: "black"
-                  width: 14; height: 18
-                }
-
-                // Nerd Font fallback glyph if SVG missing
-                Text {
-                    anchors.centerIn: parent
-                    text: ""
-                    color: "#ffffffaa"
-                    font.pixelSize: 14
-                    visible: logoImg.status !== Image.Ready
-                }
-            }
-
-            Workspaces {}
-        }
-
-        // CENTER: focused window title
-        Item{
-            anchors.centerIn: parent
-            height: parent.height
-
-            width: 150
-
-            Row {
-                id: enterRow
-                spacing: 8 
-                
-                //time
-                Clock {}
-
-            }
-
-        }
-
-        // RIGHT: compact system controls
-        RowLayout {
-            anchors {
                 right: parent.right
-                rightMargin: 10
-                verticalCenter: parent.verticalCenter
+                top: parent.top
+                margins: 2
             }
-            spacing: 6
+            height: 1
+            radius: 1
+            color: bar.accent
+            opacity: 0.32
+        }
+    }
 
-            Tray {}
-            Cpu {}
-            Ram {}
-            Volume {}
-            Battery {}
-            PowerButton {
-                onClicked: bar.powerClicked()
+    Item {
+        id: barLayout
+
+        anchors {
+            fill: parent
+            leftMargin: bar.contentInset
+            rightMargin: bar.contentInset
+        }
+
+        Rectangle {
+            id: leftGroup
+
+            x: 0
+            anchors.verticalCenter: parent.verticalCenter
+            width: leftRow.implicitWidth + bar.modulePadding * 2
+            height: 28
+            radius: 14
+            color: bar.bgRaised
+            border.color: Qt.rgba(0.72, 1, 0.24, 0.28)
+            border.width: 1
+            antialiasing: true
+
+            Behavior on width {
+                NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
+            }
+
+            RowLayout {
+                id: leftRow
+
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    verticalCenter: parent.verticalCenter
+                    leftMargin: bar.modulePadding
+                    rightMargin: bar.modulePadding
+                }
+                spacing: 12
+
+                Item {
+                    Layout.preferredWidth: 18
+                    Layout.preferredHeight: 18
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "◊"
+                        color: bar.accent
+                        font.pixelSize: 18
+                        font.weight: Font.DemiBold
+                    }
+                }
+
+                Workspaces {}
+            }
+        }
+
+        Rectangle {
+            id: clockGroup
+
+            readonly property real idealX: (barLayout.width - width) / 2
+            readonly property real minX: leftGroup.x + leftGroup.width + bar.sectionGap
+            readonly property real maxX: rightGroup.x - bar.sectionGap - width
+
+            x: Math.max(minX, Math.min(idealX, maxX))
+            anchors.verticalCenter: parent.verticalCenter
+            width: clock.implicitWidth + 20
+            height: 28
+            radius: 14
+            color: bar.bgInset
+            border.color: Qt.rgba(0.72, 1, 0.24, 0.22)
+            border.width: 1
+            antialiasing: true
+
+            Behavior on x {
+                NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
+            }
+
+            Clock {
+                id: clock
+                anchors.centerIn: parent
+                color: bar.fg
+                accentColor: bar.accent
+            }
+        }
+
+        Rectangle {
+            id: rightGroup
+
+            x: barLayout.width - width
+            anchors.verticalCenter: parent.verticalCenter
+            width: rightRow.implicitWidth + bar.modulePadding * 2
+            height: 28
+            radius: 14
+            color: bar.bgRaised
+            border.color: Qt.rgba(0.72, 1, 0.24, 0.28)
+            border.width: 1
+            antialiasing: true
+
+            Behavior on x {
+                NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
+            }
+
+            Behavior on width {
+                NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
+            }
+
+            RowLayout {
+                id: rightRow
+
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    verticalCenter: parent.verticalCenter
+                    leftMargin: bar.modulePadding
+                    rightMargin: bar.modulePadding
+                }
+                spacing: 5
+
+                Tray {}
+                Cpu {}
+                Ram {}
+                Volume {}
+                Battery {}
+                PowerButton {
+                    onClicked: bar.powerClicked()
+                }
             }
         }
     }

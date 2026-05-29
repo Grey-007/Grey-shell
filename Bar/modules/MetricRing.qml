@@ -4,7 +4,7 @@ import QtQuick.Shapes
 Item {
     id: root
 
-    width: 36
+    width: valueVisible ? 48 : 36
     height: 36
     implicitWidth: width
     implicitHeight: height
@@ -16,8 +16,10 @@ Item {
     property bool valueVisible: hoverArea.containsMouse
     property bool active: true
     property bool dimmed: false
-    property color ink: "#000000"
-    property color paper: "#f8f7f2"
+    property color ink: "#b7ff3c"
+    property color paper: "#101a0c"
+    property color track: Qt.rgba(0.72, 1, 0.24, 0.18)
+    property string iconFontFamily: "Noto Sans Symbols 2"
     property int iconSize: 13
     property int valueSize: 10
     property int acceptedButtons: Qt.LeftButton
@@ -33,6 +35,13 @@ Item {
     signal wheelMoved(int delta)
 
     onValueChanged: pulseAnimation.restart()
+
+    Behavior on width {
+        NumberAnimation {
+            duration: 240
+            easing.type: Easing.OutCubic
+        }
+    }
 
     Behavior on animatedValue {
         NumberAnimation {
@@ -99,7 +108,7 @@ Item {
 
             ShapePath {
                 fillColor: "transparent"
-                strokeColor: Qt.rgba(0, 0, 0, root.active ? 0.12 : 0.06)
+                strokeColor: root.active ? root.track : Qt.rgba(0.72, 1, 0.24, 0.08)
                 strokeWidth: 3
                 strokeStyle: ShapePath.SolidLine
                 capStyle: ShapePath.RoundCap
@@ -116,7 +125,7 @@ Item {
 
             ShapePath {
                 fillColor: "transparent"
-                strokeColor: Qt.rgba(0, 0, 0, root.active ? (root.dimmed ? 0.34 : 1) : 0)
+                strokeColor: Qt.rgba(0.72, 1, 0.24, root.active ? (root.dimmed ? 0.34 : 1) : 0)
                 strokeWidth: 3.4
                 strokeStyle: ShapePath.SolidLine
                 capStyle: ShapePath.RoundCap
@@ -153,6 +162,7 @@ Item {
             text: root.icon
             color: root.ink
             opacity: root.valueVisible ? 0 : (root.active ? (root.dimmed ? 0.55 : 1) : 0.35)
+            font.family: root.iconFontFamily
             font.pixelSize: root.iconSize
             renderType: Text.NativeRendering
             verticalAlignment: Text.AlignVCenter

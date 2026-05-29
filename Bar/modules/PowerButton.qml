@@ -3,7 +3,7 @@ import QtQuick
 Item {
     id: root
 
-    width: 36
+    width: powerRing.implicitWidth
     height: 36
     implicitWidth: width
     implicitHeight: height
@@ -11,6 +11,8 @@ Item {
     signal clicked()
 
     MetricRing {
+        id: powerRing
+
         iconXOffset: 0
         anchors.centerIn: parent
         icon: "⏻"

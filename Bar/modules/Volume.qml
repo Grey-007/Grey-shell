@@ -4,7 +4,7 @@ import Quickshell.Services.Pipewire
 Item {
     id: root
 
-    width: 36
+    width: volumeRing.implicitWidth
     height: 36
     implicitWidth: width
     implicitHeight: height
@@ -15,7 +15,7 @@ Item {
     readonly property real safeVolume: Math.max(0, Math.min(1, audio?.volume ?? 0))
     readonly property int volume: Math.round(safeVolume * 100)
     readonly property bool muted: audio?.muted ?? false
-    readonly property string volumeIcon: !hasSink || muted || volume === 0 ? "" : volume < 45 ? "" : ""
+    readonly property string volumeIcon: !hasSink || muted || volume === 0 ? "🔇" : volume < 45 ? "🔈" : "🔊"
 
     property bool scrollReveal: false
 
@@ -48,7 +48,6 @@ Item {
         id: volumeRing
 
         anchors.centerIn: parent
-        iconXOffset: -2.5
         icon: root.volumeIcon
         value: root.volume
         valueText: root.muted ? "M" : root.volume.toString()

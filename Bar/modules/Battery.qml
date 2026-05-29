@@ -4,7 +4,7 @@ import Quickshell.Io
 Item {
     id: root
 
-    width: 36
+    width: batteryRing.implicitWidth
     height: 36
     implicitWidth: width
     implicitHeight: height
@@ -14,8 +14,8 @@ Item {
     property bool hasBattery: true
 
     function poll() {
-        batCapacity.exec(["sh", "-c", "cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo -1"])
-        batStatus.exec(["sh", "-c", "cat /sys/class/power_supply/BAT0/status 2>/dev/null || echo Unknown"])
+        batCapacity.exec(["sh", "-c", "for b in /sys/class/power_supply/*; do [ -r \"$b/type\" ] && [ \"$(cat \"$b/type\")\" = Battery ] && cat \"$b/capacity\" && exit; done; echo -1"])
+        batStatus.exec(["sh", "-c", "for b in /sys/class/power_supply/*; do [ -r \"$b/type\" ] && [ \"$(cat \"$b/type\")\" = Battery ] && cat \"$b/status\" && exit; done; echo Unknown"])
     }
 
     // Unicode battery levels
@@ -63,6 +63,8 @@ Item {
     }
 
     MetricRing {
+        id: batteryRing
+
         anchors.centerIn: parent
         icon: root.batIcon
         value: root.charging ? 100 : root.percentage

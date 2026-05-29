@@ -28,8 +28,8 @@ Item {
 
                 required property SystemTrayItem modelData
 
-                width: 22
-                height: 22
+                width: 24
+                height: 24
                 hoverEnabled: true
                 acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
                 cursorShape: Qt.PointingHandCursor
@@ -52,8 +52,8 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius: width / 2
-                    color: "#000000"
-                    opacity: trayButton.containsMouse ? 0.08 : 0
+                    color: "#b7ff3c"
+                    opacity: trayButton.containsMouse ? 0.18 : 0
                     antialiasing: true
 
                     Behavior on opacity {
@@ -66,9 +66,9 @@ Item {
 
                 IconImage {
                     anchors.centerIn: parent
-                    width: 10
-                    height: 15
-                    implicitSize: 15
+                    width: 16
+                    height: 16
+                    implicitSize: 16
                     source: trayButton.modelData.icon
                     asynchronous: true
                 }
