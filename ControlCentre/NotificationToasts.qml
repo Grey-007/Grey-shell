@@ -1,24 +1,26 @@
 import "."
-import Qt5Compat.GraphicalEffects
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
 
+// Material You toast notifications
 PanelWindow {
     id: root
 
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    implicitWidth: 360
-    implicitHeight: toastColumn.implicitHeight + 24
+    implicitWidth:  368
+    implicitHeight: toastCol.implicitHeight + 24
     visible: ControlCentreState.toastNotifications.length > 0
     color: "transparent"
 
-    readonly property color surface: "#222A1C"
-    readonly property color onSurface: "#E8F0DC"
-    readonly property color onSurfaceVariant: "#A8B598"
-    readonly property color primary: "#C5E87A"
+    // Material You tokens
+    readonly property color surface:   "#242B1E"
+    readonly property color onSurf:    "#DDE8CC"
+    readonly property color onSurfV:   "#9DB88A"
+    readonly property color primary:   "#A8D368"
 
     anchors {
         top: true
@@ -26,15 +28,13 @@ PanelWindow {
     }
 
     Column {
-        id: toastColumn
-
+        id: toastCol
         spacing: 8
-
         anchors {
             right: parent.right
             top: parent.top
             rightMargin: 14
-            topMargin: 62
+            topMargin: 66
         }
 
         Repeater {
@@ -42,14 +42,20 @@ PanelWindow {
 
             delegate: Item {
                 id: toast
-
                 required property var modelData
-                property real slideX: 380
-                property real progress: 1
 
-                width: 336
-                height: card.height
-                opacity: slideX < 20 ? 1 : 0
+                property real slideX: 400
+                property real progress: 1.0
+
+                width: 352
+                height: toastCard.height
+
+                // Only visible when fully slid in
+                opacity: slideX < 16 ? 1 : 0
+
+                Behavior on opacity {
+                    NumberAnimation { duration: 80; easing.type: Easing.OutCubic }
+                }
 
                 Component.onCompleted: {
                     slideAnim.start();
@@ -59,58 +65,54 @@ PanelWindow {
 
                 NumberAnimation {
                     id: slideAnim
-
                     target: toast
                     property: "slideX"
-                    from: 380
-                    to: 0
-                    duration: 340
-                    easing.type: Easing.OutCubic
+                    from: 400; to: 0
+                    duration: 380
+                    easing.type: Easing.OutQuint
                 }
 
                 NumberAnimation {
                     id: progressAnim
-
                     target: toast
                     property: "progress"
-                    from: 1
-                    to: 0
-                    duration: 5200
+                    from: 1.0; to: 0.0
+                    duration: 5400
                     easing.type: Easing.Linear
                 }
 
                 Timer {
                     id: hideTimer
-
-                    interval: 5200
+                    interval: 5400
                     onTriggered: ControlCentreState.removeToast(toast.modelData.id)
                 }
 
+                transform: Translate {
+                    x: toast.slideX
+                }
+
                 DropShadow {
-                    anchors.fill: card
+                    anchors.fill: toastCard
+                    source: toastCard
                     horizontalOffset: 0
-                    verticalOffset: 6
+                    verticalOffset: 8
                     radius: 22
                     samples: 32
-                    color: "#00000055"
-                    source: card
+                    color: "#80000000"
                     transparentBorder: true
                 }
 
                 Rectangle {
-                    id: card
-
+                    id: toastCard
                     width: parent.width
-                    height: toastContent.implicitHeight + 24
-                    radius: 20
+                    height: toastContent.implicitHeight + 26
+                    radius: 22
                     color: root.surface
                     clip: true
 
                     ColumnLayout {
                         id: toastContent
-
-                        spacing: 3
-
+                        spacing: 4
                         anchors {
                             left: parent.left
                             right: parent.right
@@ -123,15 +125,15 @@ PanelWindow {
                             text: toast.modelData.notification.appName || "Notification"
                             color: root.primary
                             font.pixelSize: 10
-                            font.weight: Font.Medium
+                            font.weight: Font.DemiBold
                             elide: Text.ElideRight
                         }
 
                         Text {
                             Layout.fillWidth: true
                             text: toast.modelData.notification.summary || ""
-                            color: root.onSurface
-                            font.pixelSize: 13
+                            color: root.onSurf
+                            font.pixelSize: 14
                             font.weight: Font.DemiBold
                             elide: Text.ElideRight
                             visible: text !== ""
@@ -140,7 +142,7 @@ PanelWindow {
                         Text {
                             Layout.fillWidth: true
                             text: toast.modelData.notification.body || ""
-                            color: root.onSurfaceVariant
+                            color: root.onSurfV
                             font.pixelSize: 12
                             wrapMode: Text.WordWrap
                             maximumLineCount: 3
@@ -150,27 +152,29 @@ PanelWindow {
                         }
                     }
 
+                    // Progress bar at bottom
                     Rectangle {
+                        anchors {
+                            left: parent.left
+                            bottom: parent.bottom
+                        }
                         width: parent.width * toast.progress
                         height: 3
                         radius: 2
                         color: root.primary
+                        opacity: 0.7
 
-                        anchors {
-                            left: parent.left
-                            bottom: parent.bottom
+                        Behavior on width {
+                            enabled: false
                         }
                     }
 
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: ControlCentreState.dismissNotification(toast.modelData.notification)
+                        onClicked: ControlCentreState.dismissNotification(
+                                       toast.modelData.notification)
                     }
-                }
-
-                transform: Translate {
-                    x: toast.slideX
                 }
             }
         }

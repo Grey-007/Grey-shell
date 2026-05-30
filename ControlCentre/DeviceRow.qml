@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 
+// Material You – device/network row inside expanded menu panels
 Item {
     id: root
 
@@ -8,43 +9,37 @@ Item {
     property string subtitle: ""
     property string glyph: ""
     property bool active: false
-    property string actionText: active ? "On" : "Connect"
+    property string actionText: active ? "Active" : "Connect"
 
     signal clicked()
 
     Layout.fillWidth: true
-    implicitHeight: 54
+    implicitHeight: 56
 
-    readonly property color surface: "#242C1E"
-    readonly property color surfaceActive: "#2F3A24"
-    readonly property color primary: "#C5E87A"
-    readonly property color onSurface: "#E8F0DC"
-    readonly property color onSurfaceVariant: "#A8B598"
+    readonly property color bgOff:    "#252921"
+    readonly property color bgOn:     "#2E3A22"
+    readonly property color primary:  "#A8D368"
+    readonly property color onSurf:   "#DDE8CC"
+    readonly property color onSurfV:  "#9DB88A"
+    readonly property color chipBgOn: "#A8D368"
+    readonly property color chipBgOff:"#1E2219"
 
     Rectangle {
         anchors.fill: parent
         radius: 14
-        color: root.active ? root.surfaceActive : root.surface
-        scale: pressArea.pressed ? 0.985 : 1
+        color: root.active ? root.bgOn : root.bgOff
+        scale: pressArea.containsPress ? 0.985 : 1.0
 
         Behavior on color {
-            ColorAnimation {
-                duration: 160
-                easing.type: Easing.OutCubic
-            }
+            ColorAnimation { duration: 180; easing.type: Easing.OutCubic }
         }
-
         Behavior on scale {
-            NumberAnimation {
-                duration: 120
-                easing.type: Easing.OutCubic
-            }
+            NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
         }
     }
 
     RowLayout {
         spacing: 10
-
         anchors {
             fill: parent
             leftMargin: 12
@@ -54,9 +49,13 @@ Item {
         Text {
             Layout.alignment: Qt.AlignVCenter
             text: root.glyph
-            color: root.active ? root.primary : root.onSurfaceVariant
-            font.pixelSize: 14
+            color: root.active ? root.primary : root.onSurfV
+            font.pixelSize: 15
             font.weight: Font.Medium
+
+            Behavior on color {
+                ColorAnimation { duration: 180; easing.type: Easing.OutCubic }
+            }
         }
 
         ColumnLayout {
@@ -67,7 +66,7 @@ Item {
             Text {
                 Layout.fillWidth: true
                 text: root.title
-                color: root.onSurface
+                color: root.onSurf
                 font.pixelSize: 12
                 font.weight: Font.DemiBold
                 elide: Text.ElideRight
@@ -76,36 +75,44 @@ Item {
             Text {
                 Layout.fillWidth: true
                 text: root.subtitle
-                color: root.onSurfaceVariant
+                color: root.onSurfV
                 font.pixelSize: 11
                 elide: Text.ElideRight
                 visible: text !== ""
             }
         }
 
+        // Action chip
         Rectangle {
             Layout.alignment: Qt.AlignVCenter
-            width: Math.max(56, actionLabel.implicitWidth + 20)
+            width: Math.max(52, actionLabel.implicitWidth + 20)
             height: 28
             radius: 14
-            color: root.active ? root.primary : "#1E2518"
+            color: root.active ? root.chipBgOn : root.chipBgOff
+
+            Behavior on color {
+                ColorAnimation { duration: 180; easing.type: Easing.OutCubic }
+            }
 
             Text {
                 id: actionLabel
-
                 anchors.centerIn: parent
                 text: root.actionText
-                color: root.active ? "#1A2214" : root.onSurface
+                color: root.active ? "#1A2510" : root.onSurf
                 font.pixelSize: 11
                 font.weight: Font.Medium
+
+                Behavior on color {
+                    ColorAnimation { duration: 180; easing.type: Easing.OutCubic }
+                }
             }
         }
     }
 
     MouseArea {
         id: pressArea
-
         anchors.fill: parent
+        hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: root.clicked()
     }

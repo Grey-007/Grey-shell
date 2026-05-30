@@ -1,8 +1,9 @@
 import "."
-import Qt5Compat.GraphicalEffects
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 
+// Material You – expandable sub-panel (wifi networks, BT devices, audio outputs)
 Item {
     id: root
 
@@ -14,40 +15,41 @@ Item {
 
     signal scanClicked()
 
-    implicitHeight: Math.min(panelContent.implicitHeight + 28, 300)
+    implicitHeight: Math.min(panelContent.implicitHeight + 28, 320)
     opacity: 0
 
-    readonly property color surface: "#1E2518"
-    readonly property color onSurface: "#E8F0DC"
-    readonly property color onSurfaceVariant: "#A8B598"
+    // Shared dark tokens
+    readonly property color surface:    "#1E2319"
+    readonly property color onSurf:     "#DDE8CC"
+    readonly property color onSurfV:    "#9DB88A"
     readonly property color errorColor: "#FFB4AB"
 
+    // Slide-in + fade-in on appear
     NumberAnimation on opacity {
-        from: 0
-        to: 1
-        duration: 260
+        from: 0; to: 1
+        duration: 280
         easing.type: Easing.OutCubic
         running: true
     }
 
     transform: Translate {
-        y: (1 - root.opacity) * -12
+        y: (1 - root.opacity) * -14
     }
 
+    // Card shadow
     DropShadow {
         anchors.fill: panel
+        source: panel
         horizontalOffset: 0
         verticalOffset: 6
         radius: 20
         samples: 32
-        color: "#00000055"
-        source: panel
+        color: "#55000000"
         transparentBorder: true
     }
 
     Rectangle {
         id: panel
-
         anchors.fill: parent
         radius: 20
         color: root.surface
@@ -65,7 +67,6 @@ Item {
 
         ColumnLayout {
             id: panelContent
-
             width: parent.width
             spacing: 8
 
@@ -75,8 +76,8 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     text: root.title
-                    color: root.onSurface
-                    font.pixelSize: 14
+                    color: root.onSurf
+                    font.pixelSize: 13
                     font.weight: Font.DemiBold
                 }
 

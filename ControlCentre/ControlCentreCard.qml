@@ -1,20 +1,28 @@
 import "."
-import Qt5Compat.GraphicalEffects
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import Quickshell.Services.Pipewire
 
+// Material You – main control centre card
 Item {
     id: root
 
-    property int panelWidth: 396
-    property int panelHeight: 692
+    property int panelWidth: 400
+    property int panelHeight: 700
     property real openProgress: 0
 
-    readonly property var sink: Pipewire.defaultAudioSink
-    readonly property var audio: sink != null ? sink.audio : null
-    readonly property int volumePercent: audio != null ? Math.round(Math.max(0, Math.min(1, audio.volume)) * 100) : 0
+    // ── Audio via Pipewire ────────────────────────────────────────────────
+    readonly property var sink:    Pipewire.defaultAudioSink
+    readonly property var audio:   sink != null ? sink.audio : null
+
+    // FIX: volume is 0-1 float from Pipewire; round it to 0-100 int
+    readonly property int volumePercent: {
+        if (audio == null) return 0;
+        return Math.round(Math.max(0.0, Math.min(1.0, audio.volume)) * 100);
+    }
+
     readonly property var outputDevices: {
         const result = [];
         const values = Pipewire.nodes.values;
@@ -26,19 +34,25 @@ Item {
         return result;
     }
 
-    readonly property color surfaceContainer: "#1A2116"
-    readonly property color surfaceContainerHigh: "#222A1C"
-    readonly property color surfaceContainerHighest: "#2A3124"
-    readonly property color onSurface: "#E8F0DC"
-    readonly property color onSurfaceVariant: "#A8B598"
-    readonly property color primary: "#C5E87A"
+    // ── Material You dark colour tokens ──────────────────────────────────
+    readonly property color md_surface:             "#141811"  // overall bg
+    readonly property color md_surfaceContainer:    "#1C2118"  // card bg
+    readonly property color md_surfaceContainerHigh:"#242B1E"  // raised card
+    readonly property color md_surfaceContainerHighest: "#2C3425" // slider bg
+    readonly property color md_primary:             "#A8D368"
+    readonly property color md_onPrimary:           "#1A2C00"
+    readonly property color md_onSurface:           "#DDE8CC"
+    readonly property color md_onSurfaceVariant:    "#9DB88A"
+    readonly property color md_outline:             "#4A5540"
+    readonly property color md_scrim:               "#000000"
 
     function deviceName(node) {
-        return node == null ? "Output device" : node.description || node.nickname || node.name || "Output device";
+        return node == null ? "Output device"
+             : node.description || node.nickname || node.name || "Output device";
     }
 
-    width: panelWidth
-    height: panelHeight
+    width:   panelWidth
+    height:  panelHeight
     opacity: openProgress
     enabled: ControlCentreState.open || openProgress > 0.01
 
@@ -51,80 +65,93 @@ Item {
 
     Component.onCompleted: openProgress = ControlCentreState.open ? 1 : 0
 
-    PwObjectTracker {
-        objects: [Pipewire.defaultAudioSink]
+    PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
+    PwObjectTracker { objects: root.outputDevices }
+
+    // ── Slide-in from right ───────────────────────────────────────────────
+    transform: Translate {
+        x: (1 - root.openProgress) * (root.panelWidth + 28)
     }
 
-    PwObjectTracker {
-        objects: root.outputDevices
+    Behavior on openProgress {
+        NumberAnimation {
+            duration: 420
+            easing.type: Easing.OutQuint
+        }
     }
 
+    // ── Main column ───────────────────────────────────────────────────────
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
 
+        // ── QUICK CONTROLS CARD ──────────────────────────────────────────
         Item {
             id: controlsCardHost
-
             Layout.fillWidth: true
             implicitHeight: controlsCard.height
-            opacity: openProgress
+
+            opacity: root.openProgress
 
             transform: Translate {
-                x: (1 - root.openProgress) * 28
+                x: (1 - root.openProgress) * 22
+            }
+
+            Behavior on opacity {
+                NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
             }
 
             DropShadow {
                 anchors.fill: controlsCard
-                horizontalOffset: 0
-                verticalOffset: 8
-                radius: 28
-                samples: 40
-                color: "#00000066"
                 source: controlsCard
+                horizontalOffset: 0
+                verticalOffset: 10
+                radius: 24
+                samples: 36
+                color: "#70000000"
                 transparentBorder: true
             }
 
             Rectangle {
                 id: controlsCard
-
                 width: parent.width
-                height: controlsContent.implicitHeight + 28
-                radius: 24
-                color: root.surfaceContainerHigh
+                height: controlsContent.implicitHeight + 32
+                radius: 28
+                color: root.md_surfaceContainerHigh
                 clip: true
 
                 ColumnLayout {
                     id: controlsContent
-
-                    spacing: 12
-
+                    spacing: 14
                     anchors {
                         left: parent.left
                         right: parent.right
                         top: parent.top
-                        margins: 14
+                        margins: 16
                     }
 
+                    // ── Header row: label + clock ────────────────────────
                     RowLayout {
                         Layout.fillWidth: true
 
                         Text {
                             Layout.fillWidth: true
-                            text: "Quick settings"
-                            color: root.onSurface
-                            font.pixelSize: 15
+                            text: "Control Centre"
+                            color: root.md_onSurface
+                            font.pixelSize: 14
                             font.weight: Font.DemiBold
+                            opacity: 0.85
                         }
 
                         Text {
                             text: Qt.formatTime(new Date(), "hh:mm")
-                            color: root.onSurfaceVariant
-                            font.pixelSize: 12
+                            color: root.md_onSurfaceVariant
+                            font.pixelSize: 13
                             font.weight: Font.Medium
                         }
                     }
 
+                    // ── 2×2 Quick-setting tiles ──────────────────────────
                     GridLayout {
                         Layout.fillWidth: true
                         columns: 2
@@ -134,7 +161,7 @@ Item {
                         PillButton {
                             title: "Wi-Fi"
                             subtitle: ControlCentreState.connectedWifiName()
-                            glyph: "◉"
+                            glyph: "⌨"
                             active: ControlCentreState.wifiEnabled
                             expanded: ControlCentreState.expandedSection === "wifi"
                             onClicked: ControlCentreState.toggleSection("wifi")
@@ -142,7 +169,9 @@ Item {
 
                         PillButton {
                             title: "Bluetooth"
-                            subtitle: ControlCentreState.bluetoothPowered ? (ControlCentreState.bluetoothScanning ? "Scanning" : "On") : "Off"
+                            subtitle: ControlCentreState.bluetoothPowered
+                                    ? (ControlCentreState.bluetoothScanning ? "Scanning…" : "On")
+                                    : "Off"
                             glyph: "ᛒ"
                             active: ControlCentreState.bluetoothPowered
                             expanded: ControlCentreState.expandedSection === "bluetooth"
@@ -150,61 +179,78 @@ Item {
                         }
 
                         PillButton {
-                            title: "Audio"
+                            title: "Volume"
                             subtitle: root.volumePercent + "%"
-                            glyph: "♪"
+                            glyph: root.audio == null || root.audio.muted ? "🔇" : "🔊"
                             active: root.audio != null && !root.audio.muted
                             expanded: ControlCentreState.expandedSection === "audio"
                             onClicked: ControlCentreState.toggleSection("audio")
                         }
 
                         PillButton {
-                            title: "DND"
-                            subtitle: ControlCentreState.dnd ? "Muted" : "Popups on"
-                            glyph: "−"
+                            title: "Do Not Disturb"
+                            subtitle: ControlCentreState.dnd ? "Silenced" : "Allowed"
+                            glyph: "🔕"
                             active: ControlCentreState.dnd
                             onClicked: ControlCentreState.dnd = !ControlCentreState.dnd
                         }
                     }
 
+                    // ── Sliders card ─────────────────────────────────────
                     Rectangle {
                         Layout.fillWidth: true
-                        implicitHeight: sliderColumn.implicitHeight + 20
-                        radius: 18
-                        color: root.surfaceContainerHighest
+                        implicitHeight: slidersCol.implicitHeight + 20
+                        radius: 20
+                        color: root.md_surfaceContainerHighest
+                        clip: true
 
                         ColumnLayout {
-                            id: sliderColumn
-
+                            id: slidersCol
                             anchors {
                                 left: parent.left
                                 right: parent.right
                                 top: parent.top
-                                margins: 10
+                                margins: 12
                             }
+                            spacing: 2
 
-                            spacing: 4
-
+                            // Brightness slider
+                            // externalValue fed from ControlCentreState.brightnessPercent (0-100 int)
                             AndroidSlider {
+                                id: brightnessSlider
                                 Layout.fillWidth: true
                                 icon: "☀"
+                                from: 0
+                                to: 100
+                                // FIX: two-way bind: set on open and track state changes,
+                                //      but don't overwrite while the user is dragging.
                                 externalValue: ControlCentreState.brightnessPercent
-                                onMoved: function(value) {
-                                    ControlCentreState.setBrightness(value);
+
+                                onMoved: function(val) {
+                                    ControlCentreState.setBrightness(val);
                                 }
                             }
 
+                            // Volume slider
+                            // FIX: externalValue must be the *percentage* (0-100),
+                            //      not the raw 0-1 float from Pipewire.
                             AndroidSlider {
+                                id: volumeSlider
                                 Layout.fillWidth: true
-                                icon: root.audio == null || root.audio.muted || root.volumePercent === 0 ? "🔇" : "🔊"
+                                icon: root.audio == null || root.audio.muted || root.volumePercent === 0
+                                      ? "🔇" : "🔊"
+                                from: 0
+                                to: 100
+                                // FIX: explicitly use the already-computed integer percentage
                                 externalValue: root.volumePercent
                                 enabled: root.audio != null
-                                onMoved: function(value) {
-                                    if (root.audio != null) {
-                                        root.audio.volume = value / 100;
-                                        if (root.audio.muted && value > 0)
-                                            root.audio.muted = false;
-                                    }
+
+                                onMoved: function(val) {
+                                    if (root.audio == null) return;
+                                    // Convert percentage back to 0-1 float for Pipewire
+                                    root.audio.volume = val / 100.0;
+                                    if (root.audio.muted && val > 0)
+                                        root.audio.muted = false;
                                 }
                             }
                         }
@@ -213,89 +259,105 @@ Item {
             }
         }
 
+        // ── NOTIFICATIONS CARD ───────────────────────────────────────────
         Item {
             id: notificationsCardHost
-
             Layout.fillWidth: true
             Layout.fillHeight: true
-            opacity: openProgress
+
+            opacity: root.openProgress
 
             transform: Translate {
-                x: (1 - root.openProgress) * 36
+                x: (1 - root.openProgress) * 32
+            }
+
+            Behavior on opacity {
+                NumberAnimation { duration: 340; easing.type: Easing.OutCubic }
             }
 
             DropShadow {
                 anchors.fill: notificationsCard
+                source: notificationsCard
                 horizontalOffset: 0
                 verticalOffset: 8
-                radius: 28
-                samples: 40
-                color: "#00000066"
-                source: notificationsCard
+                radius: 22
+                samples: 32
+                color: "#60000000"
                 transparentBorder: true
             }
 
             Rectangle {
                 id: notificationsCard
-
                 anchors.fill: parent
-                radius: 24
-                color: root.surfaceContainer
+                radius: 28
+                color: root.md_surfaceContainer
                 clip: true
 
+                // Header
                 RowLayout {
-                    id: notificationHeader
-
+                    id: notifHeader
                     anchors {
                         left: parent.left
                         right: parent.right
                         top: parent.top
-                        margins: 14
+                        margins: 16
                     }
 
                     Text {
                         Layout.fillWidth: true
                         text: "Notifications"
-                        color: root.onSurface
-                        font.pixelSize: 15
+                        color: root.md_onSurface
+                        font.pixelSize: 14
                         font.weight: Font.DemiBold
+                        opacity: 0.85
                     }
 
                     SmallButton {
-                        Layout.fillWidth: false
-                        text: "Clear"
+                        text: "Clear all"
                         visible: ControlCentreState.notifications.length > 0
                         onClicked: ControlCentreState.clearNotifications()
                     }
                 }
 
-                Text {
-                    anchors.centerIn: notificationList
-                    text: "No notifications"
-                    color: root.onSurfaceVariant
-                    font.pixelSize: 13
-                    visible: ControlCentreState.notifications.length === 0
-                    opacity: 0.85
-                }
-
-                Flickable {
-                    id: notificationList
-
+                // Empty state
+                Item {
                     anchors {
                         left: parent.left
                         right: parent.right
-                        top: notificationHeader.bottom
+                        top: notifHeader.bottom
+                        bottom: parent.bottom
+                    }
+                    visible: ControlCentreState.notifications.length === 0
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "No notifications"
+                        color: root.md_onSurfaceVariant
+                        font.pixelSize: 13
+                        opacity: 0.6
+                    }
+                }
+
+                // Scrollable notification list
+                Flickable {
+                    id: notifList
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        top: notifHeader.bottom
                         bottom: parent.bottom
                         topMargin: 8
-                        margins: 14
+                        leftMargin: 12
+                        rightMargin: 12
+                        bottomMargin: 12
                     }
-                    contentHeight: notificationColumn.implicitHeight
+                    contentHeight: notifColumn.implicitHeight
                     clip: true
                     boundsBehavior: Flickable.StopAtBounds
+                    visible: ControlCentreState.notifications.length > 0
 
                     ColumnLayout {
-                        id: notificationColumn
-
+                        id: notifColumn
                         width: parent.width
                         spacing: 8
 
@@ -307,55 +369,67 @@ Item {
                                 required property int index
 
                                 Layout.fillWidth: true
-                                implicitHeight: notificationBody.implicitHeight + 24
+                                implicitHeight: notifBody.implicitHeight + 24
                                 opacity: 0
 
-                                Component.onCompleted: revealAnim.start()
+                                Component.onCompleted: {
+                                    revealAnim.start();
+                                }
 
                                 NumberAnimation {
                                     id: revealAnim
-
                                     target: parent
                                     property: "opacity"
-                                    from: 0
-                                    to: 1
-                                    duration: 280
+                                    from: 0; to: 1
+                                    duration: 320
                                     easing.type: Easing.OutCubic
                                 }
 
                                 transform: Translate {
-                                    y: (1 - parent.opacity) * 16
+                                    y: (1 - parent.opacity) * 18
                                 }
 
                                 Rectangle {
-                                    id: notificationBody
-
+                                    id: notifBody
                                     anchors.fill: parent
-                                    radius: 16
-                                    color: root.surfaceContainerHighest
-                                    scale: pressArea.pressed ? 0.985 : 1
+                                    radius: 18
+                                    color: root.md_surfaceContainerHighest
+                                    scale: pressArea.containsPress ? 0.985 : 1.0
 
                                     Behavior on scale {
-                                        NumberAnimation {
-                                            duration: 120
-                                            easing.type: Easing.OutCubic
+                                        NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
+                                    }
+
+                                    // Coloured left accent line
+                                    Rectangle {
+                                        anchors {
+                                            left: parent.left
+                                            top: parent.top
+                                            bottom: parent.bottom
+                                            leftMargin: 0
+                                            topMargin: 6
+                                            bottomMargin: 6
                                         }
+                                        width: 3
+                                        radius: 2
+                                        color: root.md_primary
+                                        opacity: 0.7
                                     }
 
                                     ColumnLayout {
                                         spacing: 3
-
                                         anchors {
                                             left: parent.left
                                             right: parent.right
                                             top: parent.top
                                             margins: 12
+                                            leftMargin: 18
                                         }
 
                                         Text {
                                             Layout.fillWidth: true
                                             text: modelData.appName || "Notification"
-                                            color: root.primary
+                                            color: root.md_primary
                                             font.pixelSize: 10
                                             font.weight: Font.DemiBold
                                             elide: Text.ElideRight
@@ -364,7 +438,7 @@ Item {
                                         Text {
                                             Layout.fillWidth: true
                                             text: modelData.summary || ""
-                                            color: root.onSurface
+                                            color: root.md_onSurface
                                             font.pixelSize: 13
                                             font.weight: Font.DemiBold
                                             elide: Text.ElideRight
@@ -374,7 +448,7 @@ Item {
                                         Text {
                                             Layout.fillWidth: true
                                             text: modelData.body || ""
-                                            color: root.onSurfaceVariant
+                                            color: root.md_onSurfaceVariant
                                             font.pixelSize: 12
                                             wrapMode: Text.WordWrap
                                             maximumLineCount: 3
@@ -386,8 +460,8 @@ Item {
 
                                     MouseArea {
                                         id: pressArea
-
                                         anchors.fill: parent
+                                        hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor
                                         onClicked: ControlCentreState.dismissNotification(modelData)
                                     }
@@ -400,36 +474,38 @@ Item {
         }
     }
 
+    // ── Expanded sub-panels (wifi / bt / audio) ───────────────────────────
     Loader {
         id: expandedLoader
-
         anchors {
             left: parent.left
             right: parent.right
         }
-        y: controlsCardHost.height + 12
+        y: controlsCardHost.height + 18
         z: 10
         active: ControlCentreState.expandedSection !== ""
         opacity: active ? 1 : 0
-        sourceComponent: ControlCentreState.expandedSection === "wifi" ? wifiPanel : ControlCentreState.expandedSection === "bluetooth" ? bluetoothPanel : audioPanel
+
+        sourceComponent: ControlCentreState.expandedSection === "wifi"
+                       ? wifiPanel
+                       : ControlCentreState.expandedSection === "bluetooth"
+                         ? bluetoothPanel
+                         : audioPanel
 
         transform: Translate {
-            y: expandedLoader.active ? 0 : -10
+            y: expandedLoader.active ? 0 : -12
         }
 
         Behavior on opacity {
-            NumberAnimation {
-                duration: 220
-                easing.type: Easing.OutCubic
-            }
+            NumberAnimation { duration: 240; easing.type: Easing.OutCubic }
         }
     }
 
+    // ── Wi-Fi panel ───────────────────────────────────────────────────────
     Component {
         id: wifiPanel
-
         MenuPanel {
-            title: "Wi-Fi networks"
+            title: "Wi-Fi Networks"
             busy: ControlCentreState.wifiScanning
             errorText: ControlCentreState.wifiError
             onScanClicked: ControlCentreState.scanWifi()
@@ -440,14 +516,13 @@ Item {
 
                 TextInput {
                     id: wifiPassword
-
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     leftPadding: 14
                     rightPadding: 14
                     text: ControlCentreState.wifiPasswordValue
                     echoMode: TextInput.Password
-                    color: root.onSurface
+                    color: root.md_onSurface
                     font.pixelSize: 12
                     clip: true
                     onTextChanged: ControlCentreState.wifiPasswordValue = text
@@ -456,114 +531,94 @@ Item {
                         anchors.fill: parent
                         z: -1
                         radius: 18
-                        color: root.surfaceContainerHighest
+                        color: root.md_surfaceContainerHighest
                     }
 
                     Text {
-                        anchors {
-                            left: parent.left
-                            leftMargin: 14
-                            verticalCenter: parent.verticalCenter
-                        }
+                        anchors { left: parent.left; leftMargin: 14; verticalCenter: parent.verticalCenter }
                         text: "Password for " + ControlCentreState.wifiPasswordSsid
-                        color: root.onSurfaceVariant
+                        color: root.md_onSurfaceVariant
                         font.pixelSize: 11
                         visible: wifiPassword.text === ""
                     }
                 }
 
                 SmallButton {
-                    Layout.fillWidth: false
                     text: "Join"
                     active: true
-                    onClicked: ControlCentreState.connectWifi(ControlCentreState.wifiPasswordSsid, ControlCentreState.wifiPasswordValue)
+                    onClicked: ControlCentreState.connectWifi(
+                        ControlCentreState.wifiPasswordSsid,
+                        ControlCentreState.wifiPasswordValue)
                 }
             }
 
             Repeater {
                 model: ControlCentreState.wifiNetworks
-
                 delegate: DeviceRow {
                     required property var modelData
-
                     title: modelData.ssid
                     subtitle: (modelData.active ? "Connected · " : "") + modelData.security + " · " + modelData.signal + "%"
                     glyph: "◉"
                     active: modelData.active
-                    actionText: modelData.active ? "On" : "Join"
+                    actionText: modelData.active ? "Active" : "Join"
                     onClicked: ControlCentreState.requestWifiConnection(modelData)
                 }
             }
         }
     }
 
+    // ── Bluetooth panel ───────────────────────────────────────────────────
     Component {
         id: bluetoothPanel
-
         MenuPanel {
-            title: "Bluetooth devices"
+            title: "Bluetooth Devices"
             busy: ControlCentreState.bluetoothScanning
             errorText: ControlCentreState.bluetoothError
             onScanClicked: ControlCentreState.scanBluetooth()
 
             DeviceRow {
-                title: ControlCentreState.bluetoothPowered ? "Bluetooth powered" : "Bluetooth off"
+                title: ControlCentreState.bluetoothPowered ? "Bluetooth is on" : "Bluetooth is off"
                 subtitle: "Toggle adapter"
                 glyph: "ᛒ"
                 active: ControlCentreState.bluetoothPowered
-                actionText: ControlCentreState.bluetoothPowered ? "Off" : "On"
+                actionText: ControlCentreState.bluetoothPowered ? "Turn off" : "Turn on"
                 onClicked: ControlCentreState.toggleBluetooth()
             }
 
             Repeater {
                 model: ControlCentreState.bluetoothDevices
-
                 delegate: DeviceRow {
                     required property var modelData
-
                     title: modelData.name
                     subtitle: modelData.address
                     glyph: "ᛒ"
                     active: modelData.connected
-                    actionText: modelData.connected ? "Drop" : "Link"
+                    actionText: modelData.connected ? "Disconnect" : "Connect"
                     onClicked: ControlCentreState.toggleBluetoothDevice(modelData)
                 }
             }
         }
     }
 
+    // ── Audio output panel ────────────────────────────────────────────────
     Component {
         id: audioPanel
-
         MenuPanel {
-            title: "Output device"
+            title: "Audio Output"
             showScan: false
 
             Repeater {
                 model: root.outputDevices
-
                 delegate: DeviceRow {
                     required property var modelData
-
                     title: root.deviceName(modelData)
                     subtitle: modelData.name
                     glyph: "♪"
                     active: Pipewire.defaultAudioSink === modelData
-                    actionText: active ? "Now" : "Use"
+                    actionText: active ? "Active" : "Use"
                     onClicked: Pipewire.preferredDefaultAudioSink = modelData
                 }
             }
-        }
-    }
-
-    transform: Translate {
-        x: (1 - root.openProgress) * (root.panelWidth + 24)
-    }
-
-    Behavior on openProgress {
-        NumberAnimation {
-            duration: 380
-            easing.type: Easing.OutCubic
         }
     }
 }
