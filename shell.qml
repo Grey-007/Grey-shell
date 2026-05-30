@@ -11,6 +11,7 @@ ShellRoot {
         id: theBar
 
         onPowerClicked: powerMenu.open()
+        onCalendarClicked: calendarPopup.toggle()
     }
 
     LauncherModule.Launcher {
@@ -20,6 +21,10 @@ ShellRoot {
 
     BarModules.PowerMenu {
         id: powerMenu
+    }
+
+    BarModules.CalendarPopup {
+        id: calendarPopup
     }
 
     ControlCentreModule.ControlCentre {
@@ -63,6 +68,22 @@ ShellRoot {
         }
 
         target: "controlcentre"
+    }
+
+    IpcHandler {
+        function toggle() {
+            calendarPopup.toggle();
+        }
+
+        function open() {
+            calendarPopup.open();
+        }
+
+        function close() {
+            calendarPopup.close();
+        }
+
+        target: "calendar"
     }
 
 }

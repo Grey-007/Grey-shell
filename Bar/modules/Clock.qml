@@ -3,6 +3,8 @@ import QtQuick
 Item {
     id: root
 
+    signal clicked()
+
     height: 36
     width: 80
     implicitWidth: width
@@ -55,5 +57,11 @@ Item {
         verticalAlignment: Text.AlignVCenter
 
         antialiasing: true
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: root.clicked()
     }
 }

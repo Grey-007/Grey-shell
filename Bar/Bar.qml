@@ -10,6 +10,7 @@ PanelWindow {
 
     signal mediaClicked()
     signal powerClicked()
+    signal calendarClicked()
 
     readonly property int barHeight: 42
     readonly property int topInset: 8
@@ -178,6 +179,7 @@ PanelWindow {
                 anchors.centerIn: parent
                 color: bar.fg
                 accentColor: bar.accent
+                onClicked: bar.calendarClicked()
             }
         }
 
