@@ -1,4 +1,5 @@
 import "."
+import Qt5Compat.GraphicalEffects
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -14,6 +15,11 @@ PanelWindow {
     visible: ControlCentreState.toastNotifications.length > 0
     color: "transparent"
 
+    readonly property color surface: "#222A1C"
+    readonly property color onSurface: "#E8F0DC"
+    readonly property color onSurfaceVariant: "#A8B598"
+    readonly property color primary: "#C5E87A"
+
     anchors {
         top: true
         right: true
@@ -27,7 +33,8 @@ PanelWindow {
         anchors {
             right: parent.right
             top: parent.top
-            margins: 12
+            rightMargin: 14
+            topMargin: 62
         }
 
         Repeater {
@@ -37,11 +44,13 @@ PanelWindow {
                 id: toast
 
                 required property var modelData
-                property real slideX: 360
+                property real slideX: 380
                 property real progress: 1
 
                 width: 336
                 height: card.height
+                opacity: slideX < 20 ? 1 : 0
+
                 Component.onCompleted: {
                     slideAnim.start();
                     progressAnim.start();
@@ -53,9 +62,9 @@ PanelWindow {
 
                     target: toast
                     property: "slideX"
-                    from: 360
+                    from: 380
                     to: 0
-                    duration: 360
+                    duration: 340
                     easing.type: Easing.OutCubic
                 }
 
@@ -77,16 +86,25 @@ PanelWindow {
                     onTriggered: ControlCentreState.removeToast(toast.modelData.id)
                 }
 
+                DropShadow {
+                    anchors.fill: card
+                    horizontalOffset: 0
+                    verticalOffset: 6
+                    radius: 22
+                    samples: 32
+                    color: "#00000055"
+                    source: card
+                    transparentBorder: true
+                }
+
                 Rectangle {
                     id: card
 
                     width: parent.width
                     height: toastContent.implicitHeight + 24
-                    radius: 18
-                    color: "#fffbf7"
-                    border.color: "#00000012"
-                    border.width: 1
-                    antialiasing: true
+                    radius: 20
+                    color: root.surface
+                    clip: true
 
                     ColumnLayout {
                         id: toastContent
@@ -97,13 +115,13 @@ PanelWindow {
                             left: parent.left
                             right: parent.right
                             top: parent.top
-                            margins: 12
+                            margins: 14
                         }
 
                         Text {
                             Layout.fillWidth: true
                             text: toast.modelData.notification.appName || "Notification"
-                            color: "#827a73"
+                            color: root.primary
                             font.pixelSize: 10
                             font.weight: Font.Medium
                             elide: Text.ElideRight
@@ -112,9 +130,9 @@ PanelWindow {
                         Text {
                             Layout.fillWidth: true
                             text: toast.modelData.notification.summary || ""
-                            color: "#2c2926"
+                            color: root.onSurface
                             font.pixelSize: 13
-                            font.weight: 600
+                            font.weight: Font.DemiBold
                             elide: Text.ElideRight
                             visible: text !== ""
                         }
@@ -122,7 +140,7 @@ PanelWindow {
                         Text {
                             Layout.fillWidth: true
                             text: toast.modelData.notification.body || ""
-                            color: "#625b55"
+                            color: root.onSurfaceVariant
                             font.pixelSize: 12
                             wrapMode: Text.WordWrap
                             maximumLineCount: 3
@@ -130,21 +148,18 @@ PanelWindow {
                             textFormat: Text.PlainText
                             visible: text !== ""
                         }
-
                     }
 
                     Rectangle {
                         width: parent.width * toast.progress
                         height: 3
                         radius: 2
-                        color: "#2f5fae"
+                        color: root.primary
 
                         anchors {
-                            right: parent.right
-                            left: undefined
+                            left: parent.left
                             bottom: parent.bottom
                         }
-
                     }
 
                     MouseArea {
@@ -152,17 +167,12 @@ PanelWindow {
                         cursorShape: Qt.PointingHandCursor
                         onClicked: ControlCentreState.dismissNotification(toast.modelData.notification)
                     }
-
                 }
 
                 transform: Translate {
                     x: toast.slideX
                 }
-
             }
-
         }
-
     }
-
 }

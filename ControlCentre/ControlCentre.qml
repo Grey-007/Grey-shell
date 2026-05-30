@@ -41,16 +41,33 @@ PanelWindow {
         onClicked: ControlCentreState.close()
     }
 
+    Rectangle {
+        anchors.fill: parent
+        color: "#000000"
+        opacity: ControlCentreState.open ? 0.42 : 0
+        visible: opacity > 0.01
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 320
+                easing.type: Easing.OutCubic
+            }
+        }
+    }
+
     ControlCentreCard {
         id: card
 
         panelWidth: win.panelWidth
-        panelHeight: win.screenHeight - 24
+        panelHeight: win.screenHeight - 76
 
         anchors {
+            top: parent.top
+            bottom: parent.bottom
             right: parent.right
-            verticalCenter: parent.verticalCenter
-            rightMargin: 12
+            topMargin: 62
+            rightMargin: 14
+            bottomMargin: 14
         }
 
     }

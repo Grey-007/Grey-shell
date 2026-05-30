@@ -13,15 +13,33 @@ Item {
     signal clicked()
 
     Layout.fillWidth: true
-    implicitHeight: 52
+    implicitHeight: 54
+
+    readonly property color surface: "#242C1E"
+    readonly property color surfaceActive: "#2F3A24"
+    readonly property color primary: "#C5E87A"
+    readonly property color onSurface: "#E8F0DC"
+    readonly property color onSurfaceVariant: "#A8B598"
 
     Rectangle {
         anchors.fill: parent
-        radius: 16
-        color: root.active ? "#e8efff" : "#f8f5f1"
-        border.color: "#0000000d"
-        border.width: 1
-        antialiasing: true
+        radius: 14
+        color: root.active ? root.surfaceActive : root.surface
+        scale: pressArea.pressed ? 0.985 : 1
+
+        Behavior on color {
+            ColorAnimation {
+                duration: 160
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        Behavior on scale {
+            NumberAnimation {
+                duration: 120
+                easing.type: Easing.OutCubic
+            }
+        }
     }
 
     RowLayout {
@@ -36,61 +54,59 @@ Item {
         Text {
             Layout.alignment: Qt.AlignVCenter
             text: root.glyph
-            color: root.active ? "#2f5fae" : "#5f5a54"
+            color: root.active ? root.primary : root.onSurfaceVariant
             font.pixelSize: 14
-            font.weight: 600
+            font.weight: Font.Medium
         }
 
         ColumnLayout {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignVCenter
-            spacing: 0
+            spacing: 1
 
             Text {
                 Layout.fillWidth: true
                 text: root.title
-                color: "#2b2825"
+                color: root.onSurface
                 font.pixelSize: 12
-                font.weight: 600
+                font.weight: Font.DemiBold
                 elide: Text.ElideRight
             }
 
             Text {
                 Layout.fillWidth: true
                 text: root.subtitle
-                color: "#77706a"
+                color: root.onSurfaceVariant
                 font.pixelSize: 11
                 elide: Text.ElideRight
                 visible: text !== ""
             }
-
         }
 
         Rectangle {
             Layout.alignment: Qt.AlignVCenter
-            width: Math.max(58, actionLabel.implicitWidth + 22)
-            height: 30
-            radius: 15
-            color: root.active ? "#2f5fae" : "#ebe5df"
+            width: Math.max(56, actionLabel.implicitWidth + 20)
+            height: 28
+            radius: 14
+            color: root.active ? root.primary : "#1E2518"
 
             Text {
                 id: actionLabel
 
                 anchors.centerIn: parent
                 text: root.actionText
-                color: root.active ? "#ffffff" : "#413d38"
+                color: root.active ? "#1A2214" : root.onSurface
                 font.pixelSize: 11
                 font.weight: Font.Medium
             }
-
         }
-
     }
 
     MouseArea {
+        id: pressArea
+
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         onClicked: root.clicked()
     }
-
 }

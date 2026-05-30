@@ -25,6 +25,8 @@ Singleton {
     property var notifications: []
     property var toastNotifications: []
     property int toastSerial: 0
+    property int brightnessPercent: 50
+    property bool brightnessAdjusting: false
 
     function toggle() {
         if (open)
@@ -37,6 +39,7 @@ Singleton {
         open = true;
         refreshWifi();
         refreshBluetooth();
+        refreshBrightness();
     }
 
     function close() {
@@ -125,6 +128,56 @@ Singleton {
     function toggleBluetoothDevice(device) {
         bluetoothError = "";
         bluetoothActionProcess.exec(["bluetoothctl", device.connected ? "disconnect" : "connect", device.address]);
+    }
+
+    function refreshBrightness() {
+        if (brightnessAdjusting)
+            return ;
+
+        brightnessReadProcess.exec(["sh", "-c",
+            "for d in /sys/class/backlight/*; do " +
+            "[ -r \"$d/brightness\" ] && [ -r \"$d/max_brightness\" ] || continue; " +
+            "b=$(cat \"$d/brightness\"); " +
+            "m=$(cat \"$d/max_brightness\"); " +
+            "[ \"$m\" -gt 0 ] || continue; " +
+            "echo $(( (b * 100 + m / 2) / m )); " +
+            "exit 0; " +
+            "done"
+        ]);
+    }
+
+    function setBrightness(percent) {
+        const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+        brightnessPercent = clamped;
+        brightnessAdjusting = true;
+        brightnessWriteTimer.restart();
+    }
+
+    function applyBrightnessWrite() {
+        const percent = brightnessPercent;
+        brightnessWriteProcess.exec(["sh", "-c",
+            "for d in /sys/class/backlight/*; do " +
+            "[ -r \"$d/brightness\" ] && [ -r \"$d/max_brightness\" ] || continue; " +
+            "m=$(cat \"$d/max_brightness\"); " +
+            "v=$(( (m * " + percent + " + 50) / 100 )); " +
+            "name=$(basename \"$d\"); " +
+            "if command -v brightnessctl >/dev/null 2>&1; then " +
+            "  brightnessctl --device=\"$name\" set \"" + percent + "%\" >/dev/null 2>&1 && exit 0; " +
+            "fi; " +
+            "for session in /org/freedesktop/login1/session/auto /org/freedesktop/login1/session/self; do " +
+            "  if busctl call org.freedesktop.login1 \"$session\" org.freedesktop.login1.Session SetBrightness ssu backlight \"$name\" \"$v\" >/dev/null 2>&1; then " +
+            "    exit 0; " +
+            "  fi; " +
+            "done; " +
+            "printf '%s' \"$v\" > \"$d/brightness\" 2>/dev/null && exit 0; " +
+            "done; " +
+            "exit 1"
+        ]);
+    }
+
+    function finishBrightnessAdjust() {
+        brightnessAdjusting = false;
+        refreshBrightness();
     }
 
     function parseWifiState(text) {
@@ -266,6 +319,52 @@ Singleton {
         onNotification: function(notification) {
             root.addNotification(notification);
         }
+    }
+
+    Timer {
+        interval: 8000
+        running: true
+        repeat: true
+        onTriggered: root.refreshBrightness()
+    }
+
+    Timer {
+        id: brightnessWriteTimer
+
+        interval: 80
+        repeat: false
+        onTriggered: root.applyBrightnessWrite()
+    }
+
+    Component.onCompleted: refreshBrightness()
+
+    Process {
+        id: brightnessReadProcess
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                if (root.brightnessAdjusting)
+                    return ;
+
+                const value = parseInt(this.text.trim());
+                if (!isNaN(value))
+                    root.brightnessPercent = Math.max(0, Math.min(100, value));
+            }
+        }
+    }
+
+    Process {
+        id: brightnessWriteProcess
+
+        onExited: finishBrightnessTimer.restart()
+    }
+
+    Timer {
+        id: finishBrightnessTimer
+
+        interval: 200
+        repeat: false
+        onTriggered: root.finishBrightnessAdjust()
     }
 
     Process {
