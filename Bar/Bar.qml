@@ -12,10 +12,10 @@ PanelWindow {
     signal powerClicked()
     signal calendarClicked()
 
-    readonly property int barHeight: 42
-    readonly property int topInset: 8
-    readonly property int edgeInset: 14
-    readonly property int contentInset: 8
+    readonly property int barHeight: 36
+    readonly property int topInset: 2
+    readonly property int edgeInset: 20
+    readonly property int contentInset: 4
     readonly property int modulePadding: 10
     readonly property int sectionGap: Math.max(10, Math.round((screen?.width ?? 1360) * 0.01))
     readonly property color bg: "#071006"
@@ -40,7 +40,7 @@ PanelWindow {
     }
 
     exclusionMode: ExclusionMode.Normal
-    exclusiveZone: topInset + barHeight + 4
+    exclusiveZone: topInset + barHeight - 10
 
     implicitHeight: barHeight
     color: "transparent"
@@ -68,7 +68,7 @@ PanelWindow {
             bottomMargin: -1
         }
         radius: panelBackground.radius
-        color: "#000000"
+        color: "#ffffff"
         opacity: 0.28
         antialiasing: true
     }
