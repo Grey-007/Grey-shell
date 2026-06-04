@@ -2,7 +2,7 @@ import "Bar"
 import "Bar/modules" as BarModules
 import "ControlCentre" as ControlCentreModule
 import "launcher" as LauncherModule
-import qs.Wallpaper as WallpaperModule
+import "Wallpaper" as WallpaperModule
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -58,8 +58,8 @@ ShellRoot {
     // qs ipc call wallpaper close
     IpcHandler {
         target: "wallpaper"
-        function toggle() { WallpaperModule.WallpaperState.toggle(); }
-        function open()   { WallpaperModule.WallpaperState.open();   }
-        function close()  { WallpaperModule.WallpaperState.close();  }
+        function toggle() { WallpaperModule.Wallpaperselector.toggle(); }
+        function open()   { WallpaperModule.Wallpaperselector.open();   }
+        function close()  { WallpaperModule.Wallpaperselector.close();  }
     }
 }

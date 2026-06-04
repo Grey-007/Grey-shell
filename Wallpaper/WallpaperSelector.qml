@@ -1,168 +1,357 @@
-import "."
+// WallpaperSelector.qml — Floating wallpaper picker panel
+// Quickshell 0.3 | aww backend | Transparent | 600+ wallpaper support
+//
+// IPC: qs ipc -c wallpaper-selector call wallpaperSelector toggle
+
 import QtQuick
 import Quickshell
-import Quickshell.Wayland
+import Quickshell.Io
 
-// ─────────────────────────────────────────────────────────────────────────────
-// WallpaperSelector – the main PanelWindow
-//
-// Design from reference screenshot:
-//   • NO opaque background – the honeycomb floats directly over the desktop
-//   • Only a very subtle screen-wide dim (25% black) so tiles pop
-//   • Search bar + tag chips anchored near bottom-centre
-//   • Escape / click on empty area closes
-//   • Smooth scale+fade open/close animation
-// ─────────────────────────────────────────────────────────────────────────────
-PanelWindow {
-    id: win
+FloatingWindow {
+    id: root
 
-    color: "transparent"
+    // ── IPC handlers ─────────────────────────────────────────────────────
+    IpcHandler {
+        target: "wallpaperSelector"
 
-    exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WallpaperState.visible
-        ? WlrKeyboardFocus.OnDemand
-        : WlrKeyboardFocus.None
-
-    anchors { top: true; bottom: true; left: true; right: true }
-
-    // Keep window alive during close animation
-    visible: WallpaperState.visible || _openProgress > 0.01
-
-    // ── Open/close progress ───────────────────────────────────────────────
-    property real _openProgress: 0.0
-
-    Behavior on _openProgress {
-        NumberAnimation { duration: 360; easing.type: Easing.OutQuint }
+        function toggle() { root.visible ? root.close() : root.open() }
+        function show()   { root.open() }
+        function hide()   { root.close() }
     }
 
-    Connections {
-        target: WallpaperState
-        function onVisibleChanged() {
-            win._openProgress = WallpaperState.visible ? 1.0 : 0.0;
+    // ── Window setup ──────────────────────────────────────────────────────
+    title:   "Wallpaper Selector"
+    visible: false
+    color:   "transparent"
+
+    // Full-width strip at bottom of screen
+    width:  Screen.width
+    height: 310
+
+
+    // ── Reveal state ──────────────────────────────────────────────────────
+    property real revealProgress: 0.0   // 0 = hidden, 1 = fully shown
+
+    // ── Center index (which card is focused) ──────────────────────────────
+    property int centerIndex: 0
+
+    // ── Open / Close ──────────────────────────────────────────────────────
+    function open() {
+        root.visible = true
+        showAnim.stop()
+        hideAnim.stop()
+        showAnim.start()
+        carousel.forceActiveFocus()
+        // Jump to current wallpaper if set
+        Qt.callLater(snapToCurrent)
+    }
+
+    function close() {
+        hideAnim.stop()
+        showAnim.stop()
+        hideAnim.start()
+    }
+
+    function snapToCurrent() {
+        const cur = WallpaperService.currentWallpaper
+        if (!cur || cur === "") return
+        const m = WallpaperService.model
+        for (let i = 0; i < m.count; i++) {
+            const url = m.get(i, "fileURL")
+            if (!url) continue
+            if (WallpaperService.toPlainPath(url.toString()) === cur) {
+                root.centerIndex  = i
+                carousel.currentIndex = i
+                carousel.positionViewAtIndex(i, ListView.Center)
+                return
+            }
         }
     }
 
-    // ── Very subtle full-screen dim so hex tiles stand out ────────────────
-    // (not opaque – just a 25% translucent wash)
+    NumberAnimation {
+        id: showAnim
+        target:   root
+        property: "revealProgress"
+        from: 0; to: 1
+        duration: 380
+        easing.type: Easing.OutCubic
+    }
+    NumberAnimation {
+        id: hideAnim
+        target:   root
+        property: "revealProgress"
+        from: 1; to: 0
+        duration: 280
+        easing.type: Easing.InCubic
+        onFinished: root.visible = false
+    }
+
+    // ── Click-outside to dismiss ──────────────────────────────────────────
+    MouseArea {
+        anchors.fill: parent
+        z: -1
+        onClicked: root.close()
+    }
+
+    // ── Panel background (semi-transparent frosted strip) ─────────────────
     Rectangle {
-        anchors.fill: parent
-        color: "#000000"
-        opacity: 0.25 * win._openProgress
+        id: panelBg
+        anchors {
+            left:   parent.left
+            right:  parent.right
+            top:    panelContent.top
+            bottom: panelContent.bottom
+            topMargin:    -12
+            bottomMargin: -12
+        }
+        color:   Qt.rgba(0.04, 0.04, 0.06, 0.62)
+        opacity: root.revealProgress
 
-        // Click empty space to close
-        MouseArea {
-            anchors.fill: parent
-            onClicked: WallpaperState.close()
+        // Top accent line
+        Rectangle {
+            anchors { top: parent.top; left: parent.left; right: parent.right }
+            height: 2
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0;  color: "transparent" }
+                GradientStop { position: 0.25; color: "#FF6B35"     }
+                GradientStop { position: 0.75; color: "#FF6B35"     }
+                GradientStop { position: 1.0;  color: "transparent" }
+            }
+        }
+
+        // Bottom accent line
+        Rectangle {
+            anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
+            height: 1
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0;  color: "transparent" }
+                GradientStop { position: 0.25; color: Qt.rgba(1,0.42,0.21,0.4) }
+                GradientStop { position: 0.75; color: Qt.rgba(1,0.42,0.21,0.4) }
+                GradientStop { position: 1.0;  color: "transparent" }
+            }
         }
     }
 
-    Keys.onEscapePressed: WallpaperState.close()
-
-    // ── Main content: honeycomb + search bar ──────────────────────────────
+    // ── Main content container ─────────────────────────────────────────────
     Item {
-        id: _content
+        id: panelContent
         anchors.fill: parent
-        opacity: win._openProgress
-        // Zoom in from 90% on open
-        scale: 0.90 + 0.10 * win._openProgress
+        opacity: root.revealProgress
 
-        // ── Honeycomb field (fills whole screen minus search bar area) ────
-        HoneycombLayout {
-            id: _hex
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter:   parent.verticalCenter
-            anchors.verticalCenterOffset: -30   // shift up slightly to leave room for search bar
-            width:  Math.min(parent.width  - 120, 860)
-            height: Math.min(parent.height - 160, 420)
+        // Slide-up entry
+        transform: Translate {
+            y: (1.0 - root.revealProgress) * 55
+        }
 
-            wallpapers:       WallpaperState.filteredWallpapers
-            currentWallpaper: WallpaperState.currentWallpaper
+        // ── Carousel ─────────────────────────────────────────────────────
+        ListView {
+            id: carousel
+            anchors {
+                left:  parent.left
+                right: parent.right
+                top:   parent.top
+                topMargin: 20
+            }
+            height: 260
 
-            onWallpaperChosen: (path) => {
-                WallpaperState.applyWallpaper(path);
-                WallpaperState.close();
+            orientation:   ListView.Horizontal
+            focus:         true
+            clip:          false    // allow center card to visually overflow
+            spacing:       -34      // negative = overlapping skewed edges
+
+            // Virtualisation — only renders visible cards + cacheBuffer on each side
+            // This is the core reason 600+ wallpapers work without OOM
+            cacheBuffer:           2    // keep 2 off-screen cards decoded each side
+            displayMarginBeginning: 0
+            displayMarginEnd:       0
+
+            // Keep selected item centered
+            preferredHighlightBegin: (width - 520) / 2
+            preferredHighlightEnd:   (width + 520) / 2
+            highlightRangeMode:      ListView.StrictlyEnforceRange
+            highlightMoveDuration:   300
+
+            model: WallpaperService.model
+
+            // ── Delegate ─────────────────────────────────────────────────
+            delegate: WallpaperCard {
+                id: card
+
+                // FolderListModel roles
+                required property int    index
+                required property url    fileURL
+                required property string fileName  // unused (we derive it)
+
+                readonly property string plainPath: WallpaperService.toPlainPath(fileURL.toString())
+
+                // WallpaperCard inputs
+                filePath: fileURL.toString()
+                fileName: WallpaperService.basename(fileURL.toString())
+                isCenter: root.centerIndex === index
+                isActive: WallpaperService.currentWallpaper === plainPath
+
+                height: carousel.height
+                width:  isCenter ? 520 : 260
+
+                onClicked: {
+                    if (root.centerIndex === index) {
+                        // Second click on already-centered card → apply + close
+                        WallpaperService.setWallpaper(plainPath)
+                        root.close()
+                    } else {
+                        // First click → navigate to this card
+                        root.centerIndex      = index
+                        carousel.currentIndex = index
+                    }
+                }
+            }
+
+            currentIndex: root.centerIndex
+
+            onCurrentIndexChanged: {
+                root.centerIndex = currentIndex
+            }
+
+            // ── Keyboard navigation ───────────────────────────────────────
+            Keys.onLeftPressed: (event) => {
+                event.accepted = true
+                if (currentIndex > 0) {
+                    currentIndex--
+                    root.centerIndex = currentIndex
+                }
+            }
+            Keys.onRightPressed: (event) => {
+                event.accepted = true
+                if (currentIndex < count - 1) {
+                    currentIndex++
+                    root.centerIndex = currentIndex
+                }
+            }
+            Keys.onReturnPressed: (event) => {
+                event.accepted = true
+                applyCenter()
+            }
+            Keys.onSpacePressed: (event) => {
+                event.accepted = true
+                applyCenter()
+            }
+            Keys.onEscapePressed: (event) => {
+                event.accepted = true
+                root.close()
+            }
+
+            function applyCenter() {
+                const item = itemAtIndex(currentIndex)
+                if (item) {
+                    WallpaperService.setWallpaper(item.plainPath)
+                    root.close()
+                }
+            }
+
+            // ── Mouse wheel navigation ────────────────────────────────────
+            WheelHandler {
+                onWheel: (event) => {
+                    if (event.angleDelta.y < 0) {
+                        if (carousel.currentIndex < carousel.count - 1) {
+                            carousel.currentIndex++
+                            root.centerIndex = carousel.currentIndex
+                        }
+                    } else {
+                        if (carousel.currentIndex > 0) {
+                            carousel.currentIndex--
+                            root.centerIndex = carousel.currentIndex
+                        }
+                    }
+                    event.accepted = true
+                }
             }
         }
 
-        // ── Empty state ───────────────────────────────────────────────────
-        Column {
-            anchors.centerIn: _hex
-            spacing: 14
-            visible: WallpaperState.filteredWallpapers.length === 0
-                     && !WallpaperState.scanning
-
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: "⬡"
-                font.pixelSize: 56
-                color: "#1E2A18"
-            }
-
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: WallpaperState.searchText !== ""
-                      ? "No wallpapers match this filter"
-                      : "No wallpapers in ~/Pictures/Wallpapers"
-                color: "#3A4A30"
-                font.pixelSize: 14
-                horizontalAlignment: Text.AlignHCenter
-            }
-        }
-
-        // ── Scanning pulse ────────────────────────────────────────────────
-        Text {
-            anchors.centerIn: _hex
-            text: "Scanning…"
-            color: "#6A8860"
-            font.pixelSize: 15
-            visible: WallpaperState.scanning
-
-            SequentialAnimation on opacity {
-                loops: Animation.Infinite
-                running: WallpaperState.scanning
-                NumberAnimation { from: 1.0; to: 0.3; duration: 700; easing.type: Easing.InOutCubic }
-                NumberAnimation { from: 0.3; to: 1.0; duration: 700; easing.type: Easing.InOutCubic }
-            }
-        }
-
-        // ── Search + tag bar (floating near bottom centre) ────────────────
+        // ── Mini scrollbar (position indicator for 600+ wallpapers) ───────
         Item {
-            id: _searchArea
             anchors {
-                bottom: parent.bottom
                 horizontalCenter: parent.horizontalCenter
-                bottomMargin: 28
+                top:              carousel.bottom
+                topMargin:        8
             }
-            width:  Math.min(parent.width - 80, 660)
-            height: _searchBar.implicitHeight
+            width:  220
+            height: 4
 
-            SearchBar {
-                id: _searchBar
+            Rectangle {
                 anchors.fill: parent
+                radius: 2
+                color:  Qt.rgba(1, 1, 1, 0.12)
+            }
+            Rectangle {
+                id: scrollThumb
+                height: parent.height
+                radius: parent.radius
+                color:  "#FF6B35"
+                width:  Math.max(16, parent.width * carousel.visibleArea.widthRatio)
+                x:      carousel.visibleArea.xPosition * parent.width
+                Behavior on x { NumberAnimation { duration: 100 } }
             }
         }
 
-        // ── Error toast ───────────────────────────────────────────────────
-        Rectangle {
+        // ── Counter label ─────────────────────────────────────────────────
+        Text {
             anchors {
-                bottom: _searchArea.top
                 horizontalCenter: parent.horizontalCenter
-                bottomMargin: 10
+                top:              carousel.bottom
+                topMargin:        18
             }
-            width:  _errText.implicitWidth + 28
-            height: 32
-            radius: 16
-            color:  "#CC3A1010"
-            visible: WallpaperState.errorText !== ""
+            text: WallpaperService.model.count > 0
+                ? (root.centerIndex + 1) + " / " + WallpaperService.model.count
+                : "No wallpapers found — check Config.qml → wallpaperDir"
+            color: Qt.rgba(1, 1, 1, 0.5)
+            font.pixelSize: 11
+        }
 
-            Text {
-                id: _errText
-                anchors.centerIn: parent
-                text: WallpaperState.errorText
-                color: "#FFB4AB"
-                font.pixelSize: 11
-                elide: Text.ElideRight
+        // ── Key hint bar ──────────────────────────────────────────────────
+        Row {
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+                bottom:           parent.bottom
+                bottomMargin:     8
+            }
+            spacing: 18
+
+            Repeater {
+                model: [
+                    { key: "← →",   hint: "Navigate"     },
+                    { key: "↕ Wheel", hint: "Scroll"      },
+                    { key: "Enter",  hint: "Apply"        },
+                    { key: "Click",  hint: "Select/Apply" },
+                    { key: "Esc",    hint: "Dismiss"      },
+                ]
+
+                delegate: Row {
+                    required property var modelData
+                    spacing: 5
+
+                    Rectangle {
+                        width:  keyTxt.implicitWidth + 10
+                        height: 18; radius: 3
+                        color:  Qt.rgba(1, 1, 1, 0.10)
+
+                        Text {
+                            id:     keyTxt
+                            anchors.centerIn: parent
+                            text:   modelData.key
+                            color:  "white"
+                            font  { pixelSize: 10; weight: Font.Medium }
+                        }
+                    }
+
+                    Text {
+                        text:  modelData.hint
+                        color: Qt.rgba(1, 1, 1, 0.40)
+                        font.pixelSize: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
             }
         }
     }
