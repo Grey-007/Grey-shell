@@ -2,44 +2,35 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Notifications
+import Quickshell.Wayland
 
-// Notifications.qml
-// PanelWindow anchored to left edge. Notifications slide in from the left.
-// Monochrome: white bg, black text.
+// Notifications — sepia theme, slide in from left
 PanelWindow {
     id: notifPanel
 
-    anchors {
-        left: true
-        bottom: true
-    }
+    anchors { left: true; bottom: true }
 
-    // Window is always present but transparent/zero when empty
-    // so the panel doesn't block input when idle
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
 
-    width: visible ? 360 : 0
+    width:  visible ? 368 : 0
     height: notifColumn.implicitHeight + 24
-    color: "transparent"
+    color:  "transparent"
 
     NotificationServer {
         id: server
         keepOnReload: false
-
         onNotification: (notif) => {
-            // Auto-dismiss after 5s
             dismissTimer.createObject(notifPanel, { notification: notif })
         }
     }
 
-    // Stack of toast cards
     Column {
         id: notifColumn
         anchors {
-            left: parent.left
+            left:   parent.left
             bottom: parent.bottom
-            margins: 12
+            margins: 14
         }
         spacing: 8
 
@@ -50,110 +41,86 @@ PanelWindow {
                 id: toastWrapper
                 required property Notification modelData
 
-                width: 340
+                width:  344
                 height: card.height
 
-                // Slide in from left: starts off-screen, animates to 0
-                property real slideX: -360
+                property real slideX: -380
                 NumberAnimation on slideX {
-                    from: -360
-                    to: 0
-                    duration: 320
-                    easing.type: Easing.OutCubic
-                    running: true
+                    from: -380; to: 0
+                    duration: 300; easing.type: Easing.OutCubic; running: true
                 }
-
                 transform: Translate { x: toastWrapper.slideX }
 
                 Rectangle {
                     id: card
-                    width: parent.width
+                    width:  parent.width
                     height: cardContent.implicitHeight + 20
-                    radius: 12
-                    color: "#ffffff"
-                    // Subtle shadow via border
-                    border.color: "#00000018"
+                    radius: 14
+                    color:  "#241c14"
+                    border.color: "#a0784a"
                     border.width: 1
 
-                    // Left urgency stripe
+                    // Urgency stripe
                     Rectangle {
                         anchors {
-                            left: parent.left
-                            top: parent.top
-                            bottom: parent.bottom
+                            left: parent.left; top: parent.top; bottom: parent.bottom
                             margins: 1
                         }
-                        width: 3
-                        radius: 2
-                        color: toastWrapper.modelData.urgency === NotificationUrgency.Critical
-                               ? "#000000"
-                               : "#00000040"
+                        width:  3; radius: 2
+                        color:  toastWrapper.modelData.urgency === NotificationUrgency.Critical
+                                ? "#e8856a" : "#a0784a"
                     }
 
                     ColumnLayout {
                         id: cardContent
                         anchors {
-                            left: parent.left
-                            right: parent.right
-                            top: parent.top
-                            margins: 14
-                            leftMargin: 22
+                            left: parent.left; right: parent.right; top: parent.top
+                            margins: 14; leftMargin: 22
                         }
                         spacing: 2
 
-                        // App name
                         Text {
-                            text: toastWrapper.modelData.appName
-                            color: "#00000070"
-                            font.pixelSize: 10
-                            font.weight: Font.Medium
+                            text:  toastWrapper.modelData.appName
+                            color: "#8a7055"
+                            font.pixelSize: 10; font.weight: Font.Medium
                             visible: text !== ""
                         }
 
-                        // Summary
                         Text {
                             Layout.fillWidth: true
-                            text: toastWrapper.modelData.summary
-                            color: "#000000"
-                            font.pixelSize: 13
-                            font.weight: Font.SemiBold
-                            elide: Text.ElideRight
+                            text:  toastWrapper.modelData.summary
+                            color: "#f0e0c0"
+                            font.pixelSize: 13; font.weight: Font.SemiBold
+                            elide:   Text.ElideRight
                             visible: text !== ""
                         }
 
-                        // Body
                         Text {
                             Layout.fillWidth: true
-                            text: toastWrapper.modelData.body
-                            color: "#000000cc"
+                            text:  toastWrapper.modelData.body
+                            color: "#c8a87a"
                             font.pixelSize: 12
                             wrapMode: Text.WordWrap
-                            visible: text !== ""
+                            visible:  text !== ""
                         }
                     }
 
-                    // Dismiss on click
                     MouseArea {
                         anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: toastWrapper.modelData.dismiss()
+                        cursorShape:  Qt.PointingHandCursor
+                        onClicked:    toastWrapper.modelData.dismiss()
                     }
                 }
             }
         }
     }
 
-    // Auto-dismiss timer component
     Component {
         id: dismissTimer
         Timer {
             property Notification notification
-            interval: 5000
-            running: true
-            onTriggered: {
-                notification.expire()
-                destroy()
-            }
+            interval: 5000; running: true
+            onTriggered: { notification.expire(); destroy() }
         }
     }
 }
