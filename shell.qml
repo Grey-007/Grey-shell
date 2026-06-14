@@ -2,12 +2,28 @@ import "Bar"
 import "Bar/modules" as BarModules
 import "ControlCentre" as ControlCentreModule
 import "launcher" as LauncherModule
+import "lockscreen" as LockScreenModule
 import "wallpaper" as WallpaperModule
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
 
 ShellRoot {
+    function ensureWallpaperSelector() {
+        if (!wallpaperSelectorLoader.active)
+            wallpaperSelectorLoader.active = true;
+
+        return wallpaperSelectorLoader.item;
+    }
+
+    function lockSession() {
+        unlockReleaseTimer.stop();
+
+        if (!sessionLock.locked)
+            sessionLock.locked = true;
+    }
+
     Bar {
         id: theBar
         onPowerClicked:    powerMenu.open()
@@ -25,9 +41,43 @@ ShellRoot {
     ControlCentreModule.ControlCentre    { id: controlCentre }
     ControlCentreModule.NotificationToasts {}
 
+    WlSessionLock {
+        id: sessionLock
+        locked: false
+
+        WlSessionLockSurface {
+            LockScreenModule.LockScreen {
+                anchors.fill: parent
+            }
+        }
+    }
+
+    Timer {
+        id: unlockReleaseTimer
+        interval: LockScreenModule.Config.unlockExitDuration
+        repeat: false
+        onTriggered: sessionLock.locked = false
+    }
+
+    Connections {
+        target: LockScreenModule.Auth
+        function onUnlocked() {
+            unlockReleaseTimer.stop();
+            unlockReleaseTimer.start();
+        }
+    }
+
     // ── Wallpaper selector ────────────────────────────────────────────────
-    WallpaperModule.WallpaperSelector {
-        id: wallpaperSelector
+    Component {
+        id: wallpaperSelectorComponent
+
+        WallpaperModule.WallpaperSelector {}
+    }
+
+    Loader {
+        id: wallpaperSelectorLoader
+        active: false
+        sourceComponent: wallpaperSelectorComponent
     }
 
     // ── IPC: launcher ─────────────────────────────────────────────────────
@@ -60,8 +110,22 @@ ShellRoot {
     // qs ipc call wallpaper close
     IpcHandler {
         target: "wallpaper"
-        function toggle() { wallpaperSelector.toggle(); }
-        function open()   { wallpaperSelector.open();   }
-        function close()  { wallpaperSelector.close();  }
+        function toggle() { ensureWallpaperSelector().toggle(); }
+        function open()   { ensureWallpaperSelector().open();   }
+        function close()  {
+            if (wallpaperSelectorLoader.item)
+                wallpaperSelectorLoader.item.close();
+        }
+    }
+
+    // ── IPC: lock screen ───────────────────────────────────────────────────
+    // qs ipc call lockscreen lock
+    // qs ipc call lockscreen open
+    // qs ipc call lockscreen toggle
+    IpcHandler {
+        target: "lockscreen"
+        function toggle() { lockSession(); }
+        function open()   { lockSession(); }
+        function lock()   { lockSession(); }
     }
 }

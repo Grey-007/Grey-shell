@@ -7,26 +7,24 @@ QtObject {
     property int    scanDepth:          2
     property var    applyCommand:       ["awww", "img"]
 
-    // Layout — col-major honeycomb, 7 cols × 5 rows
-    property int  cols:           7
-    property int  rows:           5
-    property int  tileSize:       128     // tileWidth; height auto from geometry
-    property int  tileGap:        6
+    // Grid: 6 cols × 3 rows
+    property int  cols:        6
+    property int  rows:        3
+    property int  tileW:       200
+    property int  tileH:       126
+    property int  gap:         8
 
-    // Derived (used by WallpaperSelector for panel sizing)
-    // gridW = (cols-1)*(tileSize+tileGap) + tileSize = 6*134+128 = 932
-    // gridH = (rows-1)*rowStep + tileH + colOffset ≈ 4*111+148+74 = 666
-    property int  panelWidth:     980     // gridW + 48 margin
-    property int  panelHeight:    700     // gridH + 34 margin
+    // Panel — sized to fit grid exactly with padding
+    readonly property int gridW:     cols * tileW + (cols - 1) * gap   // 1240
+    readonly property int gridH:     rows * tileH + (rows - 1) * gap   // 394
+    property int  panelWidth:        gridW + 100   // 1340 (room for arrows)
+    property int  panelHeight:       gridH + 80    // 474  (header + footer)
 
-    // Timing
-    property int  openDuration:  240
-    property int  hoverDuration: 130
-    property real hoverScale:    1.09
+    property int  openDuration:  140   // fast open
+    property int  hoverDuration: 120
+    property real hoverScale:    1.05
 
-    // Colours
-    property color textColor:           "#f6f7f2"
-    property color selectedBorderColor: "#7df7c3"
-    property color hoverBorderColor:    "#ffffff"
-    property color shadowColor:         "#44000000"
+    property color accent:              "#7df7c3"
+    property color textColor:           '#00fe65'
+    property color selectedBorderColor: '#7df7c2'
 }

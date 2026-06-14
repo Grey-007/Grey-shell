@@ -90,7 +90,7 @@ PanelWindow {
                             Layout.fillWidth: true
                             text:  toastWrapper.modelData.summary
                             color: "#f0e0c0"
-                            font.pixelSize: 13; font.weight: Font.SemiBold
+                            font.pixelSize: 13; font.weight: Font.DemiBold
                             elide:   Text.ElideRight
                             visible: text !== ""
                         }

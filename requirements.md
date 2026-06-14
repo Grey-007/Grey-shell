@@ -16,6 +16,7 @@ Install these system-wide or user-local:
 - `Noto Sans Mono`
 - `Noto Sans Symbols`
 - `Noto Sans Symbols 2`
+- `Noto Serif Display` for the lockscreen clock
 
 Recommended optional font:
 

@@ -525,7 +525,7 @@ PanelWindow {
                                             ? root.sepiaText
                                             : root.sepiaDim
                                     font.pixelSize: 12
-                                    font.weight: parent.today ? Font.SemiBold : Font.Normal
+                                    font.weight: parent.today ? Font.DemiBold : Font.Normal
                                 }
 
                                 MouseArea {

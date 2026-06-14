@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Services.SystemTray
 import "modules"
 import "."
 
@@ -233,7 +234,7 @@ PanelWindow {
                     width:   1
                     height:  14
                     color:   Qt.rgba(bar.accent.r, bar.accent.g, bar.accent.b, 0.25)
-                    visible: SystemTray !== undefined
+                    visible: SystemTray.items.values.length > 0
                 }
 
                 Cpu {}

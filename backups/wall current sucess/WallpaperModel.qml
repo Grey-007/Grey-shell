@@ -6,7 +6,6 @@ QtObject {
 
     property string directory: ""
     property int scanDepth: 2
-    property bool autoRefresh: false
     property string selectedPath: ""
     property bool loading: false
     readonly property int count: wallpapers.count
@@ -89,18 +88,6 @@ QtObject {
         }
     }
 
-    onDirectoryChanged: {
-        if (autoRefresh)
-            refresh();
-    }
-
-    onScanDepthChanged: {
-        if (autoRefresh)
-            refresh();
-    }
-
-    Component.onCompleted: {
-        if (autoRefresh)
-            refresh();
-    }
+    onDirectoryChanged: refresh()
+    Component.onCompleted: refresh()
 }

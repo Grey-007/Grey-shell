@@ -49,8 +49,8 @@ Row {
     }
 
     Connections {
-        target: Hyprland
-        function onWorkspacesChanged() { root.syncWorkspaceCount() }
+        target: Hyprland.workspaces
+        function onValuesChanged() { root.syncWorkspaceCount() }
     }
 
     Repeater {
