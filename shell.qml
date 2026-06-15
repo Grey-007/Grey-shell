@@ -108,15 +108,15 @@ ShellRoot {
     // qs ipc call wallpaper toggle
     // qs ipc call wallpaper open
     // qs ipc call wallpaper close
-    IpcHandler {
-        target: "wallpaper"
-        function toggle() { ensureWallpaperSelector().toggle(); }
-        function open()   { ensureWallpaperSelector().open();   }
-        function close()  {
-            if (wallpaperSelectorLoader.item)
-                wallpaperSelectorLoader.item.close();
-        }
-    }
+  //  IpcHandler {
+   //     target: "wallpaper"
+   //     function toggle() { ensureWallpaperSelector().toggle(); }
+   //     function open()   { ensureWallpaperSelector().open();   }
+   //     function close()  {
+   //         if (wallpaperSelectorLoader.item)
+     //           wallpaperSelectorLoader.item.close();
+     //   }
+   // }
 
     // ── IPC: lock screen ───────────────────────────────────────────────────
     // qs ipc call lockscreen lock
