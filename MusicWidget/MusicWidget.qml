@@ -21,7 +21,7 @@ Rectangle {
 
     // State for pinning, linked to WidgetState
     property alias pinned: WidgetState.pinned
-    
+
     // Internal visibility state
     property bool _isVisible: true
     x: _isVisible ? visibleX : hiddenX
@@ -32,6 +32,12 @@ Rectangle {
             duration: AnimationConfig.durationNormal
             easing.type: AnimationConfig.easingSmooth
         }
+    }
+
+    // Music Visualizer (behind other content)
+    MusicVisualizer {
+        anchors.fill: parent
+        z: -1
     }
 
     // Function to show the widget
@@ -46,23 +52,51 @@ Rectangle {
         }
     }
 
-    // Column layout for content
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 20
-        
-        Label {
-            text: "Music Widget"
-            font.pixelSize: 24
-            color: MusicTheme.textColor
-            Layout.alignment: Qt.AlignHCenter
+        anchors.margins: 10
+        spacing: 10
+    ...
+        ArtworkDisplay {
+            id: artwork
+            Layout.fillWidth: true
+            Layout.preferredHeight: 200
         }
-        
-        // Pinning button
+
+        Button {
+            text: "Switch GIF"
+            Layout.alignment: Qt.AlignHCenter
+            onClicked: modalLoader.active = true
+        }
+
+        MusicControls {
+            Layout.fillWidth: true
+        }
+
+        MusicProgressBar {
+            Layout.fillWidth: true
+        }
+
         Button {
             text: pinned ? "Unpin" : "Pin"
             Layout.alignment: Qt.AlignHCenter
             onClicked: pinned = !pinned
+        }
+    }
+
+    Loader {
+        id: modalLoader
+        active: false
+        source: "GifPickerModal.qml"
+        onLoaded: {
+            item.gifApplied.connect(function(source) { artwork.gifSource = source })
+            item.open()
+        }
+        // Ensure loader is deactivated when modal is closed
+        onItemChanged: {
+            if (item) {
+                item.onClosed.connect(function() { modalLoader.active = false })
+            }
         }
     }
 }

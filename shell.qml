@@ -32,7 +32,6 @@ ShellRoot {
     }
 
     // ── IPC: music widget ─────────────────────────────────────────────────
-    /*
     IpcHandler {
         target: "musicwidget"
         function toggle() {
@@ -45,7 +44,6 @@ ShellRoot {
         function open() { musicWidgetLoader.item.show() }
         function close() { musicWidgetLoader.item.hide() }
     }
-    */
 
     // ... (rest of the shell.qml content) ...
 
