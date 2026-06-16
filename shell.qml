@@ -68,11 +68,11 @@ ShellRoot {
     }
 
     // ── Wallpaper selector ────────────────────────────────────────────────
-    Component {
-        id: wallpaperSelectorComponent
+ //   Component {
+   //     id: wallpaperSelectorComponent
 
-        WallpaperModule.WallpaperSelector {}
-    }
+   //     WallpaperModule.WallpaperSelector {}
+   // }
 
     Loader {
         id: wallpaperSelectorLoader
@@ -129,3 +129,5 @@ ShellRoot {
         function lock()   { lockSession(); }
     }
 }
+
+

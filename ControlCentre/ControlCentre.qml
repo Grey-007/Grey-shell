@@ -21,7 +21,7 @@ PanelWindow {
                                  ? WlrKeyboardFocus.OnDemand
                                  : WlrKeyboardFocus.None
 
-    visible: ControlCentreState.open || card.openProgress > 0.01
+    visible: ControlCentreState.open
     color: "transparent"
 
     anchors {
@@ -29,27 +29,6 @@ PanelWindow {
         bottom: true
         left: true
         right: true
-    }
-
-    // Scrim / backdrop – tap to close
-    Rectangle {
-        anchors.fill: parent
-        color: "#000000"
-        opacity: ControlCentreState.open ? 0.45 : 0.0
-        visible: opacity > 0.01
-
-        Behavior on opacity {
-            NumberAnimation {
-                duration: 350
-                easing.type: Easing.OutCubic
-            }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            enabled: ControlCentreState.open
-            onClicked: ControlCentreState.close()
-        }
     }
 
     // The card itself
@@ -62,10 +41,19 @@ PanelWindow {
         anchors {
             top: parent.top
             bottom: parent.bottom
-            right: parent.right
+            left: parent.left
             topMargin:    64
-            rightMargin:  14
+            leftMargin:  14
             bottomMargin: 14
+        }
+
+        x: ControlCentreState.open ? 14 : -card.panelWidth
+
+        Behavior on x {
+            NumberAnimation {
+                duration: 250 // Using 250ms for consistent animation speed
+                easing.type: Easing.OutCubic
+            }
         }
     }
 }

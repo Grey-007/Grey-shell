@@ -11,8 +11,6 @@ Item {
 
     property int panelWidth: 400
     property int panelHeight: 700
-    property real openProgress: 0
-
     // ── Audio via Pipewire ────────────────────────────────────────────────
     readonly property var sink:    Pipewire.defaultAudioSink
     readonly property var audio:   sink != null ? sink.audio : null
@@ -35,16 +33,16 @@ Item {
     }
 
     // ── Material You dark colour tokens ──────────────────────────────────
-    readonly property color md_surface:             "#141811"  // overall bg
-    readonly property color md_surfaceContainer:    "#1C2118"  // card bg
-    readonly property color md_surfaceContainerHigh:"#242B1E"  // raised card
-    readonly property color md_surfaceContainerHighest: "#2C3425" // slider bg
-    readonly property color md_primary:             "#A8D368"
-    readonly property color md_onPrimary:           "#1A2C00"
-    readonly property color md_onSurface:           "#DDE8CC"
-    readonly property color md_onSurfaceVariant:    "#9DB88A"
-    readonly property color md_outline:             "#4A5540"
-    readonly property color md_scrim:               "#000000"
+    readonly property color md_surface:             "#2C241D"  // Background
+    readonly property color md_surfaceContainer:    "#3B3027"  // Surface
+    readonly property color md_surfaceContainerHigh:"#4A3C31"  // Raised Surface
+    readonly property color md_surfaceContainerHighest: "#59493E" // Slightly lighter than Raised Surface for distinction
+    readonly property color md_primary:             "#A67C52"  // Primary Accent
+    readonly property color md_onPrimary:           "#2C241D"  // Background for contrast on primary elements
+    readonly property color md_onSurface:           "#F5E6D3"  // Text
+    readonly property color md_onSurfaceVariant:    "#D2B89C"  // Muted Text
+    readonly property color md_outline:             "#B59A7E"  // Darker Muted Text for outlines
+    readonly property color md_scrim:               "#2C241D"  // Background, even if scrim is removed
 
     function deviceName(node) {
         return node == null ? "Output device"
@@ -53,32 +51,10 @@ Item {
 
     width:   panelWidth
     height:  panelHeight
-    opacity: openProgress
-    enabled: ControlCentreState.open || openProgress > 0.01
-
-    Connections {
-        target: ControlCentreState
-        function onOpenChanged() {
-            root.openProgress = ControlCentreState.open ? 1 : 0;
-        }
-    }
-
-    Component.onCompleted: openProgress = ControlCentreState.open ? 1 : 0
+    enabled: ControlCentreState.open
 
     PwObjectTracker { objects: [Pipewire.defaultAudioSink] }
     PwObjectTracker { objects: root.outputDevices }
-
-    // ── Slide-in from right ───────────────────────────────────────────────
-    transform: Translate {
-        x: (1 - root.openProgress) * (root.panelWidth + 28)
-    }
-
-    Behavior on openProgress {
-        NumberAnimation {
-            duration: 420
-            easing.type: Easing.OutQuint
-        }
-    }
 
     // ── Main column ───────────────────────────────────────────────────────
     ColumnLayout {
@@ -91,14 +67,18 @@ Item {
             Layout.fillWidth: true
             implicitHeight: controlsCard.height
 
-            opacity: root.openProgress
+            opacity: ControlCentreState.open ? 1 : 0
 
             transform: Translate {
-                x: (1 - root.openProgress) * 22
+                x: ControlCentreState.open ? 0 : 22
             }
 
             Behavior on opacity {
-                NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+                NumberAnimation { duration: 250; easing.type: Easing.OutCubic } // Adjusted duration
+            }
+
+            Behavior on x { // Added behavior for x transform
+                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
             }
 
             DropShadow {
@@ -265,14 +245,18 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            opacity: root.openProgress
+            opacity: ControlCentreState.open ? 1 : 0
 
             transform: Translate {
-                x: (1 - root.openProgress) * 32
+                x: ControlCentreState.open ? 0 : 32
             }
 
             Behavior on opacity {
-                NumberAnimation { duration: 340; easing.type: Easing.OutCubic }
+                NumberAnimation { duration: 250; easing.type: Easing.OutCubic } // Adjusted duration
+            }
+
+            Behavior on x { // Added behavior for x transform
+                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
             }
 
             DropShadow {
@@ -370,23 +354,17 @@ Item {
 
                                 Layout.fillWidth: true
                                 implicitHeight: notifBody.implicitHeight + 24
-                                opacity: 0
+                                opacity: 1 // Notifications should be visible by default
 
-                                Component.onCompleted: {
-                                    revealAnim.start();
-                                }
-
-                                NumberAnimation {
-                                    id: revealAnim
-                                    target: parent
-                                    property: "opacity"
-                                    from: 0; to: 1
-                                    duration: 320
-                                    easing.type: Easing.OutCubic
+                                Behavior on opacity {
+                                    NumberAnimation {
+                                        duration: 250 // Consistent animation duration
+                                        easing.type: Easing.OutCubic
+                                    }
                                 }
 
                                 transform: Translate {
-                                    y: (1 - parent.opacity) * 18
+                                    y: (1 - opacity) * 18 // Still apply a slight translate if opacity changes (e.g. fading out)
                                 }
 
                                 Rectangle {
@@ -397,7 +375,7 @@ Item {
                                     scale: pressArea.containsPress ? 0.985 : 1.0
 
                                     Behavior on scale {
-                                        NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
+                                        NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
                                     }
 
                                     // Coloured left accent line
