@@ -1,56 +1,92 @@
 import QtQuick
-import QtQuick.Controls
 import Quickshell.Services.Mpris
-import "./MusicConfig.qml" as Config
-import "./Theme.qml" as MusicTheme
+import qs.MusicWidget
 
+// Wave-style progress bar.
+// Played portion = animated sine wave; unplayed = flat line.
 Item {
-    id: progressBarRoot
-    height: 30
+    id: root
+    height: 32
 
-    // Access MPRIS player
-    readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
-    
-    // Progress calculation
-    readonly property real progress: (player && player.length > 0) ? (player.position / player.length) : 0
+    readonly property var player: MprisController.currentPlayer
+
+    // Guard against division by zero
+    readonly property real progress: {
+        if (!player) return 0;
+        var len = player.trackLength;
+        if (!len || len <= 0) return 0;
+        return Math.min(1.0, player.trackPositionMs / len);
+    }
 
     Canvas {
         id: canvas
         anchors.fill: parent
 
+        property real waveOffset: 0
+
         onPaint: {
             var ctx = getContext("2d");
             ctx.clearRect(0, 0, width, height);
 
-            var playedWidth = width * progress;
+            var playedWidth = width * root.progress;
 
-            // Draw played section (Wave)
-            ctx.beginPath();
-            ctx.strokeStyle = MusicTheme.accentColorPrimary;
-            ctx.lineWidth = 2;
-            
-            for (var x = 0; x <= playedWidth; x++) {
-                var y = height / 2 + Math.sin(x * 0.1) * 5;
-                if (x === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
+            // Played: sine wave
+            if (playedWidth > 0) {
+                ctx.beginPath();
+                ctx.strokeStyle = Theme.accentColorPrimary;
+                ctx.lineWidth   = 2;
+                for (var x = 0; x <= playedWidth; x++) {
+                    var y = height / 2 + Math.sin(x * 0.12 + waveOffset) * 4;
+                    if (x === 0) ctx.moveTo(x, y);
+                    else         ctx.lineTo(x, y);
+                }
+                ctx.stroke();
             }
-            ctx.stroke();
 
-            // Draw unplayed section (Straight line)
+            // Unplayed: flat line
+            if (playedWidth < width) {
+                ctx.beginPath();
+                ctx.strokeStyle = Theme.raisedSurfaceColor;
+                ctx.lineWidth   = 1;
+                ctx.moveTo(playedWidth, height / 2);
+                ctx.lineTo(width,       height / 2);
+                ctx.stroke();
+            }
+
+            // Scrubber dot
             ctx.beginPath();
-            ctx.strokeStyle = MusicTheme.raisedSurfaceColor;
-            ctx.lineWidth = 1;
-            ctx.moveTo(playedWidth, height / 2);
-            ctx.lineTo(width, height / 2);
-            ctx.stroke();
+            ctx.fillStyle = Theme.accentColorSecondary;
+            ctx.arc(playedWidth, height / 2, 4, 0, Math.PI * 2);
+            ctx.fill();
         }
     }
 
-    // Update canvas on position change
-    Connections {
-        target: player
-        function onPositionChanged() {
+    // Animate the wave offset for a live feel
+    Timer {
+        interval: 40
+        running:  player !== null && player.playbackState === MprisPlaybackState.Playing
+        repeat:   true
+        onTriggered: {
+            canvas.waveOffset += 0.15;
             canvas.requestPaint();
+        }
+    }
+
+    // Redraw when position changes
+    Connections {
+        target:   root.player
+        enabled:  root.player !== null
+        function onTrackPositionMsChanged() { canvas.requestPaint(); }
+    }
+
+    // Click-to-seek
+    MouseArea {
+        anchors.fill: parent
+        onClicked: (mouse) => {
+            if (root.player && root.player.trackLength > 0) {
+                var seekPos = (mouse.x / width) * root.player.trackLength;
+                root.player.trackPositionMs = seekPos;
+            }
         }
     }
 }

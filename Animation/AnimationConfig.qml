@@ -1,8 +1,9 @@
 pragma Singleton
 import QtQuick
+import Quickshell
 
-QtObject {
-    id: animationConfig
+Singleton {
+    id: root
 
     // Durations in milliseconds
     readonly property int durationShort: 150
@@ -10,7 +11,7 @@ QtObject {
     readonly property int durationLong: 300
 
     // Easing curves
-    readonly property easing easingDefault: Easing.OutCubic
-    readonly property easing easingSmooth: Easing.InOutQuad
-    readonly property easing easingPop: Easing.OutBack
+    readonly property int easingDefault: Easing.OutCubic
+    readonly property int easingSmooth: Easing.InOutQuad
+    readonly property int easingPop: Easing.OutBack
 }

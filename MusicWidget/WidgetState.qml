@@ -1,11 +1,10 @@
 pragma Singleton
 import QtQuick
+import Quickshell
 
-QtObject {
-    id: widgetState
+Singleton {
+    id: root
 
     // Controls whether the music widget remains visible or hides when not active
     property bool pinned: false
-
-    // Other widget-specific states can be added here
 }

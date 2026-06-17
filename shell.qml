@@ -1,50 +1,176 @@
 import "Bar"
 import "Bar/modules" as BarModules
 import "ControlCentre" as ControlCentreModule
-import "launcher" as LauncherModule
-import "lockscreen" as LockScreenModule
-import "wallpaper" as WallpaperModule
-import "./MusicWidget" as MusicWidgetModule // New import for Music Widget
+import "MusicWidget"
 import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import "launcher" as LauncherModule
+import "lockscreen" as LockScreenModule
 
 ShellRoot {
-    // ... (existing functions) ...
+    function lockSession() {
+        unlockReleaseTimer.stop();
+        if (!sessionLock.locked)
+            sessionLock.locked = true;
 
-    // ── Music Widget ──────────────────────────────────────────────────────
-    Loader {
-        id: musicWidgetLoader
-        active: true // Always active to keep state for pinning
-        source: "MusicWidget/MusicWidget.qml"
-        anchors.right: parent.right
-        anchors.verticalCenter: parent.verticalCenter
-        // Initial position off-screen, will be animated in/out
-        x: parent.width
-
-        // Detect clicks outside the widget when unpinned to hide it
-        MouseArea {
-            anchors.fill: parent
-            enabled: musicWidgetLoader.item && !musicWidgetLoader.item.pinned && musicWidgetLoader.item._isVisible
-            onClicked: musicWidgetLoader.item.hide()
-        }
     }
 
-    // ── IPC: music widget ─────────────────────────────────────────────────
-    IpcHandler {
-        target: "musicwidget"
-        function toggle() {
-            if (musicWidgetLoader.item._isVisible) {
-                musicWidgetLoader.item.hide()
-            } else {
-                musicWidgetLoader.item.show()
+    Bar {
+        id: theBar
+
+        onPowerClicked: powerMenu.open()
+        onCalendarClicked: calendarPopup.toggle()
+    }
+
+    LauncherModule.Launcher {
+        id: launcher
+
+        visible: false
+    }
+
+    BarModules.PowerMenu {
+        id: powerMenu
+    }
+
+    BarModules.CalendarPopup {
+        id: calendarPopup
+    }
+
+    ControlCentreModule.ControlCentre {
+        id: controlCentre
+    }
+
+    ControlCentreModule.NotificationToasts {
+    }
+
+    WlSessionLock {
+        id: sessionLock
+
+        locked: false
+
+        WlSessionLockSurface {
+            LockScreenModule.LockScreen {
+                anchors.fill: parent
             }
+
         }
-        function open() { musicWidgetLoader.item.show() }
-        function close() { musicWidgetLoader.item.hide() }
+
     }
 
-    // ... (rest of the shell.qml content) ...
+    Timer {
+        id: unlockReleaseTimer
 
+        interval: LockScreenModule.Config.unlockExitDuration
+        repeat: false
+        onTriggered: sessionLock.locked = false
+    }
 
+    Connections {
+        function onUnlocked() {
+            unlockReleaseTimer.stop();
+            unlockReleaseTimer.start();
+        }
+
+        target: LockScreenModule.Auth
+    }
+
+    // ── Music Widget ──────────────────────────────────────────────────
+    // FloatingWindow must be a direct child of ShellRoot, not inside a Loader.
+    MusicWidget {
+        id: musicWidget
+
+        parentWindow: theBar
+    }
+
+    // ── IPC: launcher ─────────────────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            launcher.visible = !launcher.visible;
+            if (launcher.visible)
+                launcher.focusOnOpen();
+
+        }
+
+        function open() {
+            launcher.visible = true;
+            launcher.focusOnOpen();
+        }
+
+        function close() {
+            launcher.visible = false;
+        }
+
+        target: "launcher"
+    }
+
+    // ── IPC: control centre ───────────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            controlCentre.toggle();
+        }
+
+        function open() {
+            controlCentre.open();
+        }
+
+        function close() {
+            controlCentre.close();
+        }
+
+        target: "controlcentre"
+    }
+
+    // ── IPC: calendar ─────────────────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            calendarPopup.toggle();
+        }
+
+        function open() {
+            calendarPopup.open();
+        }
+
+        function close() {
+            calendarPopup.close();
+        }
+
+        target: "calendar"
+    }
+
+    // ── IPC: lock screen ──────────────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            lockSession();
+        }
+
+        function open() {
+            lockSession();
+        }
+
+        function lock() {
+            lockSession();
+        }
+
+        target: "lockscreen"
+    }
+
+    // ── IPC: music widget ─────────────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            musicWidget.toggle();
+        }
+
+        function open() {
+            musicWidget.show();
+        }
+
+        function close() {
+            musicWidget.hide();
+        }
+
+        target: "musicwidget"
+    }
+
+}

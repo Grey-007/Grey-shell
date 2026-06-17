@@ -1,37 +1,41 @@
 import QtQuick
-import "./MusicConfig.qml" as Config
-import "./Theme.qml" as MusicTheme
+import qs.MusicWidget
 
+// Ambient sine-wave visualizer drawn on a Canvas.
+// Sits behind all other content (z: -1 set by parent).
 Item {
-    id: visualizerRoot
-    opacity: Config.visualizerOpacity
+    id: root
 
-    // Subtle, animated path
+    opacity: MusicConfig.visualizerOpacity
+
     Canvas {
         id: canvas
         anchors.fill: parent
+
         onPaint: {
             var ctx = getContext("2d");
             ctx.clearRect(0, 0, width, height);
+
             ctx.beginPath();
-            ctx.strokeStyle = MusicTheme.accentColorPrimary;
-            ctx.lineWidth = 1;
-            
-            var time = Date.now() * 0.005;
+            ctx.strokeStyle = Theme.accentColorPrimary;
+            ctx.lineWidth = 1.5;
+
+            var time = Date.now() * 0.004;
             for (var x = 0; x < width; x++) {
-                var y = height / 2 + Math.sin(x * 0.05 + time) * 10;
+                var y = height / 2
+                    + Math.sin(x * 0.04 + time) * 12
+                    + Math.sin(x * 0.02 + time * 0.7) * 6;
                 if (x === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
+                else         ctx.lineTo(x, y);
             }
             ctx.stroke();
         }
     }
-    
-    // Timer to animate the visualizer
+
     Timer {
-        interval: 30
-        running: true
-        repeat: true
+        interval: 33   // ~30 fps
+        running:  MusicConfig.visualizerEnabled
+        repeat:   true
         onTriggered: canvas.requestPaint()
     }
 }

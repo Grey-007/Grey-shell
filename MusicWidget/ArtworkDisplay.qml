@@ -1,48 +1,70 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Layouts
 import Quickshell.Services.Mpris
-import "../Animation" as Animation
-import "../Animation/AnimationConfig.qml" as AnimationConfig
-import "./MusicConfig.qml" as Config
-import "./Theme.qml" as MusicTheme
+import qs.MusicWidget
 
+// Displays album art OR an animated GIF.
+// Tap to toggle between the two views.
 Item {
-    id: artworkRoot
-    width: 300
+    id: root
+    width:  300
     height: 300
 
-    // MPRIS player
-    readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
-    
-    // View state: 0 for Album Art, 1 for GIF
-    property int currentView: 0
-    property string gifSource: ""
+    readonly property var player: MprisController.currentPlayer
 
-    // View Container
+    // 0 = album art, 1 = GIF
+    property int    currentView: 0
+    property string gifSource:   ""
+
     StackLayout {
-        id: stackLayout
-        anchors.fill: parent
-        currentIndex: currentView
+        anchors.fill:  parent
+        currentIndex:  root.currentView
 
-        // Album Art View
-        Image {
-            source: player ? (player.artUrl || "") : ""
-            fillMode: Image.PreserveAspectCrop
+        // ── Album art ──────────────────────────────────────────────────
+        Rectangle {
+            color: Theme.surfaceColor
+
+            Image {
+                anchors.fill: parent
+                source:       root.player ? (root.player.trackArtUrl || "") : ""
+                fillMode:     Image.PreserveAspectCrop
+                smooth:       true
+
+                // Placeholder when no art is available
+                Rectangle {
+                    anchors.fill: parent
+                    color:        Theme.raisedSurfaceColor
+                    visible:      parent.status !== Image.Ready
+
+                    Text {
+                        anchors.centerIn: parent
+                        text:  "♪"
+                        color: Theme.mutedTextColor
+                        font.pixelSize: 48
+                    }
+                }
+            }
         }
 
-        // GIF View
-        AnimatedImage {
-            source: gifSource
-            fillMode: Image.PreserveAspectCrop
-            playing: currentView === 1
+        // ── GIF view ───────────────────────────────────────────────────
+        Rectangle {
+            color: Theme.surfaceColor
+
+            AnimatedImage {
+                anchors.fill: parent
+                source:       root.gifSource
+                fillMode:     Image.PreserveAspectCrop
+                playing:      root.currentView === 1
+            }
         }
     }
 
-    // Gesture handler for switching views
+    // Tap to switch view (only if a GIF is loaded)
     MouseArea {
         anchors.fill: parent
         onClicked: {
-            currentView = (currentView === 0) ? 1 : 0
+            if (root.gifSource !== "")
+                root.currentView = (root.currentView === 0) ? 1 : 0;
         }
     }
-}// recovery temp
+}

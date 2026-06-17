@@ -1,42 +1,34 @@
 pragma Singleton
 import QtQuick
-import "../Animation/AnimationConfig.qml" as AnimationConfig
-import "./Theme.qml" as MusicTheme
+import Quickshell
+import qs.Animation
+import qs.MusicWidget
 
-QtObject {
-    id: musicConfig
+Singleton {
+    id: root
 
     // Widget Dimensions and Positioning
-    readonly property int widgetWidth: 340
+    readonly property int widgetWidth:  340
     readonly property int widgetHeight: 420
-    readonly property int marginRight: 10
-    readonly property int widgetRadius: 20 // Soft geometry from GEMINI.md
+    readonly property int marginRight:  10
+    readonly property int widgetRadius: 20
 
-    // Animation Settings (referencing global AnimationConfig)
-    readonly property int animationDurationShort: AnimationConfig.durationShort
+    // Animation Settings — forwarded from AnimationConfig singleton
+    readonly property int animationDurationShort:  AnimationConfig.durationShort
     readonly property int animationDurationNormal: AnimationConfig.durationNormal
-    readonly property int animationDurationLong: AnimationConfig.durationLong
-    readonly property easing easingDefault: AnimationConfig.easingDefault
-    readonly property easing easingSmooth: AnimationConfig.easingSmooth
-    readonly property easing easingPop: AnimationConfig.easingPop
+    readonly property int animationDurationLong:   AnimationConfig.durationLong
+    readonly property int easingDefault:           AnimationConfig.easingDefault
+    readonly property int easingSmooth:            AnimationConfig.easingSmooth
+    readonly property int easingPop:               AnimationConfig.easingPop
 
-    // Visualizer Settings
+    // Visualizer
     readonly property bool visualizerEnabled: true
-    readonly property real visualizerOpacity: 0.6 // Subtle, blend into background
+    readonly property real visualizerOpacity: 0.5
 
-    // GIF Settings
-    readonly property string defaultGif: "" // No default GIF initially
+    // GIF
+    readonly property string defaultGif: ""
 
-    // Opacity Values
+    // Opacity values
     readonly property real defaultOpacity: 1.0
-    readonly property real mutedOpacity: 0.7
-
-    // Theme Values (referencing MusicTheme)
-    readonly property color backgroundColor: MusicTheme.backgroundColor
-    readonly property color surfaceColor: MusicTheme.surfaceColor
-    readonly property color raisedSurfaceColor: MusicTheme.raisedSurfaceColor
-    readonly property color accentColorPrimary: MusicTheme.accentColorPrimary
-    readonly property color accentColorSecondary: MusicTheme.accentColorSecondary
-    readonly property color textColor: MusicTheme.textColor
-    readonly property color mutedTextColor: MusicTheme.mutedTextColor
+    readonly property real mutedOpacity:   0.7
 }

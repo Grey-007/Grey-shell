@@ -1,30 +1,15 @@
 import QtQuick
-import QtQuick.Controls
-import "./AnimationConfig.qml" as AnimationConfig
+import qs.Animation
 
+// AnimationManager: reusable animation component definitions.
+// Import this file and use the Component IDs via Loader or inline.
 QtObject {
-    id: animationManager
+    id: root
 
-    // Reusable PropertyAnimation for opacity
-    Component {
-        id: opacityAnimator
-        PropertyAnimation {
-            duration: AnimationConfig.durationNormal
-            easing.type: AnimationConfig.easingSmooth
-            property: "opacity"
-        }
-    }
-
-    // Reusable PropertyAnimation for sliding X position
-    Component {
-        id: slideXAnimator
-        PropertyAnimation {
-            duration: AnimationConfig.durationNormal
-            easing.type: AnimationConfig.easingSmooth
-            property: "x"
-        }
-    }
-
-    // Add more reusable animators as needed
-    // Example: scaleAnimator, rotationAnimator, etc.
+    readonly property int durationShort: AnimationConfig.durationShort
+    readonly property int durationNormal: AnimationConfig.durationNormal
+    readonly property int durationLong: AnimationConfig.durationLong
+    readonly property int easingSmooth: AnimationConfig.easingSmooth
+    readonly property int easingDefault: AnimationConfig.easingDefault
+    readonly property int easingPop: AnimationConfig.easingPop
 }
