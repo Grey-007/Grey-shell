@@ -1,0 +1,18 @@
+~/.config/quickshell/
+├── shell.qml                          ← modified (MusicWidget added directly)
+│
+├── Animation/
+│   ├── AnimationConfig.qml            ← Singleton: durations & easing values
+│   └── AnimationManager.qml           ← Helper: forwards AnimationConfig values
+│
+└── MusicWidget/
+    ├── MusicWidget.qml                ← FloatingWindow: root widget, show/hide/toggle
+    ├── Theme.qml                      ← Singleton: sepia color palette
+    ├── MusicConfig.qml                ← Singleton: dimensions, animation, visualizer settings
+    ├── WidgetState.qml                ← Singleton: pinned state
+    ├── MusicControls.qml              ← MPRIS play/pause/next/prev + metadata text
+    ├── MusicProgressBar.qml           ← Canvas wave progress bar + click-to-seek
+    ├── ArtworkDisplay.qml             ← StackLayout: album art ↔ GIF toggle on tap
+    ├── MusicVisualizer.qml            ← Canvas sine-wave ambient background
+    ├── GifSelector.qml                ← Process ls → ListModel of GIF files
+    └── GifPickerModal.qml             ← Popup: GIF list + preview + apply/cancel
