@@ -8,6 +8,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import "launcher" as LauncherModule
 import "lockscreen" as LockScreenModule
+import "mediadeck"
 
 ShellRoot {
     function lockSession() {
@@ -65,6 +66,10 @@ ShellRoot {
         interval: LockScreenModule.Config.unlockExitDuration
         repeat: false
         onTriggered: sessionLock.locked = false
+    }
+
+    MediaDeck {
+        id: mediadeck 
     }
 
     Connections {
