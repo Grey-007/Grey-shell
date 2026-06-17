@@ -1,225 +1,131 @@
-# SepiaShell Media Deck — Phase 2 Plan
+# SepiaShell Media Deck — Phase 3 Plan
 
-This document outlines the architecture and implementation plan for Phase 2 of the Media Deck. The focus is on creating a foundational state and view management system that is robust, extensible, and directly builds upon the work completed in Phase 1.
+This document outlines the architecture and implementation plan for Phase 3 of the Media Deck. The focus is on connecting the deck to MPRIS to display real-time media player metadata. This builds upon the state and view management system from Phase 2.
 
 ---
 
 ## 1. File Structure
 
-The project directory will be updated to include the new state management and view files.
+A new `services` directory will be created to house background services. For this phase, it will contain the new `MprisService`.
 
 ```
 quickshell/
 ├── shell.qml
 │
 └── mediaDeck/
-    ├── MediaDeck.qml         # (Modified) Core container and logic hub
-    ├── MediaState.qml        # (New) Centralized state machine
-    ├── PositionStore.qml     # (Unchanged) Handles position persistence
+    ├── MediaDeck.qml         # (Modified) Passes service to views
+    ├── MediaState.qml        # (Unchanged)
+    ├── PositionStore.qml     # (Unchanged)
     │
-    └── views/                # (New Directory)
-        ├── CompactView.qml   # (New) UI for the compact state
-        └── ExpandedView.qml  # (New) UI for the expanded state
+    ├── services/             # (New Directory)
+    │   └── MprisService.qml  # (New) Handles all MPRIS logic
+    │
+    └── views/
+        ├── CompactView.qml   # (Modified) Displays basic metadata
+        └── ExpandedView.qml  # (Modified) Displays detailed metadata
 ```
 
 ---
 
-## 2. Component Responsibilities
+## 2. Service Architecture (`MprisService.qml`)
 
-Each file has a distinct role, ensuring a clean separation of concerns.
+`MprisService.qml` will be the central hub for all media-related data. It will be a non-visual `QtObject` that encapsulates all interaction with the low-level MPRIS D-Bus interface, providing a clean and simplified API to the rest of the application.
 
-*   **`MediaDeck.qml` (Container & Logic Controller)**
-    *   Acts as the root component for the entire Media Deck.
-    *   Owns and instantiates `MediaState`, `PositionStore`, and the view `Loader`.
-    *   Binds its own size (`panelWidth`, `panelHeight`) to properties derived from `MediaState`.
-    *   Contains the primary `MouseArea` that manages both dragging (from Phase 1) and the new hover logic for expansion/collapse.
-    *   Hosts the `Timer` responsible for the collapse delay.
-
-*   **`MediaState.qml` (State Machine)**
-    *   A non-visual `QtObject` that serves as the single source of truth for the deck's current state.
-    *   Defines the possible states using an enumeration (`DeckState`).
-    *   Exposes the current state (`currentState`) and convenience booleans (`isExpanded`).
-    *   Provides public API methods (`expand()`, `collapse()`) for state transitions. This prevents direct state manipulation from other components.
-
-*   **`CompactView.qml` (View)**
-    *   A purely visual component displaying the UI for the compact state.
-    *   Contains no business logic, state management, or timers.
-    *   Receives data via properties if needed in the future, but for Phase 2, it will only contain the required placeholder text.
-
-*   **`ExpandedView.qml` (View)**
-    *   A purely visual component displaying the UI for the expanded state.
-    *   Like the compact view, it contains no internal logic.
-    *   For Phase 2, it will display the placeholder layout (HEADER, CONTENT, FOOTER).
+*   **Technology:** It will use the `Quickshell.Services.Mpris` component, which is the standard, reactive API provided by Quickshell 0.3.0 for this purpose.
+*   **Instantiation:** A single instance of `MprisService` will be created in `MediaDeck.qml`. This instance will be passed as a property to the views, allowing them to bind directly to its data.
+*   **Exposed Properties:** The service will expose the following reactive properties, with built-in fallbacks for when no player is active:
+    *   `hasPlayer` (bool): True if a player is available.
+    *   `playerName` (string)
+    *   `playbackStatus` (string): e.g., "Playing", "Paused", "Stopped"
+    *   `title` (string)
+    *   `artist` (string)
+    *   `album` (string)
+    *   `length` (int): Track length in seconds.
+    *   `position` (int): Track position in seconds (live updating).
+    *   `albumArtUrl` (string): For future use in Phase X.
 
 ---
 
-## 3. State Management & Flow
+## 3. Data Flow and Update Strategy
 
-We will use a formal state machine pattern within `MediaState.qml` to ensure predictable transitions and prepare for future complexity.
+The architecture is designed to be fully reactive, ensuring the UI updates automatically without manual polling.
 
-### State Definition (`MediaState.qml`)
-
-An enumeration will define all possible modes for the deck.
-
-```qml
-// In MediaState.qml
-property int deckState: DeckState.Compact
-
-enum DeckState {
-    Compact,
-    Expanded,
-    Signal,      // For future use
-    Diagnostic   // For future use
-}
-```
-
-### State Flow Diagram
-
-The flow is simple for Phase 2 but establishes the pattern. State transitions are only triggered by calling the public API methods.
+### Data Flow Diagram
 
 ```
-                  expand()
-                 /--------
-                /          
-[Compact] -----/------------> [Expanded]
-        <-----\------------/
-         \     collapse()   /
-          \                /
-           \--------------/
+ D-Bus (MPRIS)
+      |
+      V
+[ Quickshell.Services.Mpris ]  (Low-level reactive API in Quickshell)
+      |
+      |  (Binds to Mpris.player)
+      V
+[ MprisService.qml ]           (Cleans up data, provides fallbacks)
+      |
+      |  (Service instance passed as property)
+      V
+[ MediaDeck.qml ]              (Controller)
+      |
+      +----------------------------+
+      | (Passes service to view)   | (Passes service to view)
+      V                            V
+[ CompactView.qml ]          [ ExpandedView.qml ]
+ (Binds to service props)     (Binds to service props)
 ```
 
-### View Loading (`MediaDeck.qml`)
+### Update Flow
 
-`MediaDeck.qml` will use a `Loader` to dynamically load the correct view based on the state from `MediaState.qml`. This is highly efficient and scalable.
-
-```qml
-// In MediaDeck.qml
-Loader {
-    id: viewLoader
-    anchors.fill: parent
-    source: {
-        switch(MediaState.currentState) {
-            case MediaState.DeckState.Expanded:
-                return "views/ExpandedView.qml";
-            case MediaState.DeckState.Compact:
-            default:
-                return "views/CompactView.qml";
-        }
-    }
-}
-```
-
-The panel's size will be similarly bound:
-
-```qml
-// In MediaDeck.qml
-property int panelWidth: MediaState.isExpanded ? 520 : 320
-property int panelHeight: MediaState.isExpanded ? 260 : 90
-```
+1.  A property in an MPRIS-compatible player (e.g., Spotify) changes on D-Bus.
+2.  The `Quickshell.Services.Mpris` component automatically detects this change.
+3.  Properties in `MprisService.qml` are bound directly to the `Mpris.player` object (e.g., `readonly property string title: Mpris.player ? Mpris.player.title : ...`), so they update automatically.
+4.  The `Text` elements in `CompactView.qml` and `ExpandedView.qml` are bound to the properties of the `MprisService` instance, so they re-render instantly with the new data.
 
 ---
 
-## 4. Hover & Collapse Logic
+## 4. Player Selection & Multiple Player Handling
 
-This logic will be handled entirely within the main `MouseArea` in `MediaDeck.qml` to ensure it can correctly monitor the cursor entering/leaving the entire component.
-
-### Combining Drag & Hover
-
-The existing `MouseArea` for dragging will be modified to also handle hover events.
-
-```qml
-// In MediaDeck.qml
-MouseArea {
-    id: dragArea
-    anchors.fill: parent
-    acceptedButtons: Qt.LeftButton
-    hoverEnabled: true // <--- NEW
-
-    // ... drag properties (lastMousePos) ...
-
-    onPressed: (mouse) => {
-        collapseTimer.stop(); // <--- CRITICAL: Stop collapse on drag start
-        // ... existing drag logic ...
-    }
-
-    onEntered: {
-        MediaState.expand();
-        collapseTimer.stop();
-    }
-
-    onExited: {
-        collapseTimer.start();
-    }
-
-    // ... other drag handlers (onPositionChanged, onReleased) ...
-}
-
-Timer {
-    id: collapseTimer
-    interval: 500
-    repeat: false
-    onTriggered: MediaState.collapse()
-}
-```
-
-### Hover Flow Diagram
-
-```
-[Cursor Enters Deck]
-        |
-        V
-[ Call MediaState.expand() ]
-        |
-        V
-[ Stop Collapse Timer (if running) ]
-```
-
-### Collapse Flow Diagram
-
-This flow correctly handles the delay and cancellation.
-
-```
-[Cursor Exits Deck]
-        |
-        V
-[ Start 500ms Collapse Timer ]
-        |
-        +----------------------------------+
-        |                                  |
-        V                                  V
-[ IF Cursor Re-enters Deck ]       [ IF Timer Finishes ]
-        |                                  |
-        V                                  V
-[ Stop Collapse Timer ]            [ Call MediaState.collapse() ]
-        |
-        V
-[ Deck Remains Expanded ]
-```
-
-This design ensures that moving the mouse between child elements within a view (e.g., from the header to the content area in `ExpandedView`) will not trigger `onExited` on the main `dragArea`, preventing accidental collapses.
+*   **Strategy:** We will adopt the default strategy provided by `Quickshell.Services.Mpris`. The `Mpris.player` property automatically points to the most relevant media player. This is typically the one that is currently playing, or the one that most recently had user interaction.
+*   **Implementation:** `MprisService.qml` will bind all its properties to this single `Mpris.player` object. When the user switches players (e.g., pauses Spotify and plays a YouTube video in Firefox), `Mpris.player` will change, and the entire UI will reactively update to show the new player's information. This is efficient and requires no manual player management logic.
 
 ---
 
-## 5. Future Expansion Strategy
+## 5. Position Tracking
 
-The proposed architecture is designed for easy extension without requiring rewrites.
+Live position tracking will be handled efficiently to minimize CPU usage.
 
-1.  **Add a State:** To add a "Signal" view, we first update the `DeckState` enum in `MediaState.qml`:
+*   **Strategy:** A `Timer` will be placed inside `MprisService.qml`.
+*   **Condition:** The `Timer` will only run when `Mpris.player.playbackStatus` is `MprisPlaybackState.Playing`. It will be stopped for any other state (`Paused`, `Stopped`, `null`).
+*   **Update:** Every second, the timer's `onTriggered` signal will simply increment a local `position` property within the service. This avoids costly D-Bus calls every second.
+*   **Synchronization:** The local `position` will be reset and synchronized with the true `Mpris.player.position` whenever:
+    1.  The track changes (`Mpris.player.title` changes).
+    2.  The playback state changes (e.g., from `Paused` to `Playing`).
+    This hybrid approach gives the illusion of a smooth, real-time counter while being very performant.
+
+---
+
+## 6. Fallback Behavior
+
+The UI must remain clean and stable when no media is playing.
+
+*   **Detection:** The service will determine if a player is active by checking `if (Mpris.player)`.
+*   **Implementation:** All exposed properties in `MprisService.qml` will use ternary operators to provide sensible default strings.
+
     ```qml
-    enum DeckState { Compact, Expanded, Signal, Diagnostic }
+    // Example in MprisService.qml
+    readonly property bool hasPlayer: Mpris.player !== null
+    readonly property string title: hasPlayer ? Mpris.player.title : "NO MEDIA"
+    readonly property string artist: hasPlayer ? Mpris.player.artist : ""
     ```
+*   **UI Logic:** The views will then use this data. For example, `CompactView` can check `if (service.hasPlayer)` to decide whether to show the "NO MEDIA" text or the track/artist information. This prevents `null` values and ensures the UI never appears broken.
 
-2.  **Add a View File:** Create the new `views/SignalView.qml` file containing the UI for that state.
+---
 
-3.  **Update the Loader:** Add a `case` to the `Loader` in `MediaDeck.qml`:
-    ```qml
-    // In MediaDeck.qml's Loader
-    case MediaState.DeckState.Signal:
-        return "views/SignalView.qml";
-    ```
+## 7. Future Compatibility
 
-4.  **Update Sizing:** Update the size bindings in `MediaDeck.qml` to account for the new state's dimensions.
+This architecture is explicitly designed for future expansion.
 
-5.  **Add Transition Logic:** Add a new public function to `MediaState.qml` (e.g., `showSignalView()`) to handle the transition into the new state. The trigger for this (e.g., a keybind, a button click) would be implemented in a later phase, but the state management foundation is already in place.
+*   **Playback Controls:** A future `ControlsView.qml` could be given the same `MprisService` instance. The service could expose control functions (`function play() { Mpris.player.play() }`) that directly call the underlying MPRIS methods.
+*   **Album Art:** The `albumArtUrl` property is already included in the service's API. A future `Artwork.qml` component would simply bind its `source` to `service.albumArtUrl`.
+*   **Multiple Views:** The `Signal` and `Diagnostic` views can be added to the `MediaDeck` `Loader` and can also be passed the `MprisService` instance if they need access to media data, without any changes to the service itself.
 
-This approach isolates each view's UI and keeps the core `MediaDeck` component clean, acting as a simple controller.
+By centralizing all MPRIS logic in `MprisService`, we create a single, reliable source of truth that any other component can consume, making future feature development clean and modular.
