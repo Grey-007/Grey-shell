@@ -3,10 +3,11 @@ import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
 
+// Tray.qml — System tray with sepia hover effects
 Item {
     id: root
 
-    height:         36
+    height:         28
     width:          SystemTray.items.values.length > 0 ? trayRow.implicitWidth : 0
     implicitWidth:  width
     implicitHeight: height

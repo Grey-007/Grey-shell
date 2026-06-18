@@ -66,6 +66,7 @@ Item {
                 color:             root.mutedColor
                 font.pixelSize:    10
                 font.weight:       Font.Medium
+                font.family:       "monospace"
                 font.letterSpacing: 0.6
                 verticalAlignment: Text.AlignVCenter
                 anchors.verticalCenter: parent.verticalCenter
@@ -75,6 +76,7 @@ Item {
                 color:             root.accentColor
                 font.pixelSize:    11
                 font.weight:       Font.DemiBold
+                font.family:       "monospace"
                 verticalAlignment: Text.AlignVCenter
                 anchors.verticalCenter: parent.verticalCenter
             }
@@ -83,6 +85,7 @@ Item {
                 color:             root.mutedColor
                 font.pixelSize:    10
                 font.weight:       Font.Medium
+                font.family:       "monospace"
                 font.letterSpacing: 0.6
                 verticalAlignment: Text.AlignVCenter
                 anchors.verticalCenter: parent.verticalCenter
@@ -105,8 +108,9 @@ Item {
             Text {
                 text:              root._h.toString()
                 color:             root.color
-                font.pixelSize:    16
+                font.pixelSize:    14
                 font.weight:       Font.Medium
+                font.family:       "monospace"
                 verticalAlignment: Text.AlignVCenter
                 anchors.verticalCenter: parent.verticalCenter
             }
@@ -116,8 +120,9 @@ Item {
                 id: colonMain
                 text:              ":"
                 color:             root.accentColor
-                font.pixelSize:    15
+                font.pixelSize:    14
                 font.weight:       Font.Light
+                font.family:       "monospace"
                 verticalAlignment: Text.AlignVCenter
                 anchors.verticalCenter: parent.verticalCenter
 
@@ -132,8 +137,9 @@ Item {
             Text {
                 text:              root._pad(root._m)
                 color:             root.color
-                font.pixelSize:    16
+                font.pixelSize:    14
                 font.weight:       Font.Medium
+                font.family:       "monospace"
                 verticalAlignment: Text.AlignVCenter
                 anchors.verticalCenter: parent.verticalCenter
             }
@@ -148,6 +154,7 @@ Item {
                 text:              root._pad(root._s)
                 color:             root.mutedColor
                 font.pixelSize:    9
+                font.family:       "monospace"
                 verticalAlignment: Text.AlignVCenter
                 anchors.verticalCenter: parent.verticalCenter
             }
@@ -167,6 +174,7 @@ Item {
                     color:             root.accentColor
                     font.pixelSize:    8
                     font.weight:       Font.DemiBold
+                    font.family:       "monospace"
                     font.letterSpacing: 0.5
                 }
             }

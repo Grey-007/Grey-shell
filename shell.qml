@@ -1,6 +1,7 @@
 import "Bar"
-import "Bar/modules" as BarModules
+import "Bar/modules/calendar" as CalendarModule
 import "ControlCentre" as ControlCentreModule
+import "powermenu" as PowerMenuModule
 import "MusicWidget"
 import QtQuick
 import Quickshell
@@ -22,7 +23,6 @@ ShellRoot {
     Bar {
         id: theBar
 
-        onPowerClicked: powerMenu.open()
         onCalendarClicked: calendarPopup.toggle()
     }
 
@@ -38,11 +38,11 @@ ShellRoot {
         visible: false
     }
 
-    BarModules.PowerMenu {
+    PowerMenuModule.PowerMenuWindow {
         id: powerMenu
     }
 
-    BarModules.CalendarPopup {
+    CalendarModule.CalendarPopup {
         id: calendarPopup
     }
 
@@ -209,6 +209,23 @@ ShellRoot {
         }
 
         target: "wallpaper"
+    }
+
+    // ── IPC: power menu ───────────────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            powerMenu.toggle();
+        }
+
+        function open() {
+            powerMenu.open();
+        }
+
+        function close() {
+            powerMenu.close();
+        }
+
+        target: "powermenu"
     }
 
 }

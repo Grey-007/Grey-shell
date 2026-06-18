@@ -2,16 +2,15 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 
-// Workspace dots — sepia theme, clicking switches workspace
+// Workspaces.qml — sepia theme workspace switcher with improved animations
 Row {
     id: root
-
-    spacing: 0
+    spacing: 6
 
     readonly property int minimumWorkspaces:  5
-    readonly property int prewarmWorkspaces:  5
+    readonly property int prewarmWorkspaces:  2
     readonly property int activeWorkspaceId:  Hyprland.focusedWorkspace?.id ?? 1
-    property int visibleWorkspaceCount: minimumWorkspaces + prewarmWorkspaces
+    property int visibleWorkspaceCount: minimumWorkspaces
 
     // Sepia palette
     readonly property color accent:      "#d4a45a"
@@ -41,8 +40,7 @@ Row {
 
     function syncWorkspaceCount() {
         visibleWorkspaceCount = Math.max(
-            visibleWorkspaceCount,
-            minimumWorkspaces + prewarmWorkspaces,
+            minimumWorkspaces,
             highestWorkspaceId() + prewarmWorkspaces,
             activeWorkspaceId  + prewarmWorkspaces
         )
@@ -65,15 +63,16 @@ Row {
             readonly property var  workspace:  root.workspaceById(wsId)
             readonly property bool isActive:   root.activeWorkspaceId === wsId
             readonly property bool exists:     workspace !== null
+            readonly property bool hasClients: exists && workspace.clients > 0
             readonly property bool shouldShow: exists || isActive || wsId <= root.minimumWorkspaces
 
             // active pill is wider; invisible workspaces collapse
-            width:   shouldShow ? (isActive ? 28 : 12) : 0
-            height:  10
+            width:   shouldShow ? (isActive ? 24 : 10) : 0
+            height:  8
             opacity: shouldShow ? 1 : 0
 
-            Behavior on width   { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
-            Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+            Behavior on width   { NumberAnimation { duration: 350; easing.type: Easing.OutQuint } }
+            Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutQuint } }
 
             // The visible dot/pill — sits left-aligned so gaps stay clean
             Rectangle {
@@ -81,8 +80,8 @@ Row {
                     left:           parent.left
                     verticalCenter: parent.verticalCenter
                 }
-                width:  wsDot.isActive ? 24 : 8
-                height: 8
+                width:  wsDot.isActive ? 20 : 6
+                height: 6
                 radius: height / 2
                 color:  wsDot.isActive
                             ? root.accent
@@ -91,8 +90,8 @@ Row {
                                 : root.emptyInk
                 antialiasing: true
 
-                Behavior on width { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
-                Behavior on color { ColorAnimation  { duration: 160; easing.type: Easing.OutCubic } }
+                Behavior on width { NumberAnimation { duration: 350; easing.type: Easing.OutQuint } }
+                Behavior on color { ColorAnimation  { duration: 250; easing.type: Easing.OutQuint } }
 
                 // Gleam stripe on active pill
                 Rectangle {
@@ -112,14 +111,10 @@ Row {
                 }
             }
 
-            // Click target — fills the full Item so tiny dots are still easy to hit
             MouseArea {
                 anchors.fill: parent
                 cursorShape:  Qt.PointingHandCursor
-                // Switch workspace via hyprctl — this is the fix for point 1
-                onClicked: Quickshell.execDetached([
-                    "hyprctl", "dispatch", "workspace", wsDot.wsId.toString()
-                ])
+                onClicked: Quickshell.execDetached(["hyprctl", "dispatch", "workspace", wsDot.wsId.toString()])
             }
         }
     }

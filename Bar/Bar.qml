@@ -3,15 +3,15 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
-import "modules"
-import "."
+import "modules/workspaces"
+import "modules/clock"
+import "modules/metrics"
+import "modules/tray"
 
 // Bar.qml — floating top panel for Hyprland — sepia theme
 PanelWindow {
     id: bar
 
-    signal mediaClicked()
-    signal powerClicked()
     signal calendarClicked()
 
     readonly property int barHeight:      38
@@ -183,8 +183,6 @@ PanelWindow {
             border.width: 1
             antialiasing: true
 
-            // No Behavior on x so it never drifts on its own
-
             Clock {
                 id: clockWidget
                 anchors.centerIn: parent
@@ -195,10 +193,9 @@ PanelWindow {
             }
         }
 
-        // ── RIGHT: metrics + tray + power ─────────────────────────
+        // ── RIGHT: metrics + tray ─────────────────────────
         Rectangle {
             id: rightGroup
-            // Anchor to right edge — no manual x — fixes drift
             anchors {
                 right:          parent.right
                 verticalCenter: parent.verticalCenter
@@ -229,7 +226,7 @@ PanelWindow {
 
                 Tray {}
 
-                // thin separator between tray and metrics (only when tray visible)
+                // thin separator between tray and metrics
                 Rectangle {
                     width:   1
                     height:  14
@@ -237,22 +234,15 @@ PanelWindow {
                     visible: SystemTray.items.values.length > 0
                 }
 
-                Cpu {}
-                Ram {}
-                Volume {}
+                Cpu { onBarClicked: systemPopup.toggle() }
+                Ram { onBarClicked: systemPopup.toggle() }
+                Volume { onBarClicked: systemPopup.toggle() }
                 Battery {}
-
-                // thin separator before power
-                Rectangle {
-                    width:  1
-                    height: 14
-                    color:  Qt.rgba(bar.accent.r, bar.accent.g, bar.accent.b, 0.25)
-                }
-
-                PowerButton {
-                    onClicked: bar.powerClicked()
-                }
             }
         }
+    }
+
+    SystemPopup {
+        id: systemPopup
     }
 }

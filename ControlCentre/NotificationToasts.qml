@@ -16,11 +16,11 @@ PanelWindow {
     visible: ControlCentreState.toastNotifications.length > 0
     color: "transparent"
 
-    // Material You tokens
-    readonly property color surface:   "#242B1E"
-    readonly property color onSurf:    "#DDE8CC"
-    readonly property color onSurfV:   "#9DB88A"
-    readonly property color primary:   "#A8D368"
+    // Sepia tokens
+    readonly property color surface:   "#241D18"
+    readonly property color onSurf:    "#F2E0C8"
+    readonly property color onSurfV:   "#8C6F56"
+    readonly property color primary:   "#A67C52"
 
     anchors {
         top: true

@@ -87,25 +87,35 @@ PanelWindow {
         }
     }
 
+    // ── The Notification card ─────────────────────────────────────────────
+    NotificationPopupCard {
+        id: notifCard
+        y: 64
+        width: win.panelWidth
+        height: 300
+        x: ControlCentreState.open ? win.openX : win.closedX
+
+        Behavior on x {
+            NumberAnimation { duration: win.animDuration; easing.type: Easing.OutCubic }
+        }
+    }
+
     // ── Panel card ────────────────────────────────────────────────────────
     ControlCentreCard {
         id: card
 
         panelWidth:  win.panelWidth
-        panelHeight: win.screenHeight - 78
+        panelHeight: win.screenHeight - 78 - 300 - 10
 
-        y:      64
+        y: 64 + 300 + 10
         width:  win.panelWidth
-        height: win.screenHeight - 78
+        height: win.screenHeight - 78 - 300 - 10
 
         // Slide in from right → out to right
         x: ControlCentreState.open ? win.openX : win.closedX
 
         Behavior on x {
-            NumberAnimation {
-                duration:    win.animDuration
-                easing.type: Easing.OutCubic
-            }
+            NumberAnimation { duration: win.animDuration; easing.type: Easing.OutCubic }
         }
     }
 }
