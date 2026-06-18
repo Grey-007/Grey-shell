@@ -7,6 +7,7 @@ import QtQuick
 Rectangle {
     // The service instance passed in from MediaDeck.qml
     property var mprisService
+    property var gifManager
 
     anchors.fill: parent
     color: "transparent"

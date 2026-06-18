@@ -1,131 +1,83 @@
-# SepiaShell Media Deck — Phase 3 Plan
+# Phase 6 Plan — Signal View and Background Waveform Architecture
 
-This document outlines the architecture and implementation plan for Phase 3 of the Media Deck. The focus is on connecting the deck to MPRIS to display real-time media player metadata. This builds upon the state and view management system from Phase 2.
-
----
+This plan outlines the implementation of a background waveform rendering system and a new "Signal View" for the SepiaShell Media Deck. The core philosophy is to treat the waveform as an integral part of the deck's hardware display, not a separate widget.
 
 ## 1. File Structure
 
-A new `services` directory will be created to house background services. For this phase, it will contain the new `MprisService`.
+The following files will be created or modified to implement the new architecture:
 
-```
+```text
 quickshell/
-├── shell.qml
-│
-└── mediaDeck/
-    ├── MediaDeck.qml         # (Modified) Passes service to views
-    ├── MediaState.qml        # (Unchanged)
-    ├── PositionStore.qml     # (Unchanged)
+└── mediadeck/
+    ├── MediaDeck.qml           (MODIFIED)
+    ├── MediaState.qml          (MODIFIED)
     │
-    ├── services/             # (New Directory)
-    │   └── MprisService.qml  # (New) Handles all MPRIS logic
+    ├── services/
+    │   ├── MprisService.qml    (MODIFIED)
+    │   └── FakeAudioSource.qml (NEW)
+    │
+    ├── components/
+    │   └── WaveformLayer.qml   (NEW)
     │
     └── views/
-        ├── CompactView.qml   # (Modified) Displays basic metadata
-        └── ExpandedView.qml  # (Modified) Displays detailed metadata
+        ├── ExpandedView.qml    (MODIFIED)
+        └── SignalView.qml      (NEW)
 ```
 
----
+## 2. Rendering Layer Hierarchy
 
-## 2. Service Architecture (`MprisService.qml`)
+The waveform will be rendered as a background layer. The stacking order within views will be managed using `z-ordering`:
 
-`MprisService.qml` will be the central hub for all media-related data. It will be a non-visual `QtObject` that encapsulates all interaction with the low-level MPRIS D-Bus interface, providing a clean and simplified API to the rest of the application.
+-   **`z: 4`**: Text (Track, Artist, etc.)
+-   **`z: 3`**: Controls & Progress Bar
+-   **`z: 2`**: GIF Panel
+-   **`z: 1`**: `WaveformLayer.qml`
+-   **`z: 0`**: Main Deck Background
 
-*   **Technology:** It will use the `Quickshell.Services.Mpris` component, which is the standard, reactive API provided by Quickshell 0.3.0 for this purpose.
-*   **Instantiation:** A single instance of `MprisService` will be created in `MediaDeck.qml`. This instance will be passed as a property to the views, allowing them to bind directly to its data.
-*   **Exposed Properties:** The service will expose the following reactive properties, with built-in fallbacks for when no player is active:
-    *   `hasPlayer` (bool): True if a player is available.
-    *   `playerName` (string)
-    *   `playbackStatus` (string): e.g., "Playing", "Paused", "Stopped"
-    *   `title` (string)
-    *   `artist` (string)
-    *   `album` (string)
-    *   `length` (int): Track length in seconds.
-    *   `position` (int): Track position in seconds (live updating).
-    *   `albumArtUrl` (string): For future use in Phase X.
+This ensures the waveform is always visible behind all other content, creating a sense of depth.
 
----
+## 3. WaveformLayer.qml Architecture
 
-## 3. Data Flow and Update Strategy
+This new component is responsible for rendering the waveform.
 
-The architecture is designed to be fully reactive, ensuring the UI updates automatically without manual polling.
+-   **`Canvas` Rendering**: It will use a `Canvas` element to draw the waveform paths. The `onPaint` handler will be optimized to only redraw when necessary.
+-   **Dual Channel**: It will accept two data arrays, `leftChannelData` and `rightChannelData`, and render them as two distinct waveform traces (top and bottom).
+-   **Properties**:
+    -   `property var audioSource`: The data source to use (e.g., `FakeAudioSource`).
+    -   `property real opacity`: Controls the visibility of the waveform.
+    -   `property bool active`: Determines if the waveform should be animating.
+-   **Animation**: A `Timer` will trigger the `Canvas` to redraw and create an animated, scrolling effect when `active` is `true`.
 
-### Data Flow Diagram
+## 4. Fake Audio Data (`FakeAudioSource.qml`)
 
-```
- D-Bus (MPRIS)
-      |
-      V
-[ Quickshell.Services.Mpris ]  (Low-level reactive API in Quickshell)
-      |
-      |  (Binds to Mpris.player)
-      V
-[ MprisService.qml ]           (Cleans up data, provides fallbacks)
-      |
-      |  (Service instance passed as property)
-      V
-[ MediaDeck.qml ]              (Controller)
-      |
-      +----------------------------+
-      | (Passes service to view)   | (Passes service to view)
-      V                            V
-[ CompactView.qml ]          [ ExpandedView.qml ]
- (Binds to service props)     (Binds to service props)
-```
+To ensure future compatibility, the data source will be a pluggable component.
 
-### Update Flow
+-   **Generation**: This service will use a `Timer` to generate arrays of numbers (representing layered sine waves) at a regular interval (e.g., 60 times per second).
+-   **API**: It will expose `readonly property var leftChannelData` and `readonly property var rightChannelData` that `WaveformLayer` can bind to.
+-   **Pluggability**: In the future, this component can be replaced by a real audio service (CAVA, PipeWire, etc.) that exposes data in the same format, requiring no changes to the UI.
 
-1.  A property in an MPRIS-compatible player (e.g., Spotify) changes on D-Bus.
-2.  The `Quickshell.Services.Mpris` component automatically detects this change.
-3.  Properties in `MprisService.qml` are bound directly to the `Mpris.player` object (e.g., `readonly property string title: Mpris.player ? Mpris.player.title : ...`), so they update automatically.
-4.  The `Text` elements in `CompactView.qml` and `ExpandedView.qml` are bound to the properties of the `MprisService` instance, so they re-render instantly with the new data.
+## 5. View Switching & Signal View Architecture
 
----
+-   **`MediaState.qml`**: A new state, `stateSignal`, will be added. A `toggleSignalView()` function will be implemented to switch between `stateExpanded` and `stateSignal`.
+-   **`MediaDeck.qml`**: The `Loader` will be updated to load `views/SignalView.qml` when `mediaState` is `stateSignal`.
+-   **`SignalView.qml`**: This new view will:
+    -   Contain a `WaveformLayer` with high opacity (e.g., `0.8`).
+    -   Display essential metadata (Track, Artist) and new placeholder metadata (Codec, Bitrate, Latency) overlaid on top of the waveform.
+    -   It will *not* contain the `GifPanel`, `MediaControls`, or `ProgressBar`.
+-   **`MprisService.qml`**: Placeholder properties will be added for the new metadata fields (`codec: "FLAC"`, `bitrate: "1024kbps"`, `latency: "5ms"`).
 
-## 4. Player Selection & Multiple Player Handling
+## 6. Expanded View Integration
 
-*   **Strategy:** We will adopt the default strategy provided by `Quickshell.Services.Mpris`. The `Mpris.player` property automatically points to the most relevant media player. This is typically the one that is currently playing, or the one that most recently had user interaction.
-*   **Implementation:** `MprisService.qml` will bind all its properties to this single `Mpris.player` object. When the user switches players (e.g., pauses Spotify and plays a YouTube video in Firefox), `Mpris.player` will change, and the entire UI will reactively update to show the new player's information. This is efficient and requires no manual player management logic.
+`ExpandedView.qml` will be modified to include the waveform as a subtle background element.
 
----
+-   A `WaveformLayer` instance will be added with `z: -1` (or the lowest z-order).
+-   Its `opacity` will be bound to a low value (e.g., `0.25`).
+-   Its `active` property will be bound to `mprisService.playbackStatus === "Playing"`, making it animate only during playback and disappear completely when paused or stopped.
 
-## 5. Position Tracking
+## 7. Performance & Future Integration
 
-Live position tracking will be handled efficiently to minimize CPU usage.
+-   **`Canvas` Efficiency**: Using `Canvas` is highly efficient for this type of custom drawing.
+-   **Decoupled Logic**: The data source (`FakeAudioSource`) is completely decoupled from the rendering (`WaveformLayer`), which is in turn decoupled from the views (`ExpandedView`, `SignalView`). This modularity is key for future maintenance and for integrating a real audio source in Phase 7.
+-   **Throttled Updates**: The timers in `FakeAudioSource` and `WaveformLayer` will be configured for smooth animation without excessive CPU usage.
 
-*   **Strategy:** A `Timer` will be placed inside `MprisService.qml`.
-*   **Condition:** The `Timer` will only run when `Mpris.player.playbackStatus` is `MprisPlaybackState.Playing`. It will be stopped for any other state (`Paused`, `Stopped`, `null`).
-*   **Update:** Every second, the timer's `onTriggered` signal will simply increment a local `position` property within the service. This avoids costly D-Bus calls every second.
-*   **Synchronization:** The local `position` will be reset and synchronized with the true `Mpris.player.position` whenever:
-    1.  The track changes (`Mpris.player.title` changes).
-    2.  The playback state changes (e.g., from `Paused` to `Playing`).
-    This hybrid approach gives the illusion of a smooth, real-time counter while being very performant.
-
----
-
-## 6. Fallback Behavior
-
-The UI must remain clean and stable when no media is playing.
-
-*   **Detection:** The service will determine if a player is active by checking `if (Mpris.player)`.
-*   **Implementation:** All exposed properties in `MprisService.qml` will use ternary operators to provide sensible default strings.
-
-    ```qml
-    // Example in MprisService.qml
-    readonly property bool hasPlayer: Mpris.player !== null
-    readonly property string title: hasPlayer ? Mpris.player.title : "NO MEDIA"
-    readonly property string artist: hasPlayer ? Mpris.player.artist : ""
-    ```
-*   **UI Logic:** The views will then use this data. For example, `CompactView` can check `if (service.hasPlayer)` to decide whether to show the "NO MEDIA" text or the track/artist information. This prevents `null` values and ensures the UI never appears broken.
-
----
-
-## 7. Future Compatibility
-
-This architecture is explicitly designed for future expansion.
-
-*   **Playback Controls:** A future `ControlsView.qml` could be given the same `MprisService` instance. The service could expose control functions (`function play() { Mpris.player.play() }`) that directly call the underlying MPRIS methods.
-*   **Album Art:** The `albumArtUrl` property is already included in the service's API. A future `Artwork.qml` component would simply bind its `source` to `service.albumArtUrl`.
-*   **Multiple Views:** The `Signal` and `Diagnostic` views can be added to the `MediaDeck` `Loader` and can also be passed the `MprisService` instance if they need access to media data, without any changes to the service itself.
-
-By centralizing all MPRIS logic in `MprisService`, we create a single, reliable source of truth that any other component can consume, making future feature development clean and modular.
+This architecture provides a robust, visually appealing, and future-proof foundation for the new Signal View and background waveform effects.

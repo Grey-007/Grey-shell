@@ -7,10 +7,12 @@ import qs.MusicWidget
 // Tap to toggle between the two views.
 Item {
     id: root
-    width:  300
-    height: 300
+    property var mprisService
 
-    readonly property var player: MprisController.currentPlayer
+    implicitWidth:  300
+    implicitHeight: 300
+
+    readonly property var player: root.mprisService
 
     // 0 = album art, 1 = GIF
     property int    currentView: 0

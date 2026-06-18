@@ -9,13 +9,14 @@ PopupWindow {
 
     // Set this from shell.qml: MusicWidget { parentWindow: theBar }
     property var parentWindow
+    property var mprisService // Add mprisService property
 
-    width:   MusicConfig.widgetWidth
-    height:  MusicConfig.widgetHeight
+    implicitWidth:   MusicConfig.widgetWidth
+    implicitHeight:  MusicConfig.widgetHeight
     visible: false
 
     anchor.window: parentWindow
-    anchor.rect.x: parentWindow ? parentWindow.width - root.width - MusicConfig.marginRight : 0
+    anchor.rect.x: parentWindow ? parentWindow.width - implicitWidth - MusicConfig.marginRight : 0
     anchor.rect.y: parentWindow ? parentWindow.height : 0
 
     // ── Public API ────────────────────────────────────────────────────
@@ -54,6 +55,7 @@ PopupWindow {
 
             ArtworkDisplay {
                 id: artwork
+                mprisService: root.mprisService // Pass mprisService
                 Layout.fillWidth:       true
                 Layout.preferredHeight: 200
             }
@@ -61,7 +63,7 @@ PopupWindow {
             // GIF picker trigger
             Rectangle {
                 Layout.alignment: Qt.AlignHCenter
-                width: 110; height: 30
+                implicitWidth: 110; implicitHeight: 30 // Use implicit properties
                 radius: 15
                 color: gifBtnArea.containsMouse ? Theme.raisedSurfaceColor : Theme.surfaceColor
                 border.color: Theme.accentColorPrimary
@@ -82,17 +84,19 @@ PopupWindow {
             }
 
             MusicControls {
+                mprisService: root.mprisService // Pass mprisService
                 Layout.fillWidth: true
             }
 
             MusicProgressBar {
+                mprisService: root.mprisService // Pass mprisService
                 Layout.fillWidth: true
             }
 
             // Pin toggle
             Rectangle {
                 Layout.alignment: Qt.AlignHCenter
-                width: 90; height: 28
+                implicitWidth: 90; implicitHeight: 28 // Use implicit properties
                 radius: 14
                 color: pinArea.containsMouse ? Theme.raisedSurfaceColor : Theme.surfaceColor
                 border.color: WidgetState.pinned ? Theme.accentColorPrimary : Theme.mutedTextColor

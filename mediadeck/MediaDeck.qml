@@ -19,10 +19,15 @@ PanelWindow {
         id: mprisService
     }
 
+    GifManager {
+        id: gifManager
+        mprisService: root.mprisService
+    }
+
     // ---- Public configuration -------------------------------------------
     // Panel dimensions are now bound to the state machine.
-    readonly property int panelWidth: mediaState.isExpanded ? 520 : 320
-    readonly property int panelHeight: mediaState.isExpanded ? 260 : 90
+    readonly property int panelWidth: mediaState.isExpanded ? 460 : 320
+    readonly property int panelHeight: mediaState.isExpanded ? 240 : 90
 
     property int edgeMarginRight: 40
     property int edgeMarginBottom: 80
@@ -75,19 +80,11 @@ PanelWindow {
         border.width: 1
         border.color: "#5A4736"
 
-        Loader {
-            id: viewLoader
-            anchors.fill: parent
-            source: mediaState.isExpanded ? "views/ExpandedView.qml" : "views/CompactView.qml"
-
-            onLoaded: {
-                // Pass the service instances to the newly created view.
-                item.mprisService = mprisService
-            }
-        }
-
         // ---- Dragging & Hover Logic ------------------------------------------
-        // The main MouseArea now handles both dragging and hover state changes.
+        // The dragArea covers the entire panel. Since the Loader is its child,
+        // the view's interactive elements (buttons) will receive events first.
+        // If they don't handle the event (e.g., clicking the background), it
+        // bubbles up to this MouseArea to handle dragging.
         MouseArea {
             id: dragArea
             anchors.fill: parent
@@ -122,19 +119,35 @@ PanelWindow {
             onExited: {
                 collapseTimer.start();
             }
+
+            Loader {
+                id: viewLoader
+                anchors.fill: parent
+                source: mediaState.isExpanded ? "views/ExpandedView.qml" : "views/CompactView.qml"
+
+                onLoaded: {
+                    // Pass the service instances to the newly created view.
+                    item.mprisService = mprisService
+                    item.gifManager = gifManager
+                }
+            }
         }
     }
 
-    // ---- Future keybind integration --------------------------------------
+    // ---- Global Control --------------------------------------------------
+    // Simple toggle functionality for visibility.
+    // Future phases can bind this to an external signal or hotkey.
     function show() {
         root.visible = true;
     }
 
     function hide() {
         root.visible = false;
+        mediaState.collapse(); // Reset state when hiding
     }
 
     function toggle() {
-        root.visible = !root.visible;
+        if (root.visible) hide();
+        else show();
     }
 }

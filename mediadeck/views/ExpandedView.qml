@@ -1,31 +1,23 @@
 import QtQuick
+import "../components"
 
 // ExpandedView.qml
 //
 // The UI for the Media Deck's expanded state. It displays detailed
-// metadata about the current track and player.
+// metadata about the current track and player, along with playback controls.
 Rectangle {
-    // The service instance passed in from MediaDeck.qml
+    id: root
+    // The service instances passed in from MediaDeck.qml
     property var mprisService
+    property var gifManager
 
     anchors.fill: parent
     color: "transparent"
 
-    // -- Helper Functions --
-    function formatTime(seconds) {
-        if (isNaN(seconds) || seconds < 0) {
-            return "00:00";
-        }
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return (minutes < 10 ? "0" : "") + minutes + ":" +
-               (remainingSeconds < 10 ? "0" : "") + remainingSeconds;
-    }
-
     // --- Fallback View ---
     // Shown only when no media player is active.
     Text {
-        visible: !mprisService.hasPlayer
+        visible: !mprisService || !mprisService.hasPlayer
         anchors.centerIn: parent
         text: "NO ACTIVE PLAYER"
         color: "#A67C52"
@@ -34,68 +26,94 @@ Rectangle {
         font.letterSpacing: 2
     }
 
-    // --- Metadata View ---
+    // --- Metadata and Controls View ---
     // Shown when a media player is active.
     Column {
-        visible: mprisService.hasPlayer
+        visible: mprisService && mprisService.hasPlayer
         anchors.fill: parent
-        anchors.margins: 20
+        anchors.margins: 14
         spacing: 12
 
-        // -- Track Info --
-        Column {
+        // -- Main Content Area (GIF + Info) --
+        Row {
             width: parent.width
-            spacing: 2
-            Text {
-                width: parent.width
-                text: mprisService.title
-                color: "#F2E0C8"
-                font.family: "monospace"
-                font.pixelSize: 22
-                elide: Text.ElideRight
+            height: 110
+            spacing: 16
+
+            // -- Visual Element (Left) --
+            GifPanel {
+                id: gifPanel
+                gifManager: root.gifManager
+                width: 110
+                height: 110
             }
-            Text {
-                width: parent.width
-                text: mprisService.artist
-                color: "#A67C52"
-                font.family: "monospace"
-                font.pixelSize: 16
-                elide: Text.ElideRight
-            }
-            Text {
-                width: parent.width
-                text: mprisService.album
-                color: "#8C6F56"
-                font.family: "monospace"
-                font.pixelSize: 14
-                elide: Text.ElideRight
-                padding: 10
+
+            // -- Metadata (Right) --
+            Column {
+                width: parent.width - gifPanel.width - parent.spacing
+                spacing: 4
+                
+                Text {
+                    width: parent.width
+                    text: mprisService.title
+                    color: "#F2E0C8"
+                    font.family: "monospace"
+                    font.pixelSize: 18
+                    elide: Text.ElideRight
+                }
+                Text {
+                    width: parent.width
+                    text: mprisService.artist
+                    color: "#A67C52"
+                    font.family: "monospace"
+                    font.pixelSize: 14
+                    elide: Text.ElideRight
+                }
+                Text {
+                    width: parent.width
+                    text: mprisService.album
+                    color: "#8C6F56"
+                    font.family: "monospace"
+                    font.pixelSize: 11
+                    elide: Text.ElideRight
+                    padding: 4
+                }
+
+                // -- Playback Details --
+                Grid {
+                    columns: 2
+                    rowSpacing: 4
+                    columnSpacing: 12
+                    topPadding: 6
+
+                    // Player Name
+                    Text { text: "PLAYER:"; color: "#A67C52"; font.family: "monospace"; font.pixelSize: 10; }
+                    Text { text: mprisService.playerName; color: "#F2E0C8"; font.family: "monospace"; font.pixelSize: 10; elide: Text.ElideRight; }
+
+                    // Playback State
+                    Text { text: "STATE:"; color: "#A67C52"; font.family: "monospace"; font.pixelSize: 10; }
+                    Text { text: mprisService.playbackStatus.toUpperCase(); color: "#F2E0C8"; font.family: "monospace"; font.pixelSize: 10; }
+                }
             }
         }
 
-        // -- Playback Details --
-        Grid {
+        // -- Separator --
+        Rectangle {
             width: parent.width
-            columns: 2
-            rowSpacing: 8
-            columnSpacing: 16
+            height: 1
+            color: "#A67C52"
+            opacity: 0.2
+        }
 
-            // Player Name
-            Text { text: "PLAYER:"; color: "#A67C52"; font.family: "monospace"; font.pixelSize: 12; }
-            Text { text: mprisService.playerName; color: "#F2E0C8"; font.family: "monospace"; font.pixelSize: 12; elide: Text.ElideRight; }
+        // -- Progress System --
+        ProgressBar {
+            mprisService: root.mprisService
+        }
 
-            // Playback State
-            Text { text: "STATE:"; color: "#A67C52"; font.family: "monospace"; font.pixelSize: 12; }
-            Text { text: mprisService.playbackStatus.toUpperCase(); color: "#F2E0C8"; font.family: "monospace"; font.pixelSize: 12; }
-
-            // Position / Duration
-            Text { text: "TIME:"; color: "#A67C52"; font.family: "monospace"; font.pixelSize: 12; }
-            Text {
-                color: "#F2E0C8"
-                font.family: "monospace"
-                font.pixelSize: 12
-                text: formatTime(mprisService.position) + " / " + formatTime(mprisService.length)
-            }
+        // -- Playback Controls --
+        MediaControls {
+            mprisService: root.mprisService
+            gifManager: root.gifManager
         }
     }
 }

@@ -7,15 +7,16 @@ import qs.MusicWidget
 Item {
     id: root
     height: 32
+    property var mprisService
 
-    readonly property var player: MprisController.currentPlayer
+    readonly property var player: root.mprisService
 
     // Guard against division by zero
     readonly property real progress: {
         if (!player) return 0;
-        var len = player.trackLength;
+        var len = player.length; // Use mprisService.length
         if (!len || len <= 0) return 0;
-        return Math.min(1.0, player.trackPositionMs / len);
+        return Math.min(1.0, player.position / len); // Use mprisService.position
     }
 
     Canvas {
@@ -76,16 +77,17 @@ Item {
     Connections {
         target:   root.player
         enabled:  root.player !== null
-        function onTrackPositionMsChanged() { canvas.requestPaint(); }
+        onPositionChanged: canvas.requestPaint(); // Corrected signal handler
     }
 
     // Click-to-seek
     MouseArea {
         anchors.fill: parent
         onClicked: (mouse) => {
-            if (root.player && root.player.trackLength > 0) {
-                var seekPos = (mouse.x / width) * root.player.trackLength;
-                root.player.trackPositionMs = seekPos;
+            if (root.player && root.player.length > 0) { // Use mprisService.length
+                var seekPos = (mouse.x / width) * root.player.length; // Use mprisService.length
+                // TODO: Implement seek functionality if needed, currently not supported by mprisService
+                // root.player.seek(seekPos);
             }
         }
     }

@@ -5,8 +5,9 @@ import qs.MusicWidget
 
 Item {
     id: root
+    property var mprisService
 
-    readonly property var player: MprisController.currentPlayer
+    readonly property var player: root.mprisService
 
     ColumnLayout {
         anchors.fill: parent

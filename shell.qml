@@ -87,6 +87,7 @@ ShellRoot {
         id: musicWidget
 
         parentWindow: theBar
+        mprisService: mediadeck.mprisService
     }
 
     // ── IPC: launcher ─────────────────────────────────────────────────
@@ -176,6 +177,23 @@ ShellRoot {
         }
 
         target: "musicwidget"
+    }
+
+    // ── IPC: media deck ───────────────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            mediadeck.toggle();
+        }
+
+        function open() {
+            mediadeck.show();
+        }
+
+        function close() {
+            mediadeck.hide();
+        }
+
+        target: "mediadeck"
     }
 
 }
