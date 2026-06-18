@@ -90,7 +90,7 @@ Rectangle {
                         required property int index
 
                         Layout.fillWidth: true
-                        implicitHeight: notifBody.implicitHeight + 20
+                        implicitHeight: contentLayout.implicitHeight + 20
 
                         // Slide in from right when added
                         opacity: 1
@@ -123,6 +123,7 @@ Rectangle {
                             }
 
                             ColumnLayout {
+                                id: contentLayout
                                 spacing: 3
                                 anchors {
                                     left:       parent.left

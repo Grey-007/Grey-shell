@@ -2,7 +2,6 @@ import "Bar"
 import "Bar/modules/calendar" as CalendarModule
 import "ControlCentre" as ControlCentreModule
 import "powermenu" as PowerMenuModule
-import "MusicWidget"
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -11,6 +10,8 @@ import "launcher" as LauncherModule
 import "lockscreen" as LockScreenModule
 import "mediadeck"
 import "wallpaper" as WallpaperModule
+import "utils/recording" as RecordingUtils
+import "utils/clipboard" as ClipboardUtils
 
 ShellRoot {
     function lockSession() {
@@ -77,6 +78,20 @@ ShellRoot {
 
     MediaDeck {
         id: mediadeck 
+    }
+
+    RecordingUtils.ScreenCapture {
+        id: screenCapture
+        property var pill: recordingPill
+    }
+
+    RecordingUtils.RecordingPill {
+        id: recordingPill
+        utilityOpen: screenCapture.isOpen
+    }
+
+    ClipboardUtils.ClipboardManager {
+        id: clipboardManager
     }
 
     Connections {
@@ -226,6 +241,40 @@ ShellRoot {
         }
 
         target: "powermenu"
+    }
+
+    // ── IPC: screen capture ───────────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            screenCapture.toggle();
+        }
+
+        function open() {
+            screenCapture.open();
+        }
+
+        function close() {
+            screenCapture.close();
+        }
+
+        target: "screencapture"
+    }
+
+    // ── IPC: clipboard ────────────────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            clipboardManager.toggle();
+        }
+
+        function open() {
+            clipboardManager.open();
+        }
+
+        function close() {
+            clipboardManager.close();
+        }
+
+        target: "clipboard"
     }
 
 }

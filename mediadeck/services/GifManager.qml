@@ -26,7 +26,7 @@ QtObject {
 
     // -- Initialization --
     Component.onCompleted: {
-        _gifsPath = Quickshell.configDir + "/mediadeck/assets/gifs";
+        _gifsPath = Quickshell.shellDir + "/mediadeck/assets/gifs";
         console.log("GifManager: Scanning path: " + _gifsPath);
         refresh();
     }

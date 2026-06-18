@@ -1,7 +1,7 @@
 import "."
 import QtQuick
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 
@@ -24,6 +24,8 @@ PanelWindow {
 
     anchors {
         top: true
+        bottom: true
+        left: true
         right: true
     }
 
@@ -91,23 +93,14 @@ PanelWindow {
                     x: toast.slideX
                 }
 
-                DropShadow {
-                    anchors.fill: toastCard
-                    source: toastCard
-                    horizontalOffset: 0
-                    verticalOffset: 8
-                    radius: 22
-                    samples: 32
-                    color: "#80000000"
-                    transparentBorder: true
-                }
-
                 Rectangle {
                     id: toastCard
                     width: parent.width
                     height: toastContent.implicitHeight + 26
-                    radius: 22
+                    radius: 0
                     color: root.surface
+                    border.color: "#5A4736"
+                    border.width: 1
                     clip: true
 
                     ColumnLayout {
@@ -160,7 +153,7 @@ PanelWindow {
                         }
                         width: parent.width * toast.progress
                         height: 3
-                        radius: 2
+                        radius: 0
                         color: root.primary
                         opacity: 0.7
 

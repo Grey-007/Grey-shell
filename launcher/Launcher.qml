@@ -29,17 +29,22 @@ PanelWindow {
     exclusionMode:               ExclusionMode.Ignore
 
     // ── Palette ────────────────────────────────────────────────────────────────
-    readonly property color cream:       "#F5F0E8"
-    readonly property color creamDark:   "#EDE8DF"   // header bg
-    readonly property color border:      "#2A2A2A"
-    readonly property color fg:          "#1A1A1A"
-    readonly property color fgMid:       "#555555"
-    readonly property color fillColor:   "#2A2A2A"   // hover fill
-    readonly property color fillText:    "#F5F0E8"   // inverted text on fill
+    readonly property color cream:       "#1c1510" // background
+    readonly property color creamDark:   "#2e2118" // header bg
+    readonly property color border:      "#a0784a" // borders
+    readonly property color fg:          "#f0e0c0" // text
+    readonly property color fgMid:       "#8a7055" // muted text
+    readonly property color fillColor:   "#d4a45a" // hover fill
+    readonly property color fillText:    "#1c1510" // inverted text on fill
+
+    LauncherState {
+        id: launcherState
+    }
 
     AppSearchModel {
         id: appSearch
         query: searchField.text
+        state: launcherState
     }
 
     // ── Expose function called by IpcHandler after making visible ──────────────
@@ -63,8 +68,8 @@ PanelWindow {
     // ── Centre box ─────────────────────────────────────────────────────────────
     Rectangle {
         id:     box
-        width:  620
-        height: 420
+        width:  520
+        height: 380
         anchors.centerIn: parent
 
         color:  root.cream
@@ -82,12 +87,8 @@ PanelWindow {
         opacity: root.visible ? 1.0 : 0.0
         scale:   root.visible ? 1.0 : 0.94
 
-        Behavior on opacity {
-            NumberAnimation { duration: 190; easing.type: Easing.OutCubic }
-        }
-        Behavior on scale {
-            NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
-        }
+        Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutQuint } }
+        Behavior on scale { NumberAnimation { duration: 350; easing.type: Easing.OutQuint } }
 
         ColumnLayout {
             anchors.fill: parent
@@ -122,34 +123,6 @@ PanelWindow {
                         pixelSize: 15
                         weight:    Font.Medium
                         letterSpacing: 3
-                    }
-                }
-
-                // ── Close button (top-right) ───────────────────────────────────
-                Rectangle {
-                    id: closeBtn
-                    width:  48
-                    height: parent.height
-                    anchors.right: parent.right
-                    color:  closeMa.containsMouse ? root.border : "transparent"
-
-                    Behavior on color {
-                        ColorAnimation { duration: 100 }
-                    }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text:  "✕"
-                        color: closeMa.containsMouse ? root.cream : root.fg
-                        font.pixelSize: 13
-                    }
-
-                    MouseArea {
-                        id: closeMa
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: root.visible = false
-                        cursorShape: Qt.PointingHandCursor
                     }
                 }
             }
@@ -217,6 +190,7 @@ PanelWindow {
                 Layout.fillWidth:  true
                 Layout.fillHeight: true
                 appSearch: appSearch
+                state: launcherState
                 border: root.border
                 fg: root.fg
                 fgMid: root.fgMid

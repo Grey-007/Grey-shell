@@ -14,8 +14,8 @@ PanelWindow {
     property var config: null
 
     // Size
-    width: 480
-    height: 280
+    implicitWidth: 480
+    implicitHeight: 280
 
     // Centered on screen
     anchors {

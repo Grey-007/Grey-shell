@@ -18,6 +18,7 @@ QtObject {
 
     // -- Internal State --
     property string _cavaConfigPath: Quickshell.shellDir + "/mediadeck/assets/cava_config"
+    property bool active: false
 
     // -- Initialization --
     Component.onCompleted: {
@@ -29,8 +30,6 @@ QtObject {
         }
         leftChannelData = initLeft;
         rightChannelData = initRight;
-        
-        cavaProcess.running = true;
     }
 
     // -- Process Management --
@@ -38,6 +37,7 @@ QtObject {
         Process {
             id: cavaProcess
             command: ["cava", "-p", root._cavaConfigPath]
+            running: root.active
             
             onRunningChanged: {
                 root.hasSignal = running;

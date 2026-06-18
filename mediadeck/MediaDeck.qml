@@ -27,6 +27,7 @@ PanelWindow {
 
     RealAudioSource {
         id: realAudioSource
+        active: root.visible
     }
 
     // ---- Public configuration -------------------------------------------

@@ -13,6 +13,7 @@ ListView {
     property color fgMid
     property color fillColor
     property color fillText
+    property var state
 
     signal appLaunched()
 
@@ -42,7 +43,7 @@ ListView {
         width: appList.width
         height: 50
 
-        property bool hovered: rowMa.containsMouse
+        property bool hovered: rowMa.containsMouse || appList.currentIndex === index
 
         Rectangle {
             id: fillRect
@@ -103,7 +104,7 @@ ListView {
             anchors {
                 left: appIcon.right
                 leftMargin: 14
-                right: parent.right
+                right: favBtn.left
                 rightMargin: 16
                 verticalCenter: parent.verticalCenter
             }
@@ -117,6 +118,28 @@ ListView {
 
             Behavior on color {
                 ColorAnimation { duration: 80 }
+            }
+        }
+
+        Text {
+            id: favBtn
+            anchors {
+                right: parent.right
+                rightMargin: 16
+                verticalCenter: parent.verticalCenter
+            }
+            text: (appList.state && appList.state.isFavorite(model.entryId)) ? "★" : "☆"
+            color: (appList.state && appList.state.isFavorite(model.entryId)) ? appList.border : appList.fgMid
+            font.pixelSize: 16
+            visible: delegateRoot.hovered || (appList.state && appList.state.isFavorite(model.entryId))
+            
+            MouseArea {
+                anchors.fill: parent
+                anchors.margins: -4
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    if (appList.state) appList.state.toggleFavorite(model.entryId);
+                }
             }
         }
 
