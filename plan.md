@@ -1,83 +1,66 @@
-# Phase 6 Plan — Signal View and Background Waveform Architecture
+# Phase 7 Plan — Real Audio Visualization
 
-This plan outlines the implementation of a background waveform rendering system and a new "Signal View" for the SepiaShell Media Deck. The core philosophy is to treat the waveform as an integral part of the deck's hardware display, not a separate widget.
+This plan details the architecture for replacing the `FakeAudioSource` with a real-time audio data source using the native capabilities of the Quickshell environment.
 
-## 1. File Structure
+## 1. Backend Comparison & Recommendation
 
-The following files will be created or modified to implement the new architecture:
+To capture system-wide audio for visualization, two primary backends were evaluated:
 
-```text
-quickshell/
-└── mediadeck/
-    ├── MediaDeck.qml           (MODIFIED)
-    ├── MediaState.qml          (MODIFIED)
-    │
-    ├── services/
-    │   ├── MprisService.qml    (MODIFIED)
-    │   └── FakeAudioSource.qml (NEW)
-    │
-    ├── components/
-    │   └── WaveformLayer.qml   (NEW)
-    │
-    └── views/
-        ├── ExpandedView.qml    (MODIFIED)
-        └── SignalView.qml      (NEW)
+1.  **CAVA (Console-based Audio Visualizer for ALSA)**:
+    *   **Pros**: A dedicated and lightweight visualizer.
+    *   **Cons**: Requires running a separate process, parsing its `stdout`, and managing it as an external dependency. This is less robust and less integrated than a native solution.
+
+2.  **PipeWire**:
+    *   **Pros**: The modern standard for audio on Linux, especially in Wayland environments. It allows for direct, low-level access to audio streams. Crucially, the Quickshell documentation includes a **`Quickshell.Services.Pipewire`** module, indicating this is the officially supported and intended method for audio integration.
+    *   **Cons**: None, given the native module support.
+
+**Recommendation**: The clear choice is to use the **`Quickshell.Services.Pipewire`** module. It promises the best performance, stability, and integration, and avoids adding external application dependencies.
+
+## 2. Architecture Diagram
+
+The new data flow will be as follows:
+
+```
+[System Audio (PipeWire Server)]
+        ↓
+[Quickshell.Services.Pipewire Module (e.g., Stream object)]
+        ↓
+[RealAudioSource.qml (Processes raw data)]
+        ↓ (Exposes leftChannelData & rightChannelData)
+[WaveformLayer.qml (Binds to RealAudioSource)]
+        ↓
+[Canvas (Draws the waveform)]
 ```
 
-## 2. Rendering Layer Hierarchy
+This architecture replaces `FakeAudioSource.qml` with `RealAudioSource.qml` without requiring any changes to the UI components (`WaveformLayer`, `ExpandedView`, `SignalView`).
 
-The waveform will be rendered as a background layer. The stacking order within views will be managed using `z-ordering`:
+## 3. File Structure & Implementation Details
 
--   **`z: 4`**: Text (Track, Artist, etc.)
--   **`z: 3`**: Controls & Progress Bar
--   **`z: 2`**: GIF Panel
--   **`z: 1`**: `WaveformLayer.qml`
--   **`z: 0`**: Main Deck Background
+-   **`mediadeck/services/FakeAudioSource.qml` (REMOVED)**
+-   **`mediadeck/services/RealAudioSource.qml` (NEW)**:
+    -   This service will be the new heart of the visualization.
+    -   It will import `Quickshell.Services.Pipewire`.
+    -   It will instantiate a PipeWire stream/monitor component to capture the default audio output.
+    -   It will contain the logic to process the raw data from PipeWire (e.g., a `Float32Array`) and downsample or average it into the `leftChannelData` and `rightChannelData` arrays that `WaveformLayer` expects.
+    -   It will expose `readonly property bool hasSignal` which will be `true` if PipeWire is connected and providing data, and `false` otherwise.
 
-This ensures the waveform is always visible behind all other content, creating a sense of depth.
+-   **`mediadeck/MediaDeck.qml` (MODIFIED)**:
+    -   The `FakeAudioSource` instance will be replaced with a `RealAudioSource` instance.
+    -   The `fakeAudioSource` property passed to the views will now point to the new `RealAudioSource` instance.
 
-## 3. WaveformLayer.qml Architecture
+-   **`WaveformLayer.qml` (MODIFIED)**:
+    -   The `active` property will be updated to bind to `audioSource.hasSignal` in addition to the player's playback status, ensuring it only runs when there is a real signal. `active: mprisService.playbackStatus === "Playing" && audioSource && audioSource.hasSignal`
 
-This new component is responsible for rendering the waveform.
+## 4. Update Flow & Performance
 
--   **`Canvas` Rendering**: It will use a `Canvas` element to draw the waveform paths. The `onPaint` handler will be optimized to only redraw when necessary.
--   **Dual Channel**: It will accept two data arrays, `leftChannelData` and `rightChannelData`, and render them as two distinct waveform traces (top and bottom).
--   **Properties**:
-    -   `property var audioSource`: The data source to use (e.g., `FakeAudioSource`).
-    -   `property real opacity`: Controls the visibility of the waveform.
-    -   `property bool active`: Determines if the waveform should be animating.
--   **Animation**: A `Timer` will trigger the `Canvas` to redraw and create an animated, scrolling effect when `active` is `true`.
+-   **Event-Driven**: The system will be event-driven. The `Pipewire` module will likely emit a signal whenever a new audio buffer is ready.
+-   **No QML Timers**: `RealAudioSource.qml` will connect to this signal to process data. This is far more efficient than using a QML `Timer` to poll for data, as it ensures the UI updates are perfectly in sync with the audio buffer rate and do not run unnecessarily.
+-   **Minimal JS Processing**: The JavaScript in `RealAudioSource.qml` will only be responsible for light data transformation (e.g., averaging a large buffer into 256 points), keeping its performance footprint low. The heavy lifting of audio capture is handled by the native C++ backend of the PipeWire module.
 
-## 4. Fake Audio Data (`FakeAudioSource.qml`)
+## 5. Error Handling & Fallback Behavior
 
-To ensure future compatibility, the data source will be a pluggable component.
+-   **Backend Unavailable**: `RealAudioSource.qml` will listen for connection error signals from the `Pipewire` module. If the backend is not available (PipeWire not running), it will set `hasSignal = false`.
+-   **Graceful Degradation**: When `hasSignal` is `false`, the `WaveformLayer`'s `active` property will become `false`. This will cause the waveform to disappear cleanly from both `ExpandedView` and `SignalView`, fulfilling the "no frozen frames" requirement. The rest of the Media Deck will continue to function normally.
+-   **Audio Source Changes**: PipeWire handles audio source switching at the system level. `RealAudioSource` will monitor the default sink, so it should automatically reflect whatever application is currently playing audio without any special handling.
 
--   **Generation**: This service will use a `Timer` to generate arrays of numbers (representing layered sine waves) at a regular interval (e.g., 60 times per second).
--   **API**: It will expose `readonly property var leftChannelData` and `readonly property var rightChannelData` that `WaveformLayer` can bind to.
--   **Pluggability**: In the future, this component can be replaced by a real audio service (CAVA, PipeWire, etc.) that exposes data in the same format, requiring no changes to the UI.
-
-## 5. View Switching & Signal View Architecture
-
--   **`MediaState.qml`**: A new state, `stateSignal`, will be added. A `toggleSignalView()` function will be implemented to switch between `stateExpanded` and `stateSignal`.
--   **`MediaDeck.qml`**: The `Loader` will be updated to load `views/SignalView.qml` when `mediaState` is `stateSignal`.
--   **`SignalView.qml`**: This new view will:
-    -   Contain a `WaveformLayer` with high opacity (e.g., `0.8`).
-    -   Display essential metadata (Track, Artist) and new placeholder metadata (Codec, Bitrate, Latency) overlaid on top of the waveform.
-    -   It will *not* contain the `GifPanel`, `MediaControls`, or `ProgressBar`.
--   **`MprisService.qml`**: Placeholder properties will be added for the new metadata fields (`codec: "FLAC"`, `bitrate: "1024kbps"`, `latency: "5ms"`).
-
-## 6. Expanded View Integration
-
-`ExpandedView.qml` will be modified to include the waveform as a subtle background element.
-
--   A `WaveformLayer` instance will be added with `z: -1` (or the lowest z-order).
--   Its `opacity` will be bound to a low value (e.g., `0.25`).
--   Its `active` property will be bound to `mprisService.playbackStatus === "Playing"`, making it animate only during playback and disappear completely when paused or stopped.
-
-## 7. Performance & Future Integration
-
--   **`Canvas` Efficiency**: Using `Canvas` is highly efficient for this type of custom drawing.
--   **Decoupled Logic**: The data source (`FakeAudioSource`) is completely decoupled from the rendering (`WaveformLayer`), which is in turn decoupled from the views (`ExpandedView`, `SignalView`). This modularity is key for future maintenance and for integrating a real audio source in Phase 7.
--   **Throttled Updates**: The timers in `FakeAudioSource` and `WaveformLayer` will be configured for smooth animation without excessive CPU usage.
-
-This architecture provides a robust, visually appealing, and future-proof foundation for the new Signal View and background waveform effects.
+This plan provides a robust, performant, and natively integrated solution for real-time audio visualization, adhering to the project's architecture and future compatibility goals.

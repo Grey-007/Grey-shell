@@ -84,6 +84,11 @@ QtObject {
 
     readonly property string albumArtUrl: root.player ? root.player.trackArtUrl : ""
 
+    // -- Placeholders for Signal View --
+    readonly property string codec: root.player ? "FLAC" : "N/A"
+    readonly property string bitrate: root.player ? "1024kbps" : "N/A"
+    readonly property string latency: root.player ? "5ms" : "N/A"
+
     // -- Control API --
     function next() {
         if (root.player && root.canGoNext) {

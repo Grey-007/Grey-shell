@@ -24,14 +24,15 @@ QtObject {
 
     // A read-only convenience alias for easily checking if the deck is in
     // any expanded state.
-    readonly property bool isExpanded: root.currentState === root.stateExpanded
+    readonly property bool isExpanded: root.currentState === root.stateExpanded || root.currentState === root.stateSignal
+    readonly property bool isSignalView: root.currentState === root.stateSignal
 
     // -- Public API --
     // These functions are the only valid way to transition between states.
 
     // Transitions the deck to the Expanded state.
     function expand() {
-        if (root.currentState !== root.stateExpanded) {
+        if (root.currentState === root.stateCompact) {
             root.currentState = root.stateExpanded;
         }
     }
@@ -43,12 +44,21 @@ QtObject {
         }
     }
 
-    // Toggles between the Compact and Expanded states.
+    // Toggles between the Compact and Expanded/Signal states.
     function toggleExpanded() {
         if (root.currentState === root.stateCompact) {
             expand();
         } else {
             collapse();
+        }
+    }
+
+    // Toggles between Expanded and Signal views. Does nothing if compact.
+    function toggleSignalView() {
+        if (root.currentState === root.stateExpanded) {
+            root.currentState = root.stateSignal;
+        } else if (root.currentState === root.stateSignal) {
+            root.currentState = root.stateExpanded;
         }
     }
 }
