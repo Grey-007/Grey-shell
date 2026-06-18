@@ -1,65 +1,56 @@
 import "."
 import QtQuick
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
 
-// Material You – expandable sub-panel (wifi networks, BT devices, audio outputs)
+// SepiaShell – expandable sub-panel (wifi networks, BT devices, audio outputs)
 Item {
     id: root
 
-    property string title: ""
-    property bool busy: false
-    property bool showScan: true
+    property string title:     ""
+    property bool   busy:      false
+    property bool   showScan:  true
     property string errorText: ""
     default property alias menuData: panelContent.data
 
     signal scanClicked()
 
     implicitHeight: Math.min(panelContent.implicitHeight + 28, 320)
+
+    // ── SepiaShell colour tokens ─────────────────────────────────────
+    readonly property color surface:    "#241D18"
+    readonly property color onSurf:     "#F2E0C8"
+    readonly property color onSurfV:    "#8C6F56"
+    readonly property color errorColor: "#E8906A"
+    readonly property color borderCol:  "#5A4736"
+
+    // Slide-in + fade on appear
     opacity: 0
-
-    // Shared dark tokens
-    readonly property color surface:    "#1E2319"
-    readonly property color onSurf:     "#DDE8CC"
-    readonly property color onSurfV:    "#9DB88A"
-    readonly property color errorColor: "#FFB4AB"
-
-    // Slide-in + fade-in on appear
     NumberAnimation on opacity {
         from: 0; to: 1
-        duration: 280
+        duration: 260
         easing.type: Easing.OutCubic
         running: true
     }
 
     transform: Translate {
-        y: (1 - root.opacity) * -14
+        y: (1 - root.opacity) * -12
     }
 
-    // Card shadow
-    DropShadow {
-        anchors.fill: panel
-        source: panel
-        horizontalOffset: 0
-        verticalOffset: 6
-        radius: 20
-        samples: 32
-        color: "#55000000"
-        transparentBorder: true
-    }
-
+    // Card
     Rectangle {
         id: panel
         anchors.fill: parent
-        radius: 20
+        radius: 0
         color: root.surface
+        border.color: root.borderCol
+        border.width: 1
         clip: true
     }
 
     Flickable {
         anchors {
-            fill: parent
-            margins: 14
+            fill:          parent
+            margins:       14
         }
         contentHeight: panelContent.implicitHeight
         clip: true
@@ -70,32 +61,37 @@ Item {
             width: parent.width
             spacing: 8
 
+            // Header row
             RowLayout {
                 Layout.fillWidth: true
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.title
-                    color: root.onSurf
-                    font.pixelSize: 13
-                    font.weight: Font.DemiBold
+                    text:           root.title
+                    color:          root.onSurf
+                    font.pixelSize: 12
+                    font.family:    "monospace"
+                    font.weight:    Font.DemiBold
+                    font.letterSpacing: 1
                 }
 
                 SmallButton {
                     Layout.fillWidth: false
-                    text: root.busy ? "Scanning…" : "Scan"
+                    text:    root.busy ? "Scanning…" : "Scan"
                     visible: root.showScan
                     onClicked: root.scanClicked()
                 }
             }
 
+            // Error text
             Text {
                 Layout.fillWidth: true
-                text: root.errorText
-                color: root.errorColor
+                text:       root.errorText
+                color:      root.errorColor
                 font.pixelSize: 11
-                wrapMode: Text.WordWrap
-                visible: text !== ""
+                font.family:    "monospace"
+                wrapMode:   Text.WordWrap
+                visible:    text !== ""
             }
         }
     }

@@ -10,9 +10,56 @@ Rectangle {
     // The service instances passed in from MediaDeck.qml
     property var mprisService
     property var gifManager
+    property var realAudioSource
+    property var mediaState    // injected by MediaDeck for pin toggle
 
     anchors.fill: parent
     color: "transparent"
+
+    // -- Waveform Background --
+    WaveformLayer {
+        id: waveform
+        anchors.fill: parent
+        audioSource: root.realAudioSource
+        active: root.mprisService && root.mprisService.playbackStatus === "Playing" && root.realAudioSource && root.realAudioSource.hasSignal
+        opacity: 0.25
+        z: -1
+    }
+
+    // -- Pin Button (top-right corner) --
+    // Unpinned = floating above windows; Pinned = stuck to desktop layer.
+    Rectangle {
+        id: pinButton
+        width: 20
+        height: 20
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.margins: 6
+        z: 10
+        color: pinMa.containsMouse ? "#3A2E26" : "transparent"
+        border.color: (root.mediaState && root.mediaState.isPinned) ? "#A67C52" : "#5A4736"
+        border.width: 1
+
+        Text {
+            anchors.centerIn: parent
+            // 📌 filled = pinned to desktop  ◈ outline = floating
+            text: (root.mediaState && root.mediaState.isPinned) ? "📌" : "◈"
+            font.pixelSize: 11
+            color: (root.mediaState && root.mediaState.isPinned) ? "#A67C52" : "#8C6F56"
+        }
+
+        MouseArea {
+            id: pinMa
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            // Prevent drag-to-move from firing on pin button click
+            onClicked: function(mouse) {
+                if (root.mediaState) root.mediaState.togglePin()
+                mouse.accepted = true
+            }
+        }
+    }
 
     // --- Fallback View ---
     // Shown only when no media player is active.
@@ -33,6 +80,7 @@ Rectangle {
         anchors.fill: parent
         anchors.margins: 14
         spacing: 12
+        z: 1 // Ensure this is above the waveform
 
         // -- Main Content Area (GIF + Info) --
         Row {

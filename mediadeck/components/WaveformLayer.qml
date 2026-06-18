@@ -39,10 +39,10 @@ Item {
             if (leftData.length === 0 || rightData.length === 0) return;
 
             // Draw Left Channel (Top)
-            drawChannel(ctx, leftData, height * 0.25, "#F2E0C8");
+            drawChannel(ctx, leftData, height * 0.65, "#F2E0C8");
 
             // Draw Right Channel (Bottom)
-            drawChannel(ctx, rightData, height * 0.75, "#A67C52");
+            drawChannel(ctx, rightData, height * 0.85, "#A67C52");
         }
 
         function drawChannel(ctx, data, yCenter, color) {
@@ -51,7 +51,7 @@ Item {
             ctx.lineWidth = 1.5;
 
             const step = width / (data.length - 1);
-            const amplitude = height * 0.2;
+            const amplitude = height * 0.15; // Slightly reduced to prevent clipping at the bottom
 
             ctx.moveTo(0, yCenter);
 

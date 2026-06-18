@@ -1,0 +1,13 @@
+[general]
+bars = 256
+framerate = 60
+
+[output]
+method = raw
+raw_target = /dev/stdout
+data_format = ascii
+bit_format = 8
+
+[smoothing]
+monstercat = 1
+waves = 0

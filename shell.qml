@@ -9,6 +9,7 @@ import Quickshell.Wayland
 import "launcher" as LauncherModule
 import "lockscreen" as LockScreenModule
 import "mediadeck"
+import "wallpaper" as WallpaperModule
 
 ShellRoot {
     function lockSession() {
@@ -28,6 +29,12 @@ ShellRoot {
     LauncherModule.Launcher {
         id: launcher
 
+        visible: false
+    }
+    
+    WallpaperModule.WallpaperSelector {
+        id: wallpaperSelector
+        
         visible: false
     }
 
@@ -79,15 +86,6 @@ ShellRoot {
         }
 
         target: LockScreenModule.Auth
-    }
-
-    // ── Music Widget ──────────────────────────────────────────────────
-    // FloatingWindow must be a direct child of ShellRoot, not inside a Loader.
-    MusicWidget {
-        id: musicWidget
-
-        parentWindow: theBar
-        mprisService: mediadeck.mprisService
     }
 
     // ── IPC: launcher ─────────────────────────────────────────────────
@@ -194,6 +192,23 @@ ShellRoot {
         }
 
         target: "mediadeck"
+    }
+
+    // ── IPC: wallpaper selector ───────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            wallpaperSelector.visible = !wallpaperSelector.visible;
+        }
+
+        function open() {
+            wallpaperSelector.visible = true;
+        }
+
+        function close() {
+            wallpaperSelector.visible = false;
+        }
+
+        target: "wallpaper"
     }
 
 }

@@ -9,7 +9,8 @@ Rectangle {
     id: root
     // The service instances passed in from MediaDeck.qml
     property var mprisService
-    property var fakeAudioSource
+    property var realAudioSource
+    property var mediaState    // injected by MediaDeck for pin toggle
 
     anchors.fill: parent
     color: "transparent"
@@ -18,10 +19,42 @@ Rectangle {
     WaveformLayer {
         id: waveform
         anchors.fill: parent
-        audioSource: root.fakeAudioSource
-        active: root.mprisService && root.mprisService.playbackStatus === "Playing"
+        audioSource: root.realAudioSource
+        active: root.mprisService && root.mprisService.playbackStatus === "Playing" && root.realAudioSource && root.realAudioSource.hasSignal
         opacity: 0.8
         z: 1
+    }
+
+    // -- Pin Button (top-right corner) --
+    Rectangle {
+        id: pinButton
+        width: 20
+        height: 20
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.margins: 6
+        z: 10
+        color: pinMa.containsMouse ? "#3A2E26" : "transparent"
+        border.color: (root.mediaState && root.mediaState.isPinned) ? "#A67C52" : "#5A4736"
+        border.width: 1
+
+        Text {
+            anchors.centerIn: parent
+            text: (root.mediaState && root.mediaState.isPinned) ? "📌" : "◈"
+            font.pixelSize: 11
+            color: (root.mediaState && root.mediaState.isPinned) ? "#A67C52" : "#8C6F56"
+        }
+
+        MouseArea {
+            id: pinMa
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: function(mouse) {
+                if (root.mediaState) root.mediaState.togglePin()
+                mouse.accepted = true
+            }
+        }
     }
 
     // --- Fallback View ---

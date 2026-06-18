@@ -3,7 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 
-// Material You Control Centre – outer PanelWindow
+// SepiaShell Control Centre – outer PanelWindow
 PanelWindow {
     id: win
 
@@ -11,9 +11,46 @@ PanelWindow {
     readonly property int screenHeight: screen != null ? screen.height : 768
     readonly property int panelWidth:   Math.min(400, Math.max(340, screenWidth - 32))
 
-    function toggle()  { ControlCentreState.toggle();     }
-    function open()    { ControlCentreState.openPanel();  }
-    function close()   { ControlCentreState.close();      }
+    // RIGHT-side slide targets
+    readonly property int openX:   screenWidth - panelWidth - 14
+    readonly property int closedX: screenWidth + 20          // fully off-screen right
+
+    // Animation duration must match the Behavior on x below
+    readonly property int animDuration: 300
+
+    // ── Visibility gating ────────────────────────────────────────────────
+    // panelVisible stays TRUE for the full slide-out animation after close,
+    // then becomes false so the window releases mouse input from the screen.
+    //
+    // We use an explicit bool (not `open || timer.running`) to avoid the
+    // one-frame race where both sides of the OR are false simultaneously,
+    // which caused the flash.
+    property bool panelVisible: false
+
+    Connections {
+        target: ControlCentreState
+        function onOpenChanged() {
+            if (ControlCentreState.open) {
+                // Show immediately so the slide-in starts from frame 1
+                win.panelVisible = true
+            } else {
+                // Keep visible while the slide-out plays, then hide
+                hideTimer.restart()
+            }
+        }
+    }
+
+    Timer {
+        id: hideTimer
+        interval: win.animDuration + 30   // just past the animation end
+        repeat:   false
+        onTriggered: win.panelVisible = false
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    function toggle() { ControlCentreState.toggle();    }
+    function open()   { ControlCentreState.openPanel(); }
+    function close()  { ControlCentreState.close();     }
 
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
@@ -21,37 +58,52 @@ PanelWindow {
                                  ? WlrKeyboardFocus.OnDemand
                                  : WlrKeyboardFocus.None
 
-    visible: ControlCentreState.open
+    // Window is only visible while open OR while sliding out.
+    // When fully hidden the input region vanishes → other windows work normally.
+    visible: panelVisible
     color: "transparent"
 
     anchors {
-        top: true
+        top:    true
         bottom: true
-        left: true
-        right: true
+        left:   true
+        right:  true
     }
 
-    // The card itself
+    // ── Dim scrim (click outside → close) ────────────────────────────────
+    Rectangle {
+        anchors.fill: parent
+        color:   "#66000000"
+        opacity: ControlCentreState.open ? 1 : 0
+        enabled: ControlCentreState.open   // no input when faded
+
+        Behavior on opacity {
+            NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: ControlCentreState.close()
+        }
+    }
+
+    // ── Panel card ────────────────────────────────────────────────────────
     ControlCentreCard {
         id: card
 
         panelWidth:  win.panelWidth
-        panelHeight: win.screenHeight - 80
+        panelHeight: win.screenHeight - 78
 
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            left: parent.left
-            topMargin:    64
-            leftMargin:  14
-            bottomMargin: 14
-        }
+        y:      64
+        width:  win.panelWidth
+        height: win.screenHeight - 78
 
-        x: ControlCentreState.open ? 14 : -card.panelWidth
+        // Slide in from right → out to right
+        x: ControlCentreState.open ? win.openX : win.closedX
 
         Behavior on x {
             NumberAnimation {
-                duration: 250 // Using 250ms for consistent animation speed
+                duration:    win.animDuration
                 easing.type: Easing.OutCubic
             }
         }

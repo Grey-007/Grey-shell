@@ -27,6 +27,11 @@ QtObject {
     readonly property bool isExpanded: root.currentState === root.stateExpanded || root.currentState === root.stateSignal
     readonly property bool isSignalView: root.currentState === root.stateSignal
 
+    // -- Pin State --
+    // When true the deck sits at desktop/background level (aboveWindows: false).
+    // When false (default) it floats above all windows (aboveWindows: true).
+    property bool isPinned: false
+
     // -- Public API --
     // These functions are the only valid way to transition between states.
 
@@ -60,5 +65,24 @@ QtObject {
         } else if (root.currentState === root.stateSignal) {
             root.currentState = root.stateExpanded;
         }
+    }
+
+    // Navigates "up" the view hierarchy (Signal -> Expanded)
+    function scrollUp() {
+        if (root.currentState === root.stateSignal) {
+            root.currentState = root.stateExpanded;
+        }
+    }
+
+    // Navigates "down" the view hierarchy (Expanded -> Signal)
+    function scrollDown() {
+        if (root.currentState === root.stateExpanded) {
+            root.currentState = root.stateSignal;
+        }
+    }
+
+    // Toggles the pin state between desktop-stuck and floating.
+    function togglePin() {
+        root.isPinned = !root.isPinned;
     }
 }

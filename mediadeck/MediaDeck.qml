@@ -8,6 +8,7 @@ import "./services"
 // This phase integrates the MprisService to make the deck media-aware.
 PanelWindow {
     id: root
+    property alias mprisService: mprisService
 
     // ---- State Management -----------------------------------------------
     MediaState {
@@ -22,6 +23,10 @@ PanelWindow {
     GifManager {
         id: gifManager
         mprisService: root.mprisService
+    }
+
+    RealAudioSource {
+        id: realAudioSource
     }
 
     // ---- Public configuration -------------------------------------------
@@ -58,7 +63,7 @@ PanelWindow {
     implicitHeight: panelHeight
 
     exclusionMode: ExclusionMode.Ignore
-    aboveWindows: true
+    aboveWindows: !mediaState.isPinned
     focusable: false
     color: "#241D18"
     visible: true
@@ -88,7 +93,7 @@ PanelWindow {
         MouseArea {
             id: dragArea
             anchors.fill: parent
-            acceptedButtons: Qt.LeftButton
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
             hoverEnabled: true
 
             property point lastMousePos: "0,0"
@@ -120,15 +125,90 @@ PanelWindow {
                 collapseTimer.start();
             }
 
-            Loader {
-                id: viewLoader
-                anchors.fill: parent
-                source: mediaState.isExpanded ? "views/ExpandedView.qml" : "views/CompactView.qml"
+            // Right-click to toggle signal view
+            onClicked: (mouse) => {
+                if (mouse.button === Qt.RightButton) {
+                    mediaState.toggleSignalView();
+                    mouse.accepted = true;
+                } else {
+                    mouse.accepted = false;
+                }
+            }
 
-                onLoaded: {
-                    // Pass the service instances to the newly created view.
-                    item.mprisService = mprisService
-                    item.gifManager = gifManager
+            // Scroll up/down to navigate views
+            onWheel: (wheel) => {
+                if (wheel.angleDelta.y > 0) {
+                    mediaState.scrollUp();
+                } else if (wheel.angleDelta.y < 0) {
+                    mediaState.scrollDown();
+                }
+                wheel.accepted = true;
+            }
+
+            Item {
+                id: viewContainer
+                anchors.fill: parent
+                clip: true
+
+                Loader {
+                    id: compactLoader
+                    anchors.fill: parent
+                    source: "views/CompactView.qml"
+                    visible: mediaState.currentState === mediaState.stateCompact
+                    active: visible
+                    onLoaded: {
+                        item.mprisService = mprisService
+                        if (item.hasOwnProperty("gifManager")) item.gifManager = gifManager
+                        if (item.hasOwnProperty("realAudioSource")) item.realAudioSource = realAudioSource
+                    }
+                }
+
+                Item {
+                    id: expandedSignalContainer
+                    anchors.fill: parent
+                    visible: mediaState.currentState !== mediaState.stateCompact
+
+                    Item {
+                        id: slideContent
+                        width: parent.width
+                        height: parent.height * 2
+                        // Slide up by parent.height when stateSignal is active
+                        y: mediaState.currentState === mediaState.stateSignal ? -parent.height : 0
+                        
+                        Behavior on y {
+                            NumberAnimation { duration: 350; easing.type: Easing.OutCubic }
+                        }
+
+                        Loader {
+                            id: expandedLoader
+                            width: parent.width
+                            height: parent.height / 2
+                            y: 0
+                            source: "views/ExpandedView.qml"
+                            active: expandedSignalContainer.visible
+                            onLoaded: {
+                                item.mprisService = mprisService
+                                item.mediaState = mediaState
+                                if (item.hasOwnProperty("gifManager")) item.gifManager = gifManager
+                                if (item.hasOwnProperty("realAudioSource")) item.realAudioSource = realAudioSource
+                            }
+                        }
+
+                        Loader {
+                            id: signalLoader
+                            width: parent.width
+                            height: parent.height / 2
+                            y: parent.height / 2
+                            source: "views/SignalView.qml"
+                            active: expandedSignalContainer.visible
+                            onLoaded: {
+                                item.mprisService = mprisService
+                                item.mediaState = mediaState
+                                if (item.hasOwnProperty("gifManager")) item.gifManager = gifManager
+                                if (item.hasOwnProperty("realAudioSource")) item.realAudioSource = realAudioSource
+                            }
+                        }
+                    }
                 }
             }
         }
