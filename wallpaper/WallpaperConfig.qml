@@ -19,28 +19,35 @@ Item {
         id: writeProcess
     }
 
-    function load() {
-        let req = new XMLHttpRequest();
-        req.onreadystatechange = function() {
-            if (req.readyState === XMLHttpRequest.DONE) {
-                if (req.status === 200 || req.status === 0) {
-                    try {
-                        if (req.responseText.length > 0) {
-                            let data = JSON.parse(req.responseText);
-                            root.wallpaperDirectory = data.wallpaperDirectory || "/home/grey/Pictures/Wallpapers";
-                            root.awwwAnimation = data.awwwAnimation || "fade";
-                            root.animationDuration = data.animationDuration || 1000;
-                            root.appliedWallpaper = data.appliedWallpaper || "";
-                        }
-                    } catch(e) {
-                        console.log("Error parsing wallpaper config:", e);
+    Process {
+        id: readProcess
+        command: ["bash", "-c", "cat " + root.configPath + " 2>/dev/null || echo '{}'"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    let text = this.text.trim();
+                    if (text && text.length > 0 && text !== "{}") {
+                        let data = JSON.parse(text);
+                        root.wallpaperDirectory = data.wallpaperDirectory || "/home/grey/Pictures/Wallpapers";
+                        root.awwwAnimation = data.awwwAnimation || "fade";
+                        root.animationDuration = data.animationDuration || 1000;
+                        root.appliedWallpaper = data.appliedWallpaper || "";
                     }
+                } catch(e) {
+                    console.log("Error parsing wallpaper config:", e);
                 }
                 root.isLoaded = true;
             }
         }
-        req.open("GET", "file://" + configPath);
-        req.send();
+        onExited: (exitCode) => {
+            if (exitCode !== 0) {
+                root.isLoaded = true;
+            }
+        }
+    }
+
+    function load() {
+        readProcess.running = true;
     }
 
     function save() {

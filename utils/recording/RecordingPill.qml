@@ -29,9 +29,9 @@ PanelWindow {
     implicitHeight: 44
 
     anchors {
-        bottom: isDragged ? undefined : true
-        left: isDragged ? true : undefined
-        top: isDragged ? true : undefined
+        bottom: !isDragged
+        left: isDragged
+        top: isDragged
     }
 
     // Smooth movement when utility opens/closes
