@@ -1,4 +1,5 @@
 import QtQuick
+import "../colors"
 
 // ─────────────────────────────────────────────────────────────────────────
 // reader-shell · Card
@@ -18,9 +19,9 @@ Rectangle {
     id: root
 
     radius: Config.radiusMedium
-    color: Colours.surfaceContainer
+    color: ThemeManager.surfaceContainer
     border.width: 1
-    border.color: Colours.outlineVariant
+    border.color: ThemeManager.outlineVariant
     antialiasing: true
     transformOrigin: Item.Center
 

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Io
+import "../colors"
 
 // ─────────────────────────────────────────────────────────────────────────
 // reader-shell · WeatherPill
@@ -39,14 +40,14 @@ Card {
             spacing: 0
             Text {
                 text: root.temperature
-                color: Colours.surfaceForeground
+                color: ThemeManager.surfaceFg
                 font.family: Config.fontFamily
                 font.pixelSize: 15
                 font.weight: Font.Medium
             }
             Text {
                 text: "Weather"
-                color: Colours.surfaceVariantForeground
+                color: ThemeManager.surfaceVariantFg
                 font.family: Config.fontFamily
                 font.pixelSize: 11
             }

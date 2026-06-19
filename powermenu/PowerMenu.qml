@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import "../colors"
 
 // PowerMenu.qml — simple power menu list
 Rectangle {
@@ -12,8 +13,8 @@ Rectangle {
     width: 260
     implicitHeight: layout.implicitHeight + 32
     radius: 12
-    color: "#2e2118"
-    border.color: "#a0784a"
+    color: ThemeManager.surfaceHigh
+    border.color: ThemeManager.accentSoft
     border.width: 1
 
     ColumnLayout {
@@ -28,7 +29,7 @@ Rectangle {
 
         Text {
             text: "Power Menu"
-            color: "#d4a45a"
+            color: ThemeManager.accent
             font.pixelSize: 14
             font.family: "monospace"
             font.weight: Font.DemiBold
@@ -50,8 +51,8 @@ Rectangle {
                 Layout.fillWidth: true
                 height: 40
                 radius: 6
-                color: mouseArea.containsMouse ? "#d4a45a" : "#1c1510"
-                border.color: "#a0784a"
+                color: mouseArea.containsMouse ? ThemeManager.accent : ThemeManager.bg
+                border.color: ThemeManager.accentSoft
                 border.width: 1
                 
                 Behavior on color { ColorAnimation { duration: 150 } }
@@ -63,13 +64,13 @@ Rectangle {
 
                     Text {
                         text: model.icon
-                        color: mouseArea.containsMouse ? "#1c1510" : "#d4a45a"
+                        color: mouseArea.containsMouse ? ThemeManager.bg : ThemeManager.accent
                         font.pixelSize: 14
                         font.family: "monospace"
                     }
                     Text {
                         text: model.name
-                        color: mouseArea.containsMouse ? "#1c1510" : "#f0e0c0"
+                        color: mouseArea.containsMouse ? ThemeManager.bg : ThemeManager.fg
                         font.pixelSize: 14
                         font.family: "monospace"
                     }

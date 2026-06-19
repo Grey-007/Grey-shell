@@ -1,6 +1,7 @@
 import "."
 import QtQuick
 import QtQuick.Layouts
+import "../colors"
 
 // SepiaShell – expandable sub-panel (wifi networks, BT devices, audio outputs)
 Item {
@@ -17,12 +18,7 @@ Item {
     implicitHeight: Math.min(panelContent.implicitHeight + 28, 320)
 
     // ── SepiaShell colour tokens ─────────────────────────────────────
-    readonly property color surface:    "#241D18"
-    readonly property color onSurf:     "#F2E0C8"
-    readonly property color onSurfV:    "#8C6F56"
-    readonly property color errorColor: "#E8906A"
-    readonly property color borderCol:  "#5A4736"
-
+                    
     // Slide-in + fade on appear
     opacity: 0
     NumberAnimation on opacity {
@@ -41,8 +37,8 @@ Item {
         id: panel
         anchors.fill: parent
         radius: 0
-        color: root.surface
-        border.color: root.borderCol
+        color: root.ThemeManager.surface
+        border.color: root.ThemeManager.border
         border.width: 1
         clip: true
     }
@@ -68,7 +64,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     text:           root.title
-                    color:          root.onSurf
+                    color:          root.ThemeManager.fg
                     font.pixelSize: 12
                     font.family:    "monospace"
                     font.weight:    Font.DemiBold
@@ -87,7 +83,7 @@ Item {
             Text {
                 Layout.fillWidth: true
                 text:       root.errorText
-                color:      root.errorColor
+                color:      root.ThemeManager.errorText
                 font.pixelSize: 11
                 font.family:    "monospace"
                 wrapMode:   Text.WordWrap

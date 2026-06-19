@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "../colors"
 
 // SepiaShell – device / network row inside expanded menu panels
 Item {
@@ -17,21 +18,12 @@ Item {
     implicitHeight: 54
 
     // ── SepiaShell colour tokens ─────────────────────────────────────
-    readonly property color bgOff:     "#2C241D"
-    readonly property color bgOn:      "#3A2E26"
-    readonly property color primary:   "#A67C52"
-    readonly property color onSurf:    "#F2E0C8"
-    readonly property color onSurfV:   "#8C6F56"
-    readonly property color chipBgOn:  "#A67C52"
-    readonly property color chipBgOff: "#1A1410"
-    readonly property color chipTxtOn: "#1A1410"
-    readonly property color chipTxtOff:"#A67C52"
-
+                                    
     // ── Row background ───────────────────────────────────────────────
     Rectangle {
         anchors.fill: parent
         radius: 0
-        color: root.active ? root.bgOn : root.bgOff
+        color: root.active ? root.ThemeManager.surfaceTop : root.ThemeManager.surfaceHigh
         scale: pressArea.containsPress ? 0.985 : 1.0
         border.color: root.active ? "#5A4736" : "transparent"
         border.width: 1
@@ -53,7 +45,7 @@ Item {
         Text {
             Layout.alignment: Qt.AlignVCenter
             text:           root.glyph
-            color:          root.active ? root.primary : root.onSurfV
+            color:          root.active ? root.ThemeManager.accent : root.ThemeManager.fgMid
             font.pixelSize: 15
             font.family:    "monospace"
 
@@ -69,7 +61,7 @@ Item {
             Text {
                 Layout.fillWidth: true
                 text:           root.title
-                color:          root.onSurf
+                color:          root.ThemeManager.fg
                 font.pixelSize: 12
                 font.family:    "monospace"
                 font.weight:    Font.DemiBold
@@ -79,7 +71,7 @@ Item {
             Text {
                 Layout.fillWidth: true
                 text:           root.subtitle
-                color:          root.onSurfV
+                color:          root.ThemeManager.fgMid
                 font.pixelSize: 11
                 font.family:    "monospace"
                 elide:          Text.ElideRight
@@ -93,7 +85,7 @@ Item {
             width:  Math.max(52, actionLabel.implicitWidth + 20)
             height: 26
             radius: 0
-            color:  root.active ? root.chipBgOn : root.chipBgOff
+            color:  root.active ? ThemeManager.accent : ThemeManager.bg
             border.color: root.active ? "transparent" : "#5A4736"
             border.width: 1
 
@@ -103,7 +95,7 @@ Item {
                 id: actionLabel
                 anchors.centerIn: parent
                 text:           root.actionText
-                color:          root.active ? root.chipTxtOn : root.chipTxtOff
+                color:          root.active ? root.ThemeManager.fgInverted : root.ThemeManager.accent
                 font.pixelSize: 11
                 font.family:    "monospace"
                 font.weight:    Font.Medium

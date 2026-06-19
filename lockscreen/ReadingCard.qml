@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "../colors"
 
 // ─────────────────────────────────────────────────────────────────────────
 // reader-shell · ReadingCard
@@ -25,7 +26,7 @@ Card {
             Layout.preferredWidth: 5
             Layout.fillHeight: true
             radius: 3
-            color: Colours.tertiary
+            color: ThemeManager.tertiary
         }
 
         ColumnLayout {
@@ -38,7 +39,7 @@ Card {
 
                 Text {
                     text: "Now reading"
-                    color: Colours.tertiary
+                    color: ThemeManager.tertiary
                     font.family: Config.fontFamily
                     font.pixelSize: 11
                     font.weight: Font.DemiBold
@@ -47,7 +48,7 @@ Card {
                 }
                 Text {
                     text: Math.round(Config.readingProgress * 100) + "%"
-                    color: Colours.surfaceVariantForeground
+                    color: ThemeManager.surfaceVariantFg
                     font.family: Config.fontFamily
                     font.pixelSize: 11
                 }
@@ -56,7 +57,7 @@ Card {
             Text {
                 Layout.fillWidth: true
                 text: Config.readingTitle
-                color: Colours.surfaceForeground
+                color: ThemeManager.surfaceFg
                 font.family: Config.fontFamily
                 font.pixelSize: 17
                 font.weight: Font.DemiBold
@@ -65,7 +66,7 @@ Card {
             Text {
                 Layout.fillWidth: true
                 text: Config.readingAuthor
-                color: Colours.surfaceVariantForeground
+                color: ThemeManager.surfaceVariantFg
                 font.family: Config.fontFamily
                 font.pixelSize: 13
             }
@@ -76,12 +77,12 @@ Card {
                 Layout.topMargin: 2
                 height: 4
                 radius: 2
-                color: Colours.surfaceContainerHighest
+                color: ThemeManager.surfaceContainerHighest
 
                 Rectangle {
                     height: parent.height
                     radius: 2
-                    color: Colours.tertiary
+                    color: ThemeManager.tertiary
                     width: parent.width * Config.readingProgress
 
                     Behavior on width {
@@ -95,7 +96,7 @@ Card {
                 Layout.fillWidth: true
                 Layout.topMargin: 4
                 text: "“" + Config.readingQuote + "”"
-                color: Colours.surfaceVariantForeground
+                color: ThemeManager.surfaceVariantFg
                 font.family: Config.serifFontFamily
                 font.italic: true
                 font.pixelSize: 13

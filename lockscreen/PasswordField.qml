@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "../colors"
 
 // ─────────────────────────────────────────────────────────────────────────
 // reader-shell · PasswordField
@@ -18,12 +19,12 @@ Card {
     property bool failed: false
 
     radius: Config.radiusPill
-    color: failed ? Colours.alpha(Colours.errorContainer, 0.35)
-                   : engaged ? Colours.surfaceContainerHighest
-                             : Colours.surfaceContainerHigh
-    border.color: failed ? Colours.error
-                         : engaged ? Colours.primary
-                                   : Colours.outlineVariant
+    color: failed ? ThemeManager.alpha(ThemeManager.errorContainer, 0.35)
+                   : engaged ? ThemeManager.surfaceContainerHighest
+                              : ThemeManager.surfaceContainerHigh
+    border.color: failed ? ThemeManager.error
+                         : engaged ? ThemeManager.primary
+                                   : ThemeManager.outlineVariant
     border.width: engaged ? 2 : 1
 
     Behavior on color {
@@ -74,7 +75,7 @@ Card {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: input.text.length === 0
                 text: Auth.unlocking ? "Checking…" : "Enter password"
-                color: Colours.surfaceVariantForeground
+                color: ThemeManager.surfaceVariantFg
                 font.family: Config.fontFamily
                 font.pixelSize: 16
                 x: root.engaged ? 4 : 0
@@ -95,7 +96,7 @@ Card {
                 width: 2
                 height: root.engaged ? 24 : 18
                 radius: 1
-                color: root.failed ? Colours.error : Colours.primary
+                color: root.failed ? ThemeManager.error : ThemeManager.primary
                 opacity: Auth.unlocking ? 0.45 : root.engaged ? 0.9 : 0.65
                 visible: input.text.length > 0 || root.engaged
                 x: root.caretShift
@@ -145,7 +146,7 @@ Card {
                         width: 9
                         height: 9
                         radius: 5
-                        color: Colours.surfaceForeground
+                        color: ThemeManager.surfaceFg
                         opacity: 0
                         scale: 0.2
                         y: 6
@@ -191,7 +192,7 @@ Card {
             Layout.preferredWidth: 44
             Layout.preferredHeight: 44
             radius: 22
-            color: input.text.length > 0 ? Colours.primary : Colours.surfaceContainerHighest
+            color: input.text.length > 0 ? ThemeManager.primary : ThemeManager.surfaceContainerHighest
 
             scale: mouse.pressed ? 0.9 : 1.0
             Behavior on scale {
@@ -209,7 +210,7 @@ Card {
                 anchors.centerIn: parent
                 text: "→"
                 font.pixelSize: 20
-                color: input.text.length > 0 ? Colours.primaryForeground : Colours.surfaceVariantForeground
+                color: input.text.length > 0 ? ThemeManager.primaryFg : ThemeManager.surfaceVariantFg
             }
 
             MouseArea {

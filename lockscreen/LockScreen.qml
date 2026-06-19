@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "../colors"
 
 // ─────────────────────────────────────────────────────────────────────────
 // reader-shell · LockScreen
@@ -65,13 +66,13 @@ Item {
                 spacing: 2
                 Text {
                     text: Time.greeting
-                    color: Colours.surfaceVariantForeground
+                    color: ThemeManager.surfaceVariantFg
                     font.family: Config.fontFamily
                     font.pixelSize: 13
                 }
                 Text {
                     text: Config.userName
-                    color: Colours.surfaceForeground
+                    color: ThemeManager.surfaceFg
                     font.family: Config.fontFamily
                     font.pixelSize: 20
                     font.weight: Font.DemiBold

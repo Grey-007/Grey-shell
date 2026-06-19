@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import "../colors"
 
 // NotificationPopupCard.qml — notification history card
 Rectangle {
@@ -9,8 +10,8 @@ Rectangle {
     property int panelWidth: 400
 
     radius: 0
-    color: "#241D18"
-    border.color: "#5A4736"
+    color: ThemeManager.surface
+    border.color: ThemeManager.border
     border.width: 1
     clip: true
 
@@ -32,7 +33,7 @@ Rectangle {
             Text {
                 Layout.fillWidth: true
                 text:           "Notifications"
-                color:          "#A67C52"
+                color:          ThemeManager.accent
                 font.pixelSize: 13
                 font.family:    "monospace"
                 font.weight:    Font.DemiBold
@@ -50,7 +51,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             height: 1
-            color: "#5A4736"
+            color: ThemeManager.border
             opacity: 0.5
         }
 
@@ -61,7 +62,7 @@ Rectangle {
             Layout.bottomMargin: 16
             horizontalAlignment: Text.AlignHCenter
             text:           "No notifications"
-            color:          "#8C6F56"
+            color:          ThemeManager.fgMid
             font.pixelSize: 12
             font.family:    "monospace"
             visible: ControlCentreState.notifications.length === 0
@@ -100,8 +101,8 @@ Rectangle {
                             id: notifBody
                             anchors.fill: parent
                             radius: 0
-                            color: "#3A2E26"
-                            border.color: "#5A4736"
+                            color: ThemeManager.surfaceTop
+                            border.color: ThemeManager.border
                             border.width: 1
                             scale: pressArea.containsPress ? 0.985 : 1.0
 
@@ -118,7 +119,7 @@ Rectangle {
                                 }
                                 width:  3
                                 radius: 0
-                                color:  "#A67C52"
+                                color:  ThemeManager.accent
                                 opacity: 0.8
                             }
 
@@ -136,7 +137,7 @@ Rectangle {
                                 Text {
                                     Layout.fillWidth: true
                                     text:           modelData.appName || "Notification"
-                                    color:          "#A67C52"
+                                    color:          ThemeManager.accent
                                     font.pixelSize: 10
                                     font.family:    "monospace"
                                     font.weight:    Font.DemiBold
@@ -146,7 +147,7 @@ Rectangle {
                                 Text {
                                     Layout.fillWidth: true
                                     text:           modelData.summary || ""
-                                    color:          "#F2E0C8"
+                                    color:          ThemeManager.fg
                                     font.pixelSize: 12
                                     font.family:    "monospace"
                                     font.weight:    Font.DemiBold
@@ -157,7 +158,7 @@ Rectangle {
                                 Text {
                                     Layout.fillWidth: true
                                     text:            modelData.body || ""
-                                    color:           "#8C6F56"
+                                    color:           ThemeManager.fgMid
                                     font.pixelSize:  11
                                     font.family:     "monospace"
                                     wrapMode:        Text.WordWrap

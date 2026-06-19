@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "../../../colors"
 
 // Clock.qml — fancy bar clock with time, seconds, and date
 Item {
@@ -7,9 +8,9 @@ Item {
 
     signal clicked()
 
-    property color color:       "#f0e0c0"
-    property color accentColor: "#d4a45a"
-    property color mutedColor:  "#8a7055"
+    property color color:       ThemeManager.fg
+    property color accentColor: ThemeManager.accent
+    property color mutedColor:  ThemeManager.fgMid
 
     // Internal state
     property int  _h:    12

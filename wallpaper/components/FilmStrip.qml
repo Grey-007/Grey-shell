@@ -1,5 +1,6 @@
 // FilmStrip.qml
 import QtQuick
+import "../../colors"
 
 Item {
     id: root
@@ -19,8 +20,8 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: "#241D18"
-        border.color: "#5A4736"
+        color: ThemeManager.surface
+        border.color: ThemeManager.border
         border.width: 2
 
         ListView {

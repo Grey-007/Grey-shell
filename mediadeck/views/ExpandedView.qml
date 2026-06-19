@@ -1,5 +1,6 @@
 import QtQuick
 import "../components"
+import "../../colors"
 
 // ExpandedView.qml
 //
@@ -36,8 +37,8 @@ Rectangle {
         anchors.right: parent.right
         anchors.margins: 6
         z: 10
-        color: pinMa.containsMouse ? "#3A2E26" : "transparent"
-        border.color: (root.mediaState && root.mediaState.isPinned) ? "#A67C52" : "#5A4736"
+        color: pinMa.containsMouse ? ThemeManager.surfaceTop : "transparent"
+        border.color: (root.mediaState && root.mediaState.isPinned) ? ThemeManager.accent : ThemeManager.border
         border.width: 1
 
         Text {
@@ -45,7 +46,7 @@ Rectangle {
             // 📌 filled = pinned to desktop  ◈ outline = floating
             text: (root.mediaState && root.mediaState.isPinned) ? "📌" : "◈"
             font.pixelSize: 11
-            color: (root.mediaState && root.mediaState.isPinned) ? "#A67C52" : "#8C6F56"
+            color: (root.mediaState && root.mediaState.isPinned) ? ThemeManager.accent : ThemeManager.fgMid
         }
 
         MouseArea {
@@ -67,7 +68,7 @@ Rectangle {
         visible: !mprisService || !mprisService.hasPlayer
         anchors.centerIn: parent
         text: "NO ACTIVE PLAYER"
-        color: "#A67C52"
+        color: ThemeManager.accent
         font.family: "monospace"
         font.pixelSize: 14
         font.letterSpacing: 2
@@ -104,7 +105,7 @@ Rectangle {
                 Text {
                     width: parent.width
                     text: mprisService.title
-                    color: "#F2E0C8"
+                    color: ThemeManager.fg
                     font.family: "monospace"
                     font.pixelSize: 18
                     elide: Text.ElideRight
@@ -112,7 +113,7 @@ Rectangle {
                 Text {
                     width: parent.width
                     text: mprisService.artist
-                    color: "#A67C52"
+                    color: ThemeManager.accent
                     font.family: "monospace"
                     font.pixelSize: 14
                     elide: Text.ElideRight
@@ -120,7 +121,7 @@ Rectangle {
                 Text {
                     width: parent.width
                     text: mprisService.album
-                    color: "#8C6F56"
+                    color: ThemeManager.fgMid
                     font.family: "monospace"
                     font.pixelSize: 11
                     elide: Text.ElideRight
@@ -135,12 +136,12 @@ Rectangle {
                     topPadding: 6
 
                     // Player Name
-                    Text { text: "PLAYER:"; color: "#A67C52"; font.family: "monospace"; font.pixelSize: 10; }
-                    Text { text: mprisService.playerName; color: "#F2E0C8"; font.family: "monospace"; font.pixelSize: 10; elide: Text.ElideRight; }
+                    Text { text: "PLAYER:"; color: ThemeManager.accent; font.family: "monospace"; font.pixelSize: 10; }
+                    Text { text: mprisService.playerName; color: ThemeManager.fg; font.family: "monospace"; font.pixelSize: 10; elide: Text.ElideRight; }
 
                     // Playback State
-                    Text { text: "STATE:"; color: "#A67C52"; font.family: "monospace"; font.pixelSize: 10; }
-                    Text { text: mprisService.playbackStatus.toUpperCase(); color: "#F2E0C8"; font.family: "monospace"; font.pixelSize: 10; }
+                    Text { text: "STATE:"; color: ThemeManager.accent; font.family: "monospace"; font.pixelSize: 10; }
+                    Text { text: mprisService.playbackStatus.toUpperCase(); color: ThemeManager.fg; font.family: "monospace"; font.pixelSize: 10; }
                 }
             }
         }
@@ -149,7 +150,7 @@ Rectangle {
         Rectangle {
             width: parent.width
             height: 1
-            color: "#A67C52"
+            color: ThemeManager.accent
             opacity: 0.2
         }
 

@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import "../colors"
 
 // Material You toast notifications
 PanelWindow {
@@ -17,11 +18,7 @@ PanelWindow {
     color: "transparent"
 
     // Sepia tokens
-    readonly property color surface:   "#241D18"
-    readonly property color onSurf:    "#F2E0C8"
-    readonly property color onSurfV:   "#8C6F56"
-    readonly property color primary:   "#A67C52"
-
+                
     anchors {
         top: true
         bottom: true
@@ -98,8 +95,8 @@ PanelWindow {
                     width: parent.width
                     height: toastContent.implicitHeight + 26
                     radius: 0
-                    color: root.surface
-                    border.color: "#5A4736"
+                    color: ThemeManager.surface
+                    border.color: ThemeManager.border
                     border.width: 1
                     clip: true
 
@@ -116,7 +113,7 @@ PanelWindow {
                         Text {
                             Layout.fillWidth: true
                             text: toast.modelData.notification.appName || "Notification"
-                            color: root.primary
+                            color: root.ThemeManager.accent
                             font.pixelSize: 10
                             font.weight: Font.DemiBold
                             elide: Text.ElideRight
@@ -125,7 +122,7 @@ PanelWindow {
                         Text {
                             Layout.fillWidth: true
                             text: toast.modelData.notification.summary || ""
-                            color: root.onSurf
+                            color: root.ThemeManager.fg
                             font.pixelSize: 14
                             font.weight: Font.DemiBold
                             elide: Text.ElideRight
@@ -135,7 +132,7 @@ PanelWindow {
                         Text {
                             Layout.fillWidth: true
                             text: toast.modelData.notification.body || ""
-                            color: root.onSurfV
+                            color: root.ThemeManager.fgMid
                             font.pixelSize: 12
                             wrapMode: Text.WordWrap
                             maximumLineCount: 3
@@ -154,7 +151,7 @@ PanelWindow {
                         width: parent.width * toast.progress
                         height: 3
                         radius: 0
-                        color: root.primary
+                        color: root.ThemeManager.accent
                         opacity: 0.7
 
                         Behavior on width {

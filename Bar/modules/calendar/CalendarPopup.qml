@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import "../../../colors"
 
 PanelWindow {
     id: root
@@ -19,18 +20,7 @@ PanelWindow {
     readonly property int cardWidth: Math.min(560, Math.max(420, width - 32))
 
     // ── Sepia palette ──────────────────────────────────────────────
-    readonly property color sepiaBase:     "#1c1510"   // darkest bg
-    readonly property color sepiaSurface:  "#241c14"   // tile bg
-    readonly property color sepiaPanel:    "#2e2118"   // clock tile bg
-    readonly property color sepiaBorder:   "#a0784a"   // warm gold border
-    readonly property color sepiaAccent:   "#d4a45a"   // warm amber accent
-    readonly property color sepiaText:     "#f0e0c0"   // main text
-    readonly property color sepiaMuted:    "#8a7055"   // muted text
-    readonly property color sepiaDim:      "#4a3828"   // dim / out-of-month
-    readonly property color sepiaToday:    "#d4a45a"   // today highlight
-    readonly property color sepiaTodayFg:  "#1c1510"   // today text
-    readonly property color sepiaHover:    "#3a2a1c"   // hover bg
-
+                                            
     function open() {
         closeTimer.stop()
         now = new Date()
@@ -207,9 +197,9 @@ PanelWindow {
             }
             height: 130
             radius: 20
-            color: root.sepiaPanel
+            color: root.ThemeManager.surfaceHigh
             border.color: Qt.rgba(
-                root.sepiaBorder.r, root.sepiaBorder.g, root.sepiaBorder.b, 0.45)
+                root.ThemeManager.accentSoft.r, root.ThemeManager.accentSoft.g, root.ThemeManager.accentSoft.b, 0.45)
             border.width: 1
             clip: false
 
@@ -226,7 +216,7 @@ PanelWindow {
                 height: 2
                 radius: 20
                 color: Qt.rgba(
-                    root.sepiaAccent.r, root.sepiaAccent.g, root.sepiaAccent.b, 0.18)
+                    root.ThemeManager.accent.r, root.ThemeManager.accent.g, root.ThemeManager.accent.b, 0.18)
             }
 
             RowLayout {
@@ -247,7 +237,7 @@ PanelWindow {
                     // Hours
                     Text {
                         text: root.clockHour()
-                        color: root.sepiaAccent
+                        color: root.ThemeManager.accent
                         font.pixelSize: 68
                         font.weight: Font.Thin
                         font.letterSpacing: -2
@@ -258,7 +248,7 @@ PanelWindow {
                     Text {
                         id: colon1
                         text: ":"
-                        color: root.sepiaAccent
+                        color: root.ThemeManager.accent
                         font.pixelSize: 58
                         font.weight: Font.Thin
                         verticalAlignment: Text.AlignVCenter
@@ -274,7 +264,7 @@ PanelWindow {
                     // Minutes
                     Text {
                         text: root.clockMinute()
-                        color: root.sepiaAccent
+                        color: root.ThemeManager.accent
                         font.pixelSize: 68
                         font.weight: Font.Thin
                         font.letterSpacing: -2
@@ -284,7 +274,7 @@ PanelWindow {
                     // Dimmed colon + seconds
                     Text {
                         text: ":"
-                        color: root.sepiaMuted
+                        color: root.ThemeManager.fgMid
                         font.pixelSize: 36
                         font.weight: Font.Thin
                         verticalAlignment: Text.AlignBottom
@@ -293,7 +283,7 @@ PanelWindow {
 
                     Text {
                         text: root.clockSecond()
-                        color: root.sepiaMuted
+                        color: root.ThemeManager.fgMid
                         font.pixelSize: 36
                         font.weight: Font.Thin
                         verticalAlignment: Text.AlignBottom
@@ -315,16 +305,16 @@ PanelWindow {
                         height: 28
                         radius: 6
                         color: Qt.rgba(
-                            root.sepiaAccent.r, root.sepiaAccent.g, root.sepiaAccent.b, 0.15)
+                            root.ThemeManager.accent.r, root.ThemeManager.accent.g, root.ThemeManager.accent.b, 0.15)
                         border.color: Qt.rgba(
-                            root.sepiaAccent.r, root.sepiaAccent.g, root.sepiaAccent.b, 0.4)
+                            root.ThemeManager.accent.r, root.ThemeManager.accent.g, root.ThemeManager.accent.b, 0.4)
                         border.width: 1
 
                         Text {
                             id: ampmText
                             anchors.centerIn: parent
                             text: root.clockAmPm()
-                            color: root.sepiaAccent
+                            color: root.ThemeManager.accent
                             font.pixelSize: 13
                             font.weight: Font.Medium
                             font.letterSpacing: 2
@@ -334,7 +324,7 @@ PanelWindow {
                     // Day name
                     Text {
                         text: root.longDayText().toUpperCase()
-                        color: root.sepiaText
+                        color: root.ThemeManager.fg
                         font.pixelSize: 13
                         font.weight: Font.Medium
                         font.letterSpacing: 1.5
@@ -343,7 +333,7 @@ PanelWindow {
                     // Full date
                     Text {
                         text: root.longDateText()
-                        color: root.sepiaMuted
+                        color: root.ThemeManager.fgMid
                         font.pixelSize: 11
                     }
                 }
@@ -363,9 +353,9 @@ PanelWindow {
             }
             height: 290
             radius: 20
-            color: root.sepiaSurface
+            color: root.ThemeManager.surface
             border.color: Qt.rgba(
-                root.sepiaBorder.r, root.sepiaBorder.g, root.sepiaBorder.b, 0.35)
+                root.ThemeManager.accentSoft.r, root.ThemeManager.accentSoft.g, root.ThemeManager.accentSoft.b, 0.35)
             border.width: 1
             clip: false
 
@@ -382,7 +372,7 @@ PanelWindow {
                 height: 2
                 radius: 20
                 color: Qt.rgba(
-                    root.sepiaBorder.r, root.sepiaBorder.g, root.sepiaBorder.b, 0.12)
+                    root.ThemeManager.accentSoft.r, root.ThemeManager.accentSoft.g, root.ThemeManager.accentSoft.b, 0.12)
             }
 
             Item {
@@ -403,7 +393,7 @@ PanelWindow {
                         Text {
                             Layout.fillWidth: true
                             text: root.monthNames[root.shownMonth] + "  " + root.shownYear
-                            color: root.sepiaText
+                            color: root.ThemeManager.fg
                             font.pixelSize: 18
                             font.weight: Font.Medium
                             font.letterSpacing: 0.5
@@ -421,10 +411,10 @@ PanelWindow {
                                 Layout.preferredHeight: 32
                                 radius: 10
                                 color: arrowMouse.containsMouse
-                                    ? Qt.rgba(root.sepiaBorder.r, root.sepiaBorder.g, root.sepiaBorder.b, 0.25)
+                                    ? Qt.rgba(root.ThemeManager.accentSoft.r, root.ThemeManager.accentSoft.g, root.ThemeManager.accentSoft.b, 0.25)
                                     : "transparent"
                                 border.color: arrowMouse.containsMouse
-                                    ? Qt.rgba(root.sepiaBorder.r, root.sepiaBorder.g, root.sepiaBorder.b, 0.5)
+                                    ? Qt.rgba(root.ThemeManager.accentSoft.r, root.ThemeManager.accentSoft.g, root.ThemeManager.accentSoft.b, 0.5)
                                     : "transparent"
                                 border.width: 1
 
@@ -435,7 +425,7 @@ PanelWindow {
                                 Text {
                                     anchors.centerIn: parent
                                     text: modelData.label
-                                    color: root.sepiaAccent
+                                    color: root.ThemeManager.accent
                                     font.pixelSize: 22
                                 }
 
@@ -466,7 +456,7 @@ PanelWindow {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 20
                                 text: modelData
-                                color: root.sepiaMuted
+                                color: root.ThemeManager.fgMid
                                 font.pixelSize: 9
                                 font.weight: Font.DemiBold
                                 font.letterSpacing: 0.8
@@ -500,14 +490,14 @@ PanelWindow {
                                     height: 30
                                     radius: 8
                                     color: parent.today
-                                        ? root.sepiaToday
+                                        ? root.ThemeManager.accent
                                         : dayMouse.containsMouse
-                                            ? root.sepiaHover
+                                            ? root.ThemeManager.surfaceTop
                                             : "transparent"
                                     border.color: parent.today
                                         ? "transparent"
                                         : dayMouse.containsMouse
-                                            ? Qt.rgba(root.sepiaBorder.r, root.sepiaBorder.g, root.sepiaBorder.b, 0.35)
+                                            ? Qt.rgba(root.ThemeManager.accentSoft.r, root.ThemeManager.accentSoft.g, root.ThemeManager.accentSoft.b, 0.35)
                                             : "transparent"
                                     border.width: 1
 
@@ -520,10 +510,10 @@ PanelWindow {
                                     anchors.centerIn: parent
                                     text: parent.cellDate.getDate()
                                     color: parent.today
-                                        ? root.sepiaTodayFg
+                                        ? root.ThemeManager.fgInverted
                                         : parent.inCurrentMonth
-                                            ? root.sepiaText
-                                            : root.sepiaDim
+                                            ? root.ThemeManager.fg
+                                            : root.ThemeManager.accentDim
                                     font.pixelSize: 12
                                     font.weight: parent.today ? Font.DemiBold : Font.Normal
                                 }
@@ -544,7 +534,7 @@ PanelWindow {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 14
                         text: "scroll to change month  ·  esc to close"
-                        color: root.sepiaDim
+                        color: root.ThemeManager.accentDim
                         font.pixelSize: 10
                         font.letterSpacing: 0.5
                         horizontalAlignment: Text.AlignRight

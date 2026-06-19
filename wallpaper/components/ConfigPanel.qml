@@ -2,14 +2,15 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import "../../colors"
 
 Rectangle {
     id: root
 
     property var config: null
 
-    color: "#241D18"
-    border.color: "#5A4736"
+    color: ThemeManager.surface
+    border.color: ThemeManager.border
     border.width: 2
 
     // Avoid bindings loops, update UI from config when config changes
@@ -36,7 +37,7 @@ Rectangle {
                 spacing: 16
                 Text {
                     text: "Directory:"
-                    color: "#F2E0C8"
+                    color: ThemeManager.fg
                     font.family: "monospace"
                     font.pixelSize: 14
                     Layout.preferredWidth: 80
@@ -45,14 +46,14 @@ Rectangle {
                     Layout.fillWidth: true
                     height: 32
                     color: "transparent"
-                    border.color: dirInput.activeFocus ? "#A67C52" : "#5A4736"
+                    border.color: dirInput.activeFocus ? ThemeManager.accent : ThemeManager.border
                     border.width: 2
 
                     TextInput {
                         id: dirInput
                         anchors.fill: parent
                         anchors.margins: 8
-                        color: "#F2E0C8"
+                        color: ThemeManager.fg
                         font.family: "monospace"
                         font.pixelSize: 14
                         clip: true
@@ -71,7 +72,7 @@ Rectangle {
                 spacing: 16
                 Text {
                     text: "Animation:"
-                    color: "#F2E0C8"
+                    color: ThemeManager.fg
                     font.family: "monospace"
                     font.pixelSize: 14
                     Layout.preferredWidth: 80
@@ -85,15 +86,15 @@ Rectangle {
                         Rectangle {
                             width: Math.max(60, typeText.implicitWidth + 16)
                             height: 32
-                            color: (root.config && root.config.awwwAnimation === modelData) ? "#A67C52" : "transparent"
-                            border.color: "#5A4736"
+                            color: (root.config && root.config.awwwAnimation === modelData) ? ThemeManager.accent : "transparent"
+                            border.color: ThemeManager.border
                             border.width: 2
 
                             Text {
                                 id: typeText
                                 anchors.centerIn: parent
                                 text: modelData
-                                color: (root.config && root.config.awwwAnimation === modelData) ? "#241D18" : "#F2E0C8"
+                                color: (root.config && root.config.awwwAnimation === modelData) ? ThemeManager.surface : ThemeManager.fg
                                 font.family: "monospace"
                                 font.pixelSize: 12
                             }
@@ -118,7 +119,7 @@ Rectangle {
                 spacing: 16
                 Text {
                     text: "Duration:"
-                    color: "#F2E0C8"
+                    color: ThemeManager.fg
                     font.family: "monospace"
                     font.pixelSize: 14
                     Layout.preferredWidth: 80
@@ -132,14 +133,14 @@ Rectangle {
                         Rectangle {
                             width: 70
                             height: 32
-                            color: (root.config && root.config.animationDuration === modelData) ? "#A67C52" : "transparent"
-                            border.color: "#5A4736"
+                            color: (root.config && root.config.animationDuration === modelData) ? ThemeManager.accent : "transparent"
+                            border.color: ThemeManager.border
                             border.width: 2
 
                             Text {
                                 anchors.centerIn: parent
                                 text: modelData + "ms"
-                                color: (root.config && root.config.animationDuration === modelData) ? "#241D18" : "#F2E0C8"
+                                color: (root.config && root.config.animationDuration === modelData) ? ThemeManager.surface : ThemeManager.fg
                                 font.family: "monospace"
                                 font.pixelSize: 12
                             }

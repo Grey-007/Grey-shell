@@ -1,4 +1,5 @@
 import QtQuick
+import "../../../colors"
 
 // MetricBar.qml — sepia waveform-bar metric widget
 // Shows a compact label + animated bar columns instead of a ring.
@@ -15,11 +16,11 @@ Item {
     signal clicked()
 
     // ── Sepia palette ─────────────────────────────────────────────────
-    property color  inkColor:    "#d4a45a"
+    property color  inkColor:    ThemeManager.accent
     property color  paperColor:  "#2e2118"
-    property color  trackColor:  Qt.rgba(0.83, 0.64, 0.35, 0.15)
-    property color  fillColor:   "#d4a45a"
-    property color  dimColor:    "#5a4030"
+    property color  trackColor:  ThemeManager.alpha(ThemeManager.accent, 0.15)
+    property color  fillColor:   ThemeManager.accent
+    property color  dimColor:    ThemeManager.fgDim
 
     // ── Sizing ────────────────────────────────────────────────────────
     readonly property int  barCount:  6
@@ -108,7 +109,7 @@ Item {
                     radius: root.barW / 2
                     color:  root.active
                         ? (root.value >= 85 && barSlot.index >= root.barCount - 1
-                           ? "#e87a52"   // hot amber-red when near max
+                           ? ThemeManager.warning   // hot amber-red when near max
                            : root.fillColor)
                         : root.dimColor
                     opacity: root.active ? 1 : 0.3

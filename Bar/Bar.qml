@@ -7,6 +7,7 @@ import "modules/workspaces"
 import "modules/clock"
 import "modules/metrics"
 import "modules/tray"
+import "../colors"
 
 // Bar.qml — floating top panel for Hyprland — sepia theme
 PanelWindow {
@@ -22,15 +23,7 @@ PanelWindow {
     readonly property int sectionGap:     10
 
     // ── Sepia palette ──────────────────────────────────────────────
-    readonly property color bg:         "#1c1510"
-    readonly property color bgRaised:   "#2e2118"
-    readonly property color bgInset:    "#241c14"
-    readonly property color accent:     "#d4a45a"
-    readonly property color accentSoft: "#a0784a"
-    readonly property color fg:         "#f0e0c0"
-    readonly property color muted:      "#8a7055"
-    readonly property color border:     "#a0784a"
-
+                                
     anchors {
         top:   true
         left:  true
@@ -59,7 +52,7 @@ PanelWindow {
             bottomMargin: -3
         }
         radius:       panelBackground.radius
-        color:        bar.accentSoft
+        color:        ThemeManager.accentSoft
         opacity:      0.10
         antialiasing: true
     }
@@ -74,7 +67,7 @@ PanelWindow {
             bottomMargin: -1
         }
         radius:       panelBackground.radius
-        color:        "#ffffff"
+        color:        ThemeManager.fgInverted
         opacity:      0.08
         antialiasing: true
     }
@@ -84,8 +77,8 @@ PanelWindow {
         id: panelBackground
         anchors.fill: parent
         radius:       12
-        color:        bar.bg
-        border.color: bar.border
+        color:        ThemeManager.bg
+        border.color: ThemeManager.accentSoft
         border.width: 1
         antialiasing: true
 
@@ -99,7 +92,7 @@ PanelWindow {
             }
             height:  1
             radius:  1
-            color:   bar.accent
+            color:   ThemeManager.accent
             opacity: 0.22
         }
     }
@@ -123,9 +116,9 @@ PanelWindow {
             width:  leftRow.implicitWidth + bar.modulePadding * 2
             height: 28
             radius: 14
-            color:  bar.bgRaised
+            color:  ThemeManager.surfaceHigh
             border.color: Qt.rgba(
-                bar.accent.r, bar.accent.g, bar.accent.b, 0.30)
+                ThemeManager.accent.r, ThemeManager.accent.g, ThemeManager.accent.b, 0.30)
             border.width: 1
             antialiasing: true
 
@@ -147,7 +140,7 @@ PanelWindow {
                 // Nix logo
                 Text {
                     text:            "󰣇"
-                    color:           bar.accent
+                    color:           ThemeManager.accent
                     font.pixelSize:  16
                     font.weight:     Font.DemiBold
                     verticalAlignment: Text.AlignVCenter
@@ -157,7 +150,7 @@ PanelWindow {
                 Rectangle {
                     width:  1
                     height: 14
-                    color:  Qt.rgba(bar.accent.r, bar.accent.g, bar.accent.b, 0.30)
+                    color:  Qt.rgba(ThemeManager.accent.r, ThemeManager.accent.g, ThemeManager.accent.b, 0.30)
                 }
 
                 Workspaces {}
@@ -177,18 +170,18 @@ PanelWindow {
             width:  clockWidget.implicitWidth + 24
             height: 28
             radius: 14
-            color:  bar.bgInset
+            color:  ThemeManager.surface
             border.color: Qt.rgba(
-                bar.accent.r, bar.accent.g, bar.accent.b, 0.22)
+                ThemeManager.accent.r, ThemeManager.accent.g, ThemeManager.accent.b, 0.22)
             border.width: 1
             antialiasing: true
 
             Clock {
                 id: clockWidget
                 anchors.centerIn: parent
-                color:       bar.fg
-                accentColor: bar.accent
-                mutedColor:  bar.muted
+                color:       ThemeManager.fg
+                accentColor: ThemeManager.accent
+                mutedColor:  ThemeManager.fgMid
                 onClicked:   bar.calendarClicked()
             }
         }
@@ -203,9 +196,9 @@ PanelWindow {
             width:  rightRow.implicitWidth + bar.modulePadding * 2
             height: 28
             radius: 14
-            color:  bar.bgRaised
+            color:  ThemeManager.surfaceHigh
             border.color: Qt.rgba(
-                bar.accent.r, bar.accent.g, bar.accent.b, 0.30)
+                ThemeManager.accent.r, ThemeManager.accent.g, ThemeManager.accent.b, 0.30)
             border.width: 1
             antialiasing: true
 
@@ -230,7 +223,7 @@ PanelWindow {
                 Rectangle {
                     width:   1
                     height:  14
-                    color:   Qt.rgba(bar.accent.r, bar.accent.g, bar.accent.b, 0.25)
+                    color:   Qt.rgba(ThemeManager.accent.r, ThemeManager.accent.g, ThemeManager.accent.b, 0.25)
                     visible: SystemTray.items.values.length > 0
                 }
 

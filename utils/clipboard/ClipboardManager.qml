@@ -6,6 +6,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
+import "../../colors"
 
 PanelWindow {
     id: win
@@ -103,8 +104,8 @@ PanelWindow {
             anchors.fill: parent
             
             ShapePath {
-                fillColor: "#241D18"   // Sepia surface
-                strokeColor: "#5A4736" // Sepia border
+                fillColor: ThemeManager.surface   // Sepia surface
+                strokeColor: ThemeManager.border // Sepia border
                 strokeWidth: 2
                 
                 // Start top-left
@@ -175,7 +176,7 @@ PanelWindow {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "Clipboard History"
-                        color: "#a0784a"
+                        color: ThemeManager.accentSoft
                         font.pixelSize: 18
                         font.weight: Font.Bold
                     }
@@ -183,7 +184,7 @@ PanelWindow {
                         anchors.bottom: parent.bottom
                         width: parent.width
                         height: 1
-                        color: "#5A4736"
+                        color: ThemeManager.border
                     }
                 }
 
@@ -191,8 +192,8 @@ PanelWindow {
                     width: listView.width
                     height: 50
                     radius: 8
-                    color: itemMouseArea.containsMouse ? "#5A4736" : "transparent"
-                    border.color: itemMouseArea.containsMouse ? "#d4a45a" : "transparent"
+                    color: itemMouseArea.containsMouse ? ThemeManager.border : "transparent"
+                    border.color: itemMouseArea.containsMouse ? ThemeManager.accent : "transparent"
                     border.width: 1
 
                     Behavior on color { ColorAnimation { duration: 200 } }
@@ -203,7 +204,7 @@ PanelWindow {
                             margins: 12
                         }
                         text: model.content
-                        color: "#f0e0c0"
+                        color: ThemeManager.fg
                         font.pixelSize: 14
                         elide: Text.ElideRight
                         verticalAlignment: Text.AlignVCenter

@@ -12,6 +12,7 @@ import "mediadeck"
 import "wallpaper" as WallpaperModule
 import "utils/recording" as RecordingUtils
 import "utils/clipboard" as ClipboardUtils
+import "colors/theme_switcher_ui" as ThemeSwitcherModule
 
 ShellRoot {
     function lockSession() {
@@ -36,6 +37,11 @@ ShellRoot {
     WallpaperModule.WallpaperSelector {
         id: wallpaperSelector
         
+        visible: false
+    }
+
+    ThemeSwitcherModule.ThemeSwitcher {
+        id: themeSwitcher
         visible: false
     }
 
@@ -275,6 +281,25 @@ ShellRoot {
         }
 
         target: "clipboard"
+    }
+
+    // ── IPC: theme switcher ───────────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            themeSwitcher.visible = !themeSwitcher.visible;
+            if (themeSwitcher.visible) themeSwitcher.focusOnOpen();
+        }
+
+        function open() {
+            themeSwitcher.visible = true;
+            themeSwitcher.focusOnOpen();
+        }
+
+        function close() {
+            themeSwitcher.visible = false;
+        }
+
+        target: "themeswitcher"
     }
 
 }

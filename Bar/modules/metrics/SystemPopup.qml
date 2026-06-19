@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
 import Quickshell.Services.Pipewire
+import "../../../colors"
 
 // SystemPopup.qml — slide-down system info popup, feels like an extension of the bar.
 // Instantiated inside shell.qml as a separate PanelWindow.
@@ -21,13 +22,7 @@ PanelWindow {
     readonly property int popupHeight:  200
 
     // ── Sepia palette ─────────────────────────────────────────────────
-    readonly property color bg:       "#1c1510"
-    readonly property color surface:  "#2e2118"
-    readonly property color accent:   "#d4a45a"
-    readonly property color fg:       "#f0e0c0"
-    readonly property color muted:    "#8a7055"
-    readonly property color border_c: "#a0784a"
-
+                        
     // System data (polled internally so popup is self-contained)
     property real cpuUsage:  0
     property real ramUsage:  0
@@ -135,15 +130,15 @@ PanelWindow {
         Rectangle {
             anchors.fill: parent
             radius: 0
-            color:  win.surface
-            border.color: win.border_c
+            color:  win.ThemeManager.surfaceHigh
+            border.color: win.ThemeManager.accentSoft
             border.width: 1
 
             // Top connector strip — same colour as bar so popup looks attached
             Rectangle {
                 anchors { top: parent.top; left: parent.left; right: parent.right }
                 height: 2
-                color:  win.accent
+                color:  win.ThemeManager.accent
                 opacity: 0.3
             }
         }
@@ -159,7 +154,7 @@ PanelWindow {
             // Header
             Text {
                 text:           "\uf200  System"   // nf-fa-pie_chart
-                color:          win.accent
+                color:          win.ThemeManager.accent
                 font.pixelSize: 12
                 font.family:    "monospace"
                 font.weight:    Font.DemiBold
@@ -175,14 +170,14 @@ PanelWindow {
                     Layout.fillWidth: true
                     Text {
                         text:           "\uf4bc  CPU"   // nf-fa-microchip
-                        color:          win.fg
+                        color:          win.ThemeManager.fg
                         font.pixelSize: 11
                         font.family:    "monospace"
                     }
                     Item { Layout.fillWidth: true }
                     Text {
                         text:           Math.round(win.cpuUsage) + "%"
-                        color:          win.accent
+                        color:          win.ThemeManager.accent
                         font.pixelSize: 11
                         font.family:    "monospace"
                         font.weight:    Font.DemiBold
@@ -192,12 +187,12 @@ PanelWindow {
                     Layout.fillWidth: true
                     height: 6
                     radius: 0
-                    color:  Qt.rgba(win.accent.r, win.accent.g, win.accent.b, 0.15)
+                    color:  Qt.rgba(win.ThemeManager.accent.r, win.ThemeManager.accent.g, win.ThemeManager.accent.b, 0.15)
                     Rectangle {
                         width: Math.max(0, Math.min(parent.width, parent.width * win.cpuUsage / 100))
                         height: parent.height
                         radius: 0
-                        color:  win.cpuUsage >= 85 ? "#e87a52" : win.accent
+                        color:  win.cpuUsage >= 85 ? ThemeManager.warning : win.ThemeManager.accent
                         Behavior on width { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
                     }
                 }
@@ -212,14 +207,14 @@ PanelWindow {
                     Layout.fillWidth: true
                     Text {
                         text:           "\uf538  RAM"   // nf-fa-memory
-                        color:          win.fg
+                        color:          win.ThemeManager.fg
                         font.pixelSize: 11
                         font.family:    "monospace"
                     }
                     Item { Layout.fillWidth: true }
                     Text {
                         text:           Math.round(win.ramUsage) + "%"
-                        color:          win.accent
+                        color:          win.ThemeManager.accent
                         font.pixelSize: 11
                         font.family:    "monospace"
                         font.weight:    Font.DemiBold
@@ -229,12 +224,12 @@ PanelWindow {
                     Layout.fillWidth: true
                     height: 6
                     radius: 0
-                    color:  Qt.rgba(win.accent.r, win.accent.g, win.accent.b, 0.15)
+                    color:  Qt.rgba(win.ThemeManager.accent.r, win.ThemeManager.accent.g, win.ThemeManager.accent.b, 0.15)
                     Rectangle {
                         width: Math.max(0, Math.min(parent.width, parent.width * win.ramUsage / 100))
                         height: parent.height
                         radius: 0
-                        color:  win.ramUsage >= 85 ? "#e87a52" : win.accent
+                        color:  win.ramUsage >= 85 ? ThemeManager.warning : win.ThemeManager.accent
                         Behavior on width { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
                     }
                 }
@@ -247,14 +242,14 @@ PanelWindow {
                     text: win.muted_v || win.volume === 0 ? "\udb81\udd7e  Vol"
                         : win.volume < 45               ? "\uf027  Vol"
                         :                                  "\uf028  Vol"
-                    color:          win.fg
+                    color:          win.ThemeManager.fg
                     font.pixelSize: 11
                     font.family:    "monospace"
                 }
                 Item { Layout.fillWidth: true }
                 Text {
-                    text:           win.muted_v ? "muted" : win.volume + "%"
-                    color:          win.muted_v ? win.muted : win.accent
+                    text:           win.muted_v ? "Muted" : win.volume + "%"
+                    color:          win.muted_v ? ThemeManager.fgMid : ThemeManager.accent
                     font.pixelSize: 11
                     font.family:    "monospace"
                     font.weight:    Font.DemiBold

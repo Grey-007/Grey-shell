@@ -7,6 +7,7 @@ import Quickshell.Wayland
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../colors"
 
 // ─── PanelWindow: fullscreen overlay, keyboard-focusable ─────────────────────
 PanelWindow {
@@ -29,14 +30,7 @@ PanelWindow {
     exclusionMode:               ExclusionMode.Ignore
 
     // ── Palette ────────────────────────────────────────────────────────────────
-    readonly property color cream:       "#1c1510" // background
-    readonly property color creamDark:   "#2e2118" // header bg
-    readonly property color border:      "#a0784a" // borders
-    readonly property color fg:          "#f0e0c0" // text
-    readonly property color fgMid:       "#8a7055" // muted text
-    readonly property color fillColor:   "#d4a45a" // hover fill
-    readonly property color fillText:    "#1c1510" // inverted text on fill
-
+                            
     LauncherState {
         id: launcherState
     }
@@ -56,7 +50,7 @@ PanelWindow {
     // ── Dim overlay (closes launcher on outside click) ─────────────────────────
     Rectangle {
         anchors.fill: parent
-        color: "#55000000"
+        color: ThemeManager.alpha(ThemeManager.bg, 0.33)
 
         // Click outside the box → close
         MouseArea {
@@ -72,8 +66,8 @@ PanelWindow {
         height: 380
         anchors.centerIn: parent
 
-        color:  root.cream
-        border.color: root.border
+        color:  ThemeManager.bg
+        border.color: ThemeManager.accentSoft
         border.width: 2
         radius: 0          // sharp corners — no curves per spec
 
@@ -99,8 +93,8 @@ PanelWindow {
                 id: titleBar
                 Layout.fillWidth: true
                 height: 48
-                color: root.creamDark
-                border.color: root.border
+                color: ThemeManager.surfaceHigh
+                border.color: ThemeManager.accentSoft
                 border.width: 0
 
                 // Bottom border only — drawn as a thin Rectangle
@@ -111,13 +105,13 @@ PanelWindow {
                         right:  parent.right
                     }
                     height: 2
-                    color:  root.border
+                    color:  ThemeManager.accentSoft
                 }
 
                 Text {
                     anchors.centerIn: parent
                     text:  "Applications"
-                    color: root.fg
+                    color: ThemeManager.fg
                     font {
                         family:    "monospace"
                         pixelSize: 15
@@ -131,13 +125,13 @@ PanelWindow {
             Rectangle {
                 Layout.fillWidth: true
                 height: 44
-                color: root.cream
+                color: ThemeManager.bg
 
                 // Bottom border
                 Rectangle {
                     anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
                     height: 2
-                    color:  root.border
+                    color:  ThemeManager.accentSoft
                 }
 
                 // Left "search" label
@@ -148,7 +142,7 @@ PanelWindow {
                         verticalCenter: parent.verticalCenter
                     }
                     text:  "⌕"
-                    color: root.fgMid
+                    color: ThemeManager.fgMid
                     font.pixelSize: 18
                 }
 
@@ -163,7 +157,7 @@ PanelWindow {
                     }
                     height: 30
                     placeholderText: "Search applications…"
-                    color:            root.fg
+                    color:            ThemeManager.fg
                     font.family:      "monospace"
                     font.pixelSize:   13
 
@@ -191,11 +185,11 @@ PanelWindow {
                 Layout.fillHeight: true
                 appSearch: appSearch
                 state: launcherState
-                border: root.border
-                fg: root.fg
-                fgMid: root.fgMid
-                fillColor: root.fillColor
-                fillText: root.fillText
+                border: ThemeManager.accentSoft
+                fg: ThemeManager.fg
+                fgMid: ThemeManager.fgMid
+                fillColor: ThemeManager.accent
+                fillText: ThemeManager.fgInverted
                 onAppLaunched: root.visible = false
             }
 
@@ -212,13 +206,13 @@ PanelWindow {
             Rectangle {
                 Layout.fillWidth: true
                 height: 32
-                color:  root.creamDark
+                color:  ThemeManager.surfaceHigh
 
                 // Top border
                 Rectangle {
                     anchors { top: parent.top; left: parent.left; right: parent.right }
                     height: 2
-                    color:  root.border
+                    color:  ThemeManager.accentSoft
                 }
 
                 Text {
@@ -228,7 +222,7 @@ PanelWindow {
                         verticalCenter: parent.verticalCenter
                     }
                     text:  "↑↓ navigate  ↵ launch  Esc close"
-                    color: root.fgMid
+                    color: ThemeManager.fgMid
                     font {
                         family:    "monospace"
                         pixelSize: 10
@@ -243,7 +237,7 @@ PanelWindow {
                         verticalCenter: parent.verticalCenter
                     }
                     text:  appList.count > 0 ? appList.count + " apps" : ""
-                    color: root.fgMid
+                    color: ThemeManager.fgMid
                     font  {
                         family:    "monospace"
                         pixelSize: 10

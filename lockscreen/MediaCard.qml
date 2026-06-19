@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Effects
 import Quickshell.Services.Mpris
+import "../colors"
 
 // ─────────────────────────────────────────────────────────────────────────
 // reader-shell · MediaCard
@@ -67,14 +68,14 @@ Card {
             Rectangle {
                 anchors.fill: parent
                 radius: Config.radiusSmall
-                color: Colours.surfaceContainerHighest
+                color: ThemeManager.surfaceContainerHighest
                 visible: art.status !== Image.Ready
 
                 Text {
                     anchors.centerIn: parent
                     text: "♪"
                     font.pixelSize: 22
-                    color: Colours.surfaceVariantForeground
+                    color: ThemeManager.surfaceVariantFg
                 }
             }
         }
@@ -87,7 +88,7 @@ Card {
             Text {
                 Layout.fillWidth: true
                 text: root.player ? (root.player.trackTitle || "Unknown title") : ""
-                color: Colours.surfaceForeground
+                color: ThemeManager.surfaceFg
                 font.family: Config.fontFamily
                 font.pixelSize: 15
                 font.weight: Font.Medium
@@ -96,7 +97,7 @@ Card {
             Text {
                 Layout.fillWidth: true
                 text: root.player ? (root.player.trackArtist || "Unknown artist") : ""
-                color: Colours.surfaceVariantForeground
+                color: ThemeManager.surfaceVariantFg
                 font.family: Config.fontFamily
                 font.pixelSize: 13
                 elide: Text.ElideRight
@@ -108,7 +109,7 @@ Card {
             Layout.preferredWidth: 40
             Layout.preferredHeight: 40
             radius: 20
-            color: Colours.primaryContainer
+            color: ThemeManager.primaryContainer
 
             scale: playPause.pressed ? 0.9 : 1.0
             Behavior on scale {
@@ -123,7 +124,7 @@ Card {
                 anchors.centerIn: parent
                 text: root.playing ? "❙❙" : "▶"
                 font.pixelSize: 13
-                color: Colours.primaryContainerForeground
+                color: ThemeManager.primaryContainerFg
             }
 
             MouseArea {

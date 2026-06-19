@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import "./views"
 import "./services"
+import "../colors"
 
 // MediaDeck.qml -- Phase 3: MPRIS Integration
 //
@@ -66,7 +67,7 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
     aboveWindows: !mediaState.isPinned
     focusable: false
-    color: "#241D18"
+    color: ThemeManager.surface
     visible: true
 
     // ---- Collapse Delay ----------------------------------------------------
@@ -84,7 +85,7 @@ PanelWindow {
         color: "transparent"
         radius: 0
         border.width: 1
-        border.color: "#5A4736"
+        border.color: ThemeManager.border
 
         // ---- Dragging & Hover Logic ------------------------------------------
         // The dragArea covers the entire panel. Since the Loader is its child,

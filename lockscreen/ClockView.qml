@@ -1,4 +1,5 @@
 import QtQuick
+import "../colors"
 
 // ─────────────────────────────────────────────────────────────────────────
 // reader-shell · ClockView
@@ -20,7 +21,7 @@ Column {
     Text {
         anchors.horizontalCenter: parent.horizontalCenter
         text: Time.hourMinute
-        color: Colours.surfaceForeground
+        color: ThemeManager.surfaceFg
         font.family: Config.clockFontFamily !== "" ? Config.clockFontFamily : Config.fontFamily
         font.pixelSize: 110
         font.weight: Font.Normal
@@ -30,7 +31,7 @@ Column {
     Text {
         anchors.horizontalCenter: parent.horizontalCenter
         text: Time.dayDate
-        color: Colours.surfaceVariantForeground
+        color: ThemeManager.surfaceVariantFg
         font.family: Config.fontFamily
         font.pixelSize: 20
         font.weight: Font.Medium

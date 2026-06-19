@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Effects
+import "../colors"
 
 // ─────────────────────────────────────────────────────────────────────────
 // reader-shell · AvatarRing
@@ -51,13 +52,13 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: width / 2
-        color: Colours.primaryContainer
+        color: ThemeManager.primaryContainer
         visible: avatarImg.status !== Image.Ready
 
         Text {
             anchors.centerIn: parent
             text: root.initial
-            color: Colours.primaryContainerForeground
+            color: ThemeManager.primaryContainerFg
             font.family: Config.fontFamily
             font.pixelSize: parent.width * 0.42
             font.weight: Font.Medium
@@ -70,6 +71,6 @@ Item {
         radius: width / 2
         color: "transparent"
         border.width: 2
-        border.color: Colours.primary
+        border.color: ThemeManager.primary
     }
 }

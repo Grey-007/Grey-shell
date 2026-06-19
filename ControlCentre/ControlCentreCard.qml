@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell.Services.Pipewire
+import "../colors"
 
 // SepiaShell – main control centre card content
 Item {
@@ -32,17 +33,7 @@ Item {
     }
 
     // ── SepiaShell colour tokens ──────────────────────────────────────────
-    readonly property color sp_bg:          "#1A1410"   // deepest background
-    readonly property color sp_surface:     "#241D18"   // card surface
-    readonly property color sp_surfaceHigh: "#2C241D"   // raised card
-    readonly property color sp_surfaceTop:  "#3A2E26"   // topmost layer
-    readonly property color sp_primary:     "#A67C52"   // amber accent
-    readonly property color sp_onPrimary:   "#1A1410"   // text on amber
-    readonly property color sp_text:        "#F2E0C8"   // primary text
-    readonly property color sp_textMuted:   "#8C6F56"   // secondary text
-    readonly property color sp_border:      "#5A4736"   // border colour
-    readonly property color sp_errorText:   "#E8906A"   // warm error
-
+                                        
     function deviceName(node) {
         return node == null ? "Output device"
              : node.description || node.nickname || node.name || "Output device"
@@ -75,8 +66,8 @@ Item {
                 Layout.fillWidth: true
                 implicitHeight: controlsContent.implicitHeight + 32
                 radius: 0
-                color: root.sp_surfaceHigh
-                border.color: root.sp_border
+                color: root.ThemeManager.surfaceHigh
+                border.color: root.ThemeManager.border
                 border.width: 1
 
                 ColumnLayout {
@@ -96,7 +87,7 @@ Item {
                         Text {
                             Layout.fillWidth: true
                             text:           "Control Centre"
-                            color:          root.sp_primary
+                            color:          root.ThemeManager.accent
                             font.pixelSize: 13
                             font.family:    "monospace"
                             font.weight:    Font.DemiBold
@@ -105,7 +96,7 @@ Item {
 
                         Text {
                             text:           Qt.formatTime(new Date(), "hh:mm")
-                            color:          root.sp_textMuted
+                            color:          root.ThemeManager.fgMid
                             font.pixelSize: 12
                             font.family:    "monospace"
                         }
@@ -115,7 +106,7 @@ Item {
                     Rectangle {
                         Layout.fillWidth: true
                         height: 1
-                        color: root.sp_border
+                        color: root.ThemeManager.border
                         opacity: 0.5
                     }
 
@@ -169,8 +160,8 @@ Item {
                         Layout.fillWidth: true
                         implicitHeight: slidersCol.implicitHeight + 16
                         radius: 0
-                        color: root.sp_surfaceTop
-                        border.color: root.sp_border
+                        color: root.ThemeManager.surfaceTop
+                        border.color: root.ThemeManager.border
                         border.width: 1
 
                         ColumnLayout {
@@ -199,7 +190,7 @@ Item {
                             Rectangle {
                                 Layout.fillWidth: true
                                 height: 1
-                                color: root.sp_border
+                                color: root.ThemeManager.border
                                 opacity: 0.4
                             }
 
@@ -270,7 +261,7 @@ Item {
                     rightPadding: 12
                     text:       ControlCentreState.wifiPasswordValue
                     echoMode:   TextInput.Password
-                    color:      root.sp_text
+                    color:      root.ThemeManager.fg
                     font.pixelSize: 12
                     font.family:    "monospace"
                     clip: true
@@ -280,15 +271,15 @@ Item {
                         anchors.fill: parent
                         z: -1
                         radius: 0
-                        color:  root.sp_surfaceTop
-                        border.color: root.sp_border
+                        color:  root.ThemeManager.surfaceTop
+                        border.color: root.ThemeManager.border
                         border.width: 1
                     }
 
                     Text {
                         anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
                         text:           "Password for " + ControlCentreState.wifiPasswordSsid
-                        color:          root.sp_textMuted
+                        color:          root.ThemeManager.fgMid
                         font.pixelSize: 11
                         font.family:    "monospace"
                         visible: wifiPassword.text === ""

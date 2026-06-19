@@ -1,5 +1,6 @@
 // PreviewPanel.qml
 import QtQuick
+import "../../colors"
 
 Item {
     id: root
@@ -9,8 +10,8 @@ Item {
     // Hard edges, clean layout
     Rectangle {
         anchors.fill: parent
-        color: "#241D18" // SepiaShell Background
-        border.color: "#5A4736" // SepiaShell Borders
+        color: ThemeManager.surface
+        border.color: ThemeManager.border
         border.width: 2
 
         Image {
@@ -25,7 +26,7 @@ Item {
         Text {
             anchors.centerIn: parent
             text: "NO WALLPAPERS FOUND"
-            color: "#F2E0C8"
+            color: ThemeManager.fg
             font.family: "monospace"
             font.pixelSize: 24
             visible: root.source === ""

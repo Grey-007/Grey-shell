@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
+import "../../../colors"
 
 // Tray.qml — System tray with sepia hover effects
 Item {
@@ -41,7 +42,7 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius:       width / 2
-                    color:        "#d4a45a"
+                    color:        ThemeManager.accent
                     opacity:      trayButton.containsMouse ? 0.18 : 0
                     antialiasing: true
 

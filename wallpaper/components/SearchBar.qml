@@ -2,6 +2,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../../colors"
 
 Rectangle {
     id: root
@@ -13,8 +14,8 @@ Rectangle {
     signal searchChanged(string query)
 
     height: 40
-    color: "#241D18"
-    border.color: searchInput.activeFocus ? "#A67C52" : "#5A4736"
+    color: ThemeManager.surface
+    border.color: searchInput.activeFocus ? ThemeManager.accent : ThemeManager.border
     border.width: 2
 
     RowLayout {
@@ -24,7 +25,7 @@ Rectangle {
 
         Text {
             text: "⌕"
-            color: "#5A4736"
+            color: ThemeManager.border
             font.pixelSize: 18
             Layout.alignment: Qt.AlignVCenter
         }
@@ -34,7 +35,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             verticalAlignment: TextInput.AlignVCenter
-            color: "#F2E0C8"
+            color: ThemeManager.fg
             font.family: "monospace"
             font.pixelSize: 14
             clip: true
@@ -43,7 +44,7 @@ Rectangle {
             // Placeholder text logic
             Text {
                 text: "Search wallpapers..."
-                color: "#5A4736"
+                color: ThemeManager.border
                 font.family: "monospace"
                 font.pixelSize: 14
                 anchors.fill: parent

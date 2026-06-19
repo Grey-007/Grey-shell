@@ -1,4 +1,5 @@
 import QtQuick
+import "../../colors"
 
 // CompactView.qml
 //
@@ -23,7 +24,7 @@ Rectangle {
             visible: !mprisService.hasPlayer
             anchors.horizontalCenter: parent.horizontalCenter
             text: "NO MEDIA"
-            color: "#A67C52"
+            color: ThemeManager.accent
             font.family: "monospace"
             font.pixelSize: 14
             font.letterSpacing: 2
@@ -39,7 +40,7 @@ Rectangle {
             Text {
                 width: parent.width
                 text: mprisService.title
-                color: "#F2E0C8"
+                color: ThemeManager.fg
                 font.family: "monospace"
                 font.pixelSize: 16
                 elide: Text.ElideRight // Truncate long titles
@@ -47,7 +48,7 @@ Rectangle {
             Text {
                 width: parent.width
                 text: mprisService.artist
-                color: "#A67C52"
+                color: ThemeManager.accent
                 font.family: "monospace"
                 font.pixelSize: 12
                 elide: Text.ElideRight // Truncate long artist names
@@ -56,7 +57,7 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 padding: 10
                 text: mprisService.playbackStatus.toUpperCase()
-                color: "#A67C52"
+                color: ThemeManager.accent
                 font.family: "monospace"
                 font.pixelSize: 10
                 font.letterSpacing: 1

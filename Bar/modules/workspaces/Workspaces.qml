@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import "../../../colors"
 
 // Workspaces.qml — sepia theme workspace switcher with improved animations
 Row {
@@ -13,11 +14,7 @@ Row {
     property int visibleWorkspaceCount: minimumWorkspaces
 
     // Sepia palette
-    readonly property color accent:      "#d4a45a"
-    readonly property color activeInk:   "#1c1510"
-    readonly property color inactiveInk: "#c8a87a"
-    readonly property color emptyInk:    "#5a4030"
-
+                
     onActiveWorkspaceIdChanged: syncWorkspaceCount()
     Component.onCompleted:      syncWorkspaceCount()
 
@@ -84,10 +81,10 @@ Row {
                 height: 6
                 radius: height / 2
                 color:  wsDot.isActive
-                            ? root.accent
+                            ? root.ThemeManager.accent
                             : wsDot.exists
-                                ? root.inactiveInk
-                                : root.emptyInk
+                                ? root.ThemeManager.fgMid
+                                : root.ThemeManager.fgDim
                 antialiasing: true
 
                 Behavior on width { NumberAnimation { duration: 350; easing.type: Easing.OutQuint } }

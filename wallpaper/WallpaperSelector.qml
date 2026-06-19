@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "components"
+import "../colors"
 
 PanelWindow {
     id: root
@@ -42,7 +43,7 @@ PanelWindow {
     // ── Dim overlay — click outside to close ─────────────────────────
     Rectangle {
         anchors.fill: parent
-        color: "#55000000"
+        color: ThemeManager.alpha(ThemeManager.bg, 0.33)
 
         MouseArea {
             anchors.fill: parent
@@ -58,8 +59,8 @@ PanelWindow {
         height: 520
         anchors.centerIn: parent
 
-        color: "#1A1410"
-        border.color: "#5A4736"
+        color: ThemeManager.bg
+        border.color: ThemeManager.border
         border.width: 2
 
         // Absorb clicks so dim overlay doesn't close when clicking on card
@@ -128,7 +129,7 @@ PanelWindow {
 
                     Text {
                         text: "WALLPAPER"
-                        color: "#A67C52"
+                        color: ThemeManager.accent
                         font.family: "monospace"
                         font.pixelSize: 12
                         font.letterSpacing: 2
@@ -140,14 +141,14 @@ PanelWindow {
                     Rectangle {
                         width: 28
                         height: 28
-                        color: gearMa.containsMouse ? "#3A2E26" : "transparent"
-                        border.color: configWindow.visible ? "#A67C52" : "#5A4736"
+                        color: gearMa.containsMouse ? ThemeManager.surfaceTop : "transparent"
+                        border.color: configWindow.visible ? ThemeManager.accent : ThemeManager.border
                         border.width: configWindow.visible ? 2 : 1
 
                         Text {
                             anchors.centerIn: parent
                             text: "⚙"
-                            color: configWindow.visible ? "#A67C52" : "#F2E0C8"
+                            color: configWindow.visible ? ThemeManager.accent : ThemeManager.fg
                             font.pixelSize: 14
                         }
 
@@ -220,7 +221,7 @@ PanelWindow {
                             var parts = store.selectedWallpaper.split("/")
                             return parts[parts.length - 1]
                         }
-                        color: "#A67C52"
+                        color: ThemeManager.accent
                         font.family: "monospace"
                         font.pixelSize: 11
                         elide: Text.ElideMiddle
@@ -230,14 +231,14 @@ PanelWindow {
                     Rectangle {
                         width: 90
                         height: 28
-                        color: applyMa.containsMouse ? "#A67C52" : "#3A2E26"
-                        border.color: "#A67C52"
+                        color: applyMa.containsMouse ? ThemeManager.accent : ThemeManager.surfaceTop
+                        border.color: ThemeManager.accent
                         border.width: 2
 
                         Text {
                             anchors.centerIn: parent
                             text: "APPLY"
-                            color: applyMa.containsMouse ? "#241D18" : "#F2E0C8"
+                            color: applyMa.containsMouse ? ThemeManager.surface : ThemeManager.fg
                             font.family: "monospace"
                             font.pixelSize: 12
                             font.letterSpacing: 1

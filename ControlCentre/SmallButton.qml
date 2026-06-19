@@ -1,4 +1,5 @@
 import QtQuick
+import "../colors"
 
 // SepiaShell – chip-style small action button
 Item {
@@ -13,17 +14,13 @@ Item {
     implicitHeight: 30
 
     // ── SepiaShell colour tokens ─────────────────────────────────────
-    readonly property color bgOff:   "#3A2E26"
-    readonly property color bgOn:    "#A67C52"
-    readonly property color textOff: "#A67C52"
-    readonly property color textOn:  "#1A1410"
-
+                
     Rectangle {
         anchors.fill: parent
         radius: 0
-        color: root.active ? root.bgOn : root.bgOff
+        color: root.active ? ThemeManager.accent : ThemeManager.surfaceTop
         scale: pressArea.containsPress ? 0.93 : 1.0
-        border.color: root.active ? "transparent" : "#5A4736"
+        border.color: root.active ? "transparent" : ThemeManager.border
         border.width: 1
 
         Behavior on color  { ColorAnimation  { duration: 180; easing.type: Easing.OutCubic } }
@@ -35,7 +32,7 @@ Item {
         id: label
         anchors.centerIn: parent
         text:           root.text
-        color:          root.active ? root.textOn : root.textOff
+        color:          root.active ? root.ThemeManager.fgInverted : root.ThemeManager.accent
         font.pixelSize: 11
         font.family:    "monospace"
         font.weight:    Font.Medium

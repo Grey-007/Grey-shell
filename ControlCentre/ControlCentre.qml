@@ -73,7 +73,7 @@ PanelWindow {
     // ── Dim scrim (click outside → close) ────────────────────────────────
     Rectangle {
         anchors.fill: parent
-        color:   "#66000000"
+        color:   ThemeManager.alpha(ThemeManager.bg, 0.40)
         opacity: ControlCentreState.open ? 1 : 0
         enabled: ControlCentreState.open   // no input when faded
 

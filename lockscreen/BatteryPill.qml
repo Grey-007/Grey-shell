@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.UPower
+import "../colors"
 
 // ─────────────────────────────────────────────────────────────────────────
 // reader-shell · BatteryPill
@@ -42,7 +43,7 @@ Card {
                 radius: 3
                 color: "transparent"
                 border.width: 2
-                border.color: Colours.surfaceVariantForeground
+                border.color: ThemeManager.surfaceVariantFg
             }
             // terminal nub
             Rectangle {
@@ -51,7 +52,7 @@ Card {
                 width: 3
                 height: 6
                 radius: 1
-                color: Colours.surfaceVariantForeground
+                color: ThemeManager.surfaceVariantFg
             }
             // fill level
             Rectangle {
@@ -61,7 +62,7 @@ Card {
                 anchors.margins: 3
                 width: Math.max(2, (shell.width - 6) * (root.battery ? root.battery.percentage : 0))
                 radius: 1.5
-                color: root.charging ? Colours.success : Colours.primary
+                color: root.charging ? ThemeManager.success : ThemeManager.primary
 
                 Behavior on width {
                     NumberAnimation { duration: Config.durationMedium; easing.type: Easing.OutCubic }
@@ -73,14 +74,14 @@ Card {
             spacing: 0
             Text {
                 text: root.battery ? Math.round(root.battery.percentage * 100) + "%" : ""
-                color: Colours.surfaceForeground
+                color: ThemeManager.surfaceFg
                 font.family: Config.fontFamily
                 font.pixelSize: 15
                 font.weight: Font.Medium
             }
             Text {
                 text: root.charging ? "Charging" : "Battery"
-                color: Colours.surfaceVariantForeground
+                color: ThemeManager.surfaceVariantFg
                 font.family: Config.fontFamily
                 font.pixelSize: 11
             }

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Effects
+import "../colors"
 
 // ─────────────────────────────────────────────────────────────────────────
 // reader-shell · Background
@@ -43,8 +44,8 @@ Item {
         opacity: 0.55 + root.stage * 0.45
         gradient: Gradient {
             orientation: Gradient.Vertical
-            GradientStop { position: 0.0; color: Colours.surfaceContainerHigh }
-            GradientStop { position: 1.0; color: Colours.surfaceContainerLowest }
+            GradientStop { position: 0.0; color: ThemeManager.surfaceContainerHigh }
+            GradientStop { position: 1.0; color: ThemeManager.surfaceContainerLowest }
         }
     }
 
@@ -112,16 +113,16 @@ Item {
             orientation: Gradient.Vertical
             GradientStop {
                 position: 0.0
-                color: Colours.alpha(
-                    Colours.scrimTop,
-                    Colours.scrimOpacity * (0.72 + root.stage * 0.28)
+                color: ThemeManager.alpha(
+                    ThemeManager.scrimTop,
+                    ThemeManager.scrimOpacity * (0.72 + root.stage * 0.28)
                 )
             }
             GradientStop {
                 position: 1.0
-                color: Colours.alpha(
-                    Colours.scrimBottom,
-                    (Colours.scrimOpacity + 0.18) * (0.72 + root.stage * 0.28)
+                color: ThemeManager.alpha(
+                    ThemeManager.scrimBottom,
+                    (ThemeManager.scrimOpacity + 0.18) * (0.72 + root.stage * 0.28)
                 )
             }
         }

@@ -1,3 +1,4 @@
+import QtQuick
 pragma Singleton
 import Quickshell
 import Quickshell.Services.Pam

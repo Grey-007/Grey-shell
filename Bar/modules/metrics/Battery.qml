@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell.Io
+import "../../../colors"
 
 // Battery.qml — battery level bar
 Item {
@@ -60,6 +61,6 @@ Item {
         value:     root.charging ? 100 : root.percentage
         active:    root.hasBattery
         clickable: false
-        fillColor: root.percentage <= 15 && !root.charging ? "#e87a52" : "#d4a45a"
+        fillColor: root.percentage <= 15 && !root.charging ? ThemeManager.warning : ThemeManager.accent
     }
 }

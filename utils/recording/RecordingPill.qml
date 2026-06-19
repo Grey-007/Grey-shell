@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
+import "../../colors"
 
 PanelWindow {
     id: win
@@ -112,9 +113,9 @@ PanelWindow {
     // UI Pill
     Rectangle {
         anchors.fill: parent
-        color: "#241D18"
+        color: ThemeManager.surface
         radius: 22
-        border.color: "#5A4736"
+        border.color: ThemeManager.border
         border.width: 2
         
         // Draggable Logic
@@ -151,7 +152,7 @@ PanelWindow {
                 width: 12
                 height: 12
                 radius: 6
-                color: "#e04a4a"
+                color: ThemeManager.error
                 
                 SequentialAnimation on opacity {
                     loops: Animation.Infinite
@@ -169,7 +170,7 @@ PanelWindow {
                     var s = win.elapsedSeconds % 60;
                     return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
                 }
-                color: "#f0e0c0"
+                color: ThemeManager.fg
                 font.family: "monospace"
                 font.pixelSize: 15
                 font.weight: Font.Bold
@@ -179,7 +180,7 @@ PanelWindow {
             Rectangle {
                 width: 1
                 height: 24
-                color: "#5A4736"
+                color: ThemeManager.border
             }
             
             // Pause / Resume Button
@@ -187,12 +188,12 @@ PanelWindow {
                 width: 30
                 height: 30
                 radius: 15
-                color: pauseHover.containsMouse ? "#5A4736" : "transparent"
+                color: pauseHover.containsMouse ? ThemeManager.border : "transparent"
                 
                 Text {
                     anchors.centerIn: parent
                     text: win.isPaused ? "󰐊" : "󰏤" // Play/Pause icon
-                    color: "#f0e0c0"
+                    color: ThemeManager.fg
                     font.pixelSize: 14
                 }
                 
@@ -210,12 +211,12 @@ PanelWindow {
                 width: 30
                 height: 30
                 radius: 15
-                color: stopHover.containsMouse ? "#a04a4a" : "transparent"
+                color: stopHover.containsMouse ? ThemeManager.errorSoft : "transparent"
                 
                 Text {
                     anchors.centerIn: parent
                     text: "󰓛" // Stop square
-                    color: stopHover.containsMouse ? "#1c1510" : "#d45a5a"
+                    color: stopHover.containsMouse ? ThemeManager.fgInverted : ThemeManager.errorText
                     font.pixelSize: 14
                 }
                 
