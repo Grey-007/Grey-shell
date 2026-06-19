@@ -12,6 +12,7 @@ import "mediadeck"
 import "wallpaper" as WallpaperModule
 import "utils/recording" as RecordingUtils
 import "utils/clipboard" as ClipboardUtils
+import "utils/widgets/clockwidget" as ClockWidgetModule
 import "colors/theme_switcher_ui" as ThemeSwitcherModule
 
 ShellRoot {
@@ -98,6 +99,10 @@ ShellRoot {
 
     ClipboardUtils.ClipboardManager {
         id: clipboardManager
+    }
+
+    ClockWidgetModule.ClockWidget {
+        id: clockWidget
     }
 
     Connections {

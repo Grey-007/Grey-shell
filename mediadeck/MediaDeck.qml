@@ -54,20 +54,15 @@ PanelWindow {
     // ---- Overlay behavior ------------------------------------------------
     anchors {
         top: true
+        bottom: true
         left: true
+        right: true
     }
-    margins {
-        left: positionStore.x
-        top: positionStore.y
-    }
-
-    implicitWidth: panelWidth
-    implicitHeight: panelHeight
 
     exclusionMode: ExclusionMode.Ignore
     aboveWindows: !mediaState.isPinned
     focusable: false
-    color: ThemeManager.surface
+    color: "transparent"
     visible: true
 
     // ---- Collapse Delay ----------------------------------------------------
@@ -78,11 +73,23 @@ PanelWindow {
         onTriggered: mediaState.collapse()
     }
 
+    Item {
+        id: deckContainer
+        width: panelWidth
+        height: panelHeight
+        x: positionStore.x
+        y: positionStore.y
+
+        Behavior on width { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
+        Behavior on height { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
+        Behavior on x { enabled: false }
+        Behavior on y { enabled: false }
+
     // ---- Visual structure --------------------------------------------------
     // The main visual is a border, with the actual content provided by a Loader.
     Rectangle {
         anchors.fill: parent
-        color: "transparent"
+        color: ThemeManager.surface
         radius: 0
         border.width: 1
         border.color: ThemeManager.border
@@ -98,24 +105,15 @@ PanelWindow {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             hoverEnabled: true
 
-            property point lastMousePos: "0,0"
+            drag.target: deckContainer
+            drag.axis: Drag.XAndYAxis
 
             onPressed: (mouse) => {
                 collapseTimer.stop(); // Stop collapse when drag starts
-                lastMousePos = dragArea.mapToGlobal(mouse.x, mouse.y)
-            }
-
-            onPositionChanged: (mouse) => {
-                if(!dragArea.pressed) return
-                const pos = dragArea.mapToGlobal(mouse.x, mouse.y)
-                const delta = Qt.point(pos.x - lastMousePos.x, pos.y - lastMousePos.y)
-                root.margins.left += delta.x
-                root.margins.top += delta.y
-                lastMousePos = pos
             }
 
             onReleased: (mouse) => {
-                positionStore.save(root.margins.left, root.margins.top);
+                positionStore.save(deckContainer.x, deckContainer.y);
             }
 
             onEntered: {
@@ -214,6 +212,7 @@ PanelWindow {
                 }
             }
         }
+    }
     }
 
     // ---- Global Control --------------------------------------------------

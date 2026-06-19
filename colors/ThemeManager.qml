@@ -134,8 +134,7 @@ Singleton {
     }
 
     // ── Persistence ────────────────────────────────────────────────
-    readonly property string _statePath: StandardPaths.writableLocation(StandardPaths.HomeLocation) +
-        "/.config/quickshell/colors/theme.json"
+    readonly property string _statePath: Quickshell.env("HOME") + "/.config/quickshell/colors/theme.json"
 
     function _save() {
         saveProc.exec(["sh", "-c",

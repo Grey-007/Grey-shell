@@ -43,7 +43,7 @@ PanelWindow {
     // ── Dim overlay — click outside to close ─────────────────────────
     Rectangle {
         anchors.fill: parent
-        color: ThemeManager.alpha(ThemeManager.bg, 0.33)
+        color: "transparent"
 
         MouseArea {
             anchors.fill: parent

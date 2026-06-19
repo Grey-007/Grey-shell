@@ -106,7 +106,8 @@ PanelWindow {
                 Layout.fillHeight: true
                 clip: true
 
-                model: ["Sepia", "GruvboxDark", "GruvboxLight", "CatppuccinMocha", "CatppuccinLatte", "TokyoNightDark", "TokyoNightLight"]
+                property var themesList: ["Sepia", "GruvboxDark", "GruvboxLight", "CatppuccinMocha", "CatppuccinLatte", "TokyoNightDark", "TokyoNightLight"]
+                model: themesList
 
                 delegate: Rectangle {
                     width: listView.width
@@ -155,6 +156,32 @@ PanelWindow {
                         root.visible = false
                     }
                 }
+
+                footer: Rectangle {
+                    width: listView.width
+                    height: 48
+                    color: addMa.containsMouse ? ThemeManager.surfaceTop : "transparent"
+
+                    MouseArea {
+                        id: addMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: importerWindow.visible = true
+                    }
+
+                    Text {
+                        anchors {
+                            left: parent.left
+                            leftMargin: 16
+                            verticalCenter: parent.verticalCenter
+                        }
+                        text: "+ Add New Theme..."
+                        color: addMa.containsMouse ? ThemeManager.accent : ThemeManager.fgMid
+                        font.family: "monospace"
+                        font.pixelSize: 14
+                    }
+                }
             }
 
             // ── Footer ─────────────────────────────────────────────────────────
@@ -183,6 +210,25 @@ PanelWindow {
                         letterSpacing: 1
                     }
                 }
+            }
+        }
+
+        ImporterWindow {
+            id: importerWindow
+            anchors.centerIn: parent
+            width: 320
+            height: 200
+            visible: false
+            z: 10
+
+            onCanceled: visible = false
+            onImported: function(themeName) {
+                var newList = listView.themesList.slice()
+                newList.push(themeName)
+                listView.themesList = newList
+                visible = false
+                ThemeManager.setTheme(themeName)
+                root.visible = false
             }
         }
     }
