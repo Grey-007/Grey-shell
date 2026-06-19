@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt.labs.folderlistmodel
 import Quickshell
 import Quickshell.Io
 import "../"
@@ -16,6 +17,18 @@ Rectangle {
     border.width: 2
     radius: 0
 
+    MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: {} // consume click events
+    }
+
+    FolderListModel {
+        id: folderModel
+        folder: "file://" + Quickshell.env("HOME") + "/.config/quickshell/colors/raw_themes"
+        showDirs: false
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 16
@@ -30,7 +43,7 @@ Rectangle {
         }
 
         Text {
-            text: "Enter absolute path to your theme color file:"
+            text: "Select a theme from raw_themes:"
             color: ThemeManager.fgMid
             font.family: "monospace"
             font.pixelSize: 12
@@ -38,21 +51,24 @@ Rectangle {
             Layout.fillWidth: true
         }
 
-        Rectangle {
+        ComboBox {
+            id: themeCombo
             Layout.fillWidth: true
-            height: 32
-            color: "transparent"
-            border.color: fileInput.activeFocus ? ThemeManager.accent : ThemeManager.border
-            border.width: 2
-
-            TextInput {
-                id: fileInput
-                anchors.fill: parent
-                anchors.margins: 8
+            model: folderModel
+            textRole: "fileName"
+            
+            background: Rectangle {
+                color: "transparent"
+                border.color: themeCombo.activeFocus ? ThemeManager.accent : ThemeManager.border
+                border.width: 2
+            }
+            contentItem: Text {
+                text: themeCombo.displayText
                 color: ThemeManager.fg
                 font.family: "monospace"
                 font.pixelSize: 12
-                clip: true
+                verticalAlignment: Text.AlignVCenter
+                leftPadding: 8
             }
         }
         
@@ -117,10 +133,19 @@ Rectangle {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         errorText.text = ""
-                        var path = fileInput.text.trim()
-                        if (path === "") {
-                            errorText.text = "Path cannot be empty"
+                        if (themeCombo.currentIndex < 0) {
+                            errorText.text = "Please select a theme"
                             return
+                        }
+                        
+                        var path = folderModel.get(themeCombo.currentIndex, "filePath")
+                        if (!path) {
+                            errorText.text = "Invalid file path"
+                            return
+                        }
+                        
+                        if (path.startsWith("file://")) {
+                            path = path.substring(7)
                         }
                         
                         importProc.exec(["python3", Quickshell.env("HOME") + "/.config/quickshell/colors/import_theme.py", path])
@@ -138,7 +163,6 @@ Rectangle {
                 if (outStr.startsWith("SUCCESS: ")) {
                     var themeName = outStr.substring(9)
                     root.imported(themeName)
-                    fileInput.text = ""
                 } else if (outStr !== "") {
                     errorText.text = outStr
                 }
@@ -151,6 +175,12 @@ Rectangle {
                     errorText.text = errStr
                 }
             }
+        }
+    }
+
+    onVisibleChanged: {
+        if (visible) {
+            themeCombo.forceActiveFocus()
         }
     }
 }

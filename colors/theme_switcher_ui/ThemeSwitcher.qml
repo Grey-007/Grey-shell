@@ -213,6 +213,20 @@ PanelWindow {
             }
         }
 
+        // ── Dim overlay for the ImporterWindow ─────────────────────────
+        Rectangle {
+            anchors.fill: parent
+            color: ThemeManager.alpha(ThemeManager.bg, 0.5)
+            visible: importerWindow.visible
+            z: 9
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: importerWindow.visible = false
+            }
+        }
+
         ImporterWindow {
             id: importerWindow
             anchors.centerIn: parent

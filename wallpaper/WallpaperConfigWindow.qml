@@ -6,6 +6,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
+import "../colors"
 
 PanelWindow {
     id: root
@@ -38,8 +39,8 @@ PanelWindow {
         height: 280
         anchors.centerIn: parent
 
-        color: "#1A1410"
-        border.color: "#5A4736"
+        color: ThemeManager.bg
+        border.color: ThemeManager.border
         border.width: 2
 
         ColumnLayout {
@@ -53,7 +54,7 @@ PanelWindow {
 
                 Text {
                     text: "⚙  WALLPAPER SETTINGS"
-                    color: "#A67C52"
+                    color: ThemeManager.accent
                     font.family: "monospace"
                     font.pixelSize: 13
                     font.letterSpacing: 1.5
@@ -64,14 +65,14 @@ PanelWindow {
                 Rectangle {
                     width: 24
                     height: 24
-                    color: closeMa.containsMouse ? "#3A2E26" : "transparent"
-                    border.color: "#5A4736"
+                    color: closeMa.containsMouse ? ThemeManager.surfaceTop : "transparent"
+                    border.color: ThemeManager.border
                     border.width: 1
 
                     Text {
                         anchors.centerIn: parent
                         text: "✕"
-                        color: "#F2E0C8"
+                        color: ThemeManager.fg
                         font.pixelSize: 12
                         font.family: "monospace"
                     }
@@ -90,7 +91,7 @@ PanelWindow {
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
-                color: "#5A4736"
+                color: ThemeManager.border
             }
 
             // Directory row
@@ -100,7 +101,7 @@ PanelWindow {
 
                 Text {
                     text: "Directory"
-                    color: "#A67C52"
+                    color: ThemeManager.accent
                     font.family: "monospace"
                     font.pixelSize: 12
                     Layout.preferredWidth: 72
@@ -109,15 +110,15 @@ PanelWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     height: 32
-                    color: "#241D18"
-                    border.color: dirInput.activeFocus ? "#A67C52" : "#5A4736"
+                    color: ThemeManager.surface
+                    border.color: dirInput.activeFocus ? ThemeManager.accent : ThemeManager.border
                     border.width: 2
 
                     TextInput {
                         id: dirInput
                         anchors.fill: parent
                         anchors.margins: 8
-                        color: "#F2E0C8"
+                        color: ThemeManager.fg
                         font.family: "monospace"
                         font.pixelSize: 13
                         clip: true
@@ -150,7 +151,7 @@ PanelWindow {
 
                 Text {
                     text: "Animation"
-                    color: "#A67C52"
+                    color: ThemeManager.accent
                     font.family: "monospace"
                     font.pixelSize: 12
                     Layout.preferredWidth: 72
@@ -166,15 +167,15 @@ PanelWindow {
                         Rectangle {
                             width: Math.max(52, animText.implicitWidth + 14)
                             height: 28
-                            color: (root.config && root.config.awwwAnimation === modelData) ? "#A67C52" : "transparent"
-                            border.color: "#5A4736"
+                            color: (root.config && root.config.awwwAnimation === modelData) ? ThemeManager.accent : "transparent"
+                            border.color: ThemeManager.border
                             border.width: 2
 
                             Text {
                                 id: animText
                                 anchors.centerIn: parent
                                 text: modelData
-                                color: (root.config && root.config.awwwAnimation === modelData) ? "#241D18" : "#F2E0C8"
+                                color: (root.config && root.config.awwwAnimation === modelData) ? ThemeManager.surface : ThemeManager.fg
                                 font.family: "monospace"
                                 font.pixelSize: 11
                             }
@@ -201,7 +202,7 @@ PanelWindow {
 
                 Text {
                     text: "Duration"
-                    color: "#A67C52"
+                    color: ThemeManager.accent
                     font.family: "monospace"
                     font.pixelSize: 12
                     Layout.preferredWidth: 72
@@ -217,14 +218,14 @@ PanelWindow {
                         Rectangle {
                             width: 64
                             height: 28
-                            color: (root.config && root.config.animationDuration === modelData) ? "#A67C52" : "transparent"
-                            border.color: "#5A4736"
+                            color: (root.config && root.config.animationDuration === modelData) ? ThemeManager.accent : "transparent"
+                            border.color: ThemeManager.border
                             border.width: 2
 
                             Text {
                                 anchors.centerIn: parent
                                 text: modelData + "ms"
-                                color: (root.config && root.config.animationDuration === modelData) ? "#241D18" : "#F2E0C8"
+                                color: (root.config && root.config.animationDuration === modelData) ? ThemeManager.surface : ThemeManager.fg
                                 font.family: "monospace"
                                 font.pixelSize: 11
                             }

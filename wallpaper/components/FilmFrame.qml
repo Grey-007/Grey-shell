@@ -1,5 +1,6 @@
 // FilmFrame.qml
 import QtQuick
+import "../../colors"
 
 Item {
     id: root
@@ -15,9 +16,10 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: "#241D18"
-        border.color: root.isSelected ? "#A67C52" : (ma.containsMouse ? "#A67C52" : "#5A4736")
+        color: ThemeManager.surface
+        border.color: root.isSelected ? ThemeManager.accent : (ma.containsMouse ? ThemeManager.accent : ThemeManager.border)
         border.width: root.isSelected ? 4 : 2
+
 
         Image {
             anchors.fill: parent

@@ -33,54 +33,54 @@ def map_to_theme(colors):
 QtObject {{
     property string name: "Custom Theme"
 
-    property color bg:              "{bg}"
-    property color surface:         "{colors.get('color0', bg)}"
-    property color surfaceHigh:     "{colors.get('color8', bg)}"
-    property color surfaceTop:      "{colors.get('color0', bg)}"
+    readonly property color bg:              "{bg}"
+    readonly property color surface:         "{colors.get('color0', bg)}"
+    readonly property color surfaceHigh:     "{colors.get('color8', bg)}"
+    readonly property color surfaceTop:      "{colors.get('color0', bg)}"
     
-    property color accent:          "{accent}"
-    property color accentSoft:      "{colors.get('color12', accent)}"
-    property color border:          "{colors.get('color8', '#555555')}"
-    property color accentDim:       "{colors.get('color4', accent)}"
+    readonly property color accent:          "{accent}"
+    readonly property color accentSoft:      "{colors.get('color12', accent)}"
+    readonly property color border:          "{colors.get('color8', '#555555')}"
+    readonly property color accentDim:       "{colors.get('color4', accent)}"
 
-    property color fg:              "{fg}"
-    property color fgMid:           "{colors.get('color7', fg)}"
-    property color fgDim:           "{colors.get('color8', fg)}"
-    property color fgInverted:      "{colors.get('background', '#000000')}"
+    readonly property color fg:              "{fg}"
+    readonly property color fgMid:           "{colors.get('color7', fg)}"
+    readonly property color fgDim:           "{colors.get('color8', fg)}"
+    readonly property color fgInverted:      "{colors.get('background', '#000000')}"
 
-    property color error:           "{colors.get('color1', '#ff0000')}"
-    property color errorText:       "{colors.get('color9', '#ff0000')}"
-    property color errorSoft:       "{colors.get('color1', '#ff0000')}"
-    property color warning:         "{colors.get('color3', '#ffaa00')}"
-    property color success:         "{colors.get('color2', '#00ff00')}"
+    readonly property color error:           "{colors.get('color1', '#ff0000')}"
+    readonly property color errorText:       "{colors.get('color9', '#ff0000')}"
+    readonly property color errorSoft:       "{colors.get('color1', '#ff0000')}"
+    readonly property color warning:         "{colors.get('color3', '#ffaa00')}"
+    readonly property color success:         "{colors.get('color2', '#00ff00')}"
 
     // Material 3 placeholders mapping to base colors
-    property color seed: "{accent}"
-    property color primary: "{accent}"
-    property color primaryFg: "{bg}"
-    property color primaryContainer: "{colors.get('color4', accent)}"
-    property color primaryContainerFg: "{fg}"
-    property color secondary: "{colors.get('color6', accent)}"
-    property color secondaryFg: "{bg}"
-    property color secondaryContainer: "{colors.get('color14', accent)}"
-    property color secondaryContainerFg: "{fg}"
-    property color tertiary: "{colors.get('color5', accent)}"
-    property color tertiaryFg: "{bg}"
-    property color errorContainer: "{colors.get('color1', '#ff0000')}"
-    property color errorContainerFg: "{fg}"
-    property color errorFg: "{bg}"
+    readonly property color seed: "{accent}"
+    readonly property color primary: "{accent}"
+    readonly property color primaryFg: "{bg}"
+    readonly property color primaryContainer: "{colors.get('color4', accent)}"
+    readonly property color primaryContainerFg: "{fg}"
+    readonly property color secondary: "{colors.get('color6', accent)}"
+    readonly property color secondaryFg: "{bg}"
+    readonly property color secondaryContainer: "{colors.get('color14', accent)}"
+    readonly property color secondaryContainerFg: "{fg}"
+    readonly property color tertiary: "{colors.get('color5', accent)}"
+    readonly property color tertiaryFg: "{bg}"
+    readonly property color errorContainer: "{colors.get('color1', '#ff0000')}"
+    readonly property color errorContainerFg: "{fg}"
+    readonly property color errorFg: "{bg}"
     
-    property color surfaceDim: "{colors.get('color0', bg)}"
-    property color surfaceBright: "{colors.get('color8', bg)}"
-    property color surfaceContainerLowest: "{bg}"
-    property color surfaceContainerLow: "{bg}"
-    property color surfaceContainer: "{colors.get('color0', bg)}"
-    property color surfaceContainerHigh: "{colors.get('color8', bg)}"
-    property color surfaceContainerHighest: "{colors.get('color8', bg)}"
-    property color surfaceFg: "{fg}"
-    property color surfaceVariantFg: "{colors.get('color7', fg)}"
-    property color outline: "{colors.get('color8', '#555555')}"
-    property color outlineVariant: "{colors.get('color8', '#555555')}"
+    readonly property color surfaceDim: "{colors.get('color0', bg)}"
+    readonly property color surfaceBright: "{colors.get('color8', bg)}"
+    readonly property color surfaceContainerLowest: "{bg}"
+    readonly property color surfaceContainerLow: "{bg}"
+    readonly property color surfaceContainer: "{colors.get('color0', bg)}"
+    readonly property color surfaceContainerHigh: "{colors.get('color8', bg)}"
+    readonly property color surfaceContainerHighest: "{colors.get('color8', bg)}"
+    readonly property color surfaceFg: "{fg}"
+    readonly property color surfaceVariantFg: "{colors.get('color7', fg)}"
+    readonly property color outline: "{colors.get('color8', '#555555')}"
+    readonly property color outlineVariant: "{colors.get('color8', '#555555')}"
     
     property color scrimTop: "transparent"
     property color scrimBottom: "#aa000000"
@@ -105,14 +105,7 @@ if __name__ == "__main__":
     
     # Target directories
     home = os.environ.get('HOME', '/home/grey')
-    raw_dir = os.path.join(home, '.config/quickshell/colors/raw_themes')
     themes_dir = os.path.join(home, '.config/quickshell/colors/themes')
-    
-    try:
-        shutil.copy2(filepath, os.path.join(raw_dir, filename))
-    except Exception as e:
-        print(f"ERROR: Could not copy raw file: {e}")
-        sys.exit(1)
         
     colors = parse_color_file(filepath)
     qml_content = map_to_theme(colors)
