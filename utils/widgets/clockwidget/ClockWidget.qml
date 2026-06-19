@@ -6,9 +6,11 @@ import "../../../colors"
 PanelWindow {
     id: root
 
-    WlrLayershell.layer: WlrLayer.Bottom // Behaves like a desktop widget
-    exclusionMode: ExclusionMode.Ignore
     color: "transparent"
+    
+    WlrLayershell.layer: WlrLayer.Bottom
+    exclusionMode: ExclusionMode.Ignore
+    mask: Region { item: clockContainer }
 
     anchors {
         top: true
@@ -21,7 +23,7 @@ PanelWindow {
         id: clockContainer
         width: display.implicitWidth
         height: display.implicitHeight
-        
+
         x: ClockConfig.xPos
         y: ClockConfig.yPos
 

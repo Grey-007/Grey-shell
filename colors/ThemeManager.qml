@@ -139,7 +139,7 @@ Singleton {
     function _save() {
         saveProc.exec(["sh", "-c",
             "printf '%s' " + JSON.stringify(JSON.stringify({ theme: activeTheme })) +
-            " > " + JSON.stringify(_statePath)
+            " > " + JSON.stringify(_statePath) + " && hyprctl reload"
         ])
     }
 

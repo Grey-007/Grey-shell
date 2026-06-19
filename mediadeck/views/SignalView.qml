@@ -1,5 +1,6 @@
 import QtQuick
 import "../components"
+import "../../colors"
 
 // SignalView.qml
 //
@@ -34,15 +35,15 @@ Rectangle {
         anchors.right: parent.right
         anchors.margins: 6
         z: 10
-        color: pinMa.containsMouse ? "#3A2E26" : "transparent"
-        border.color: (root.mediaState && root.mediaState.isPinned) ? "#A67C52" : "#5A4736"
+        color: pinMa.containsMouse ? ThemeManager.surfaceHigh : "transparent"
+        border.color: (root.mediaState && root.mediaState.isPinned) ? ThemeManager.accent : ThemeManager.border
         border.width: 1
 
         Text {
             anchors.centerIn: parent
             text: (root.mediaState && root.mediaState.isPinned) ? "📌" : "◈"
             font.pixelSize: 11
-            color: (root.mediaState && root.mediaState.isPinned) ? "#A67C52" : "#8C6F56"
+            color: (root.mediaState && root.mediaState.isPinned) ? ThemeManager.accent : ThemeManager.fgDim
         }
 
         MouseArea {
@@ -62,7 +63,7 @@ Rectangle {
         visible: !mprisService || !mprisService.hasPlayer
         anchors.centerIn: parent
         text: "NO ACTIVE SIGNAL"
-        color: "#A67C52"
+        color: ThemeManager.accent
         font.family: "monospace"
         font.pixelSize: 14
         font.letterSpacing: 2
@@ -81,7 +82,7 @@ Rectangle {
         Text {
             width: parent.width
             text: mprisService.title
-            color: "#F2E0C8"
+            color: ThemeManager.fg
             font.family: "monospace"
             font.pixelSize: 20
             font.bold: true
@@ -90,7 +91,7 @@ Rectangle {
         Text {
             width: parent.width
             text: mprisService.artist
-            color: "#A67C52"
+            color: ThemeManager.accent
             font.family: "monospace"
             font.pixelSize: 16
             elide: Text.ElideRight
@@ -108,19 +109,19 @@ Rectangle {
             // Labels
             Column {
                 spacing: 6
-                Text { text: "PLAYER:"; color: "#8C6F56"; font.family: "monospace"; font.pixelSize: 10; }
-                Text { text: "CODEC:";  color: "#8C6F56"; font.family: "monospace"; font.pixelSize: 10; }
-                Text { text: "BITRATE:";color: "#8C6F56"; font.family: "monospace"; font.pixelSize: 10; }
-                Text { text: "LATENCY:";color: "#8C6F56"; font.family: "monospace"; font.pixelSize: 10; }
+                Text { text: "PLAYER:"; color: ThemeManager.fgDim; font.family: "monospace"; font.pixelSize: 10; }
+                Text { text: "CODEC:";  color: ThemeManager.fgDim; font.family: "monospace"; font.pixelSize: 10; }
+                Text { text: "BITRATE:";color: ThemeManager.fgDim; font.family: "monospace"; font.pixelSize: 10; }
+                Text { text: "LATENCY:";color: ThemeManager.fgDim; font.family: "monospace"; font.pixelSize: 10; }
             }
 
             // Values
             Column {
                 spacing: 6
-                Text { text: mprisService.playerName; color: "#F2E0C8"; font.family: "monospace"; font.pixelSize: 10; elide: Text.ElideRight; }
-                Text { text: mprisService.codec;      color: "#F2E0C8"; font.family: "monospace"; font.pixelSize: 10; }
-                Text { text: mprisService.bitrate;    color: "#F2E0C8"; font.family: "monospace"; font.pixelSize: 10; }
-                Text { text: mprisService.latency;    color: "#F2E0C8"; font.family: "monospace"; font.pixelSize: 10; }
+                Text { text: mprisService.playerName; color: ThemeManager.fg; font.family: "monospace"; font.pixelSize: 10; elide: Text.ElideRight; }
+                Text { text: mprisService.codec;      color: ThemeManager.fg; font.family: "monospace"; font.pixelSize: 10; }
+                Text { text: mprisService.bitrate;    color: ThemeManager.fg; font.family: "monospace"; font.pixelSize: 10; }
+                Text { text: mprisService.latency;    color: ThemeManager.fg; font.family: "monospace"; font.pixelSize: 10; }
             }
         }
     }

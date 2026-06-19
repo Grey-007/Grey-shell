@@ -64,6 +64,7 @@ PanelWindow {
     focusable: false
     color: "transparent"
     visible: true
+    mask: Region { item: deckContainer }
 
     // ---- Collapse Delay ----------------------------------------------------
     Timer {
@@ -77,142 +78,177 @@ PanelWindow {
         id: deckContainer
         width: panelWidth
         height: panelHeight
-        x: positionStore.x
-        y: positionStore.y
+        Component.onCompleted: {
+            x = positionStore.x
+            y = positionStore.y
+        }
 
         Behavior on width { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
         Behavior on height { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
-        Behavior on x { enabled: false }
-        Behavior on y { enabled: false }
+        Behavior on x { enabled: !dragArea.drag.active; NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
+        Behavior on y { enabled: !dragArea.drag.active; NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
 
-    // ---- Visual structure --------------------------------------------------
-    // The main visual is a border, with the actual content provided by a Loader.
-    Rectangle {
-        anchors.fill: parent
-        color: ThemeManager.surface
-        radius: 0
-        border.width: 1
-        border.color: ThemeManager.border
+        Connections {
+            target: mediaState
+            function onIsExpandedChanged() {
+                var wOld = mediaState.isExpanded ? 320 : 460
+                var hOld = mediaState.isExpanded ? 90 : 240
+                var wNew = mediaState.isExpanded ? 460 : 320
+                var hNew = mediaState.isExpanded ? 240 : 90
+                
+                var dx = 0
+                var dy = 0
+                
+                if (deckContainer.x + wOld / 2 > root.width / 2) {
+                    dx = wOld - wNew
+                }
+                if (deckContainer.y + hOld / 2 > root.height / 2) {
+                    dy = hOld - hNew
+                }
+                
+                deckContainer.x += dx
+                deckContainer.y += dy
+            }
+        }
 
-        // ---- Dragging & Hover Logic ------------------------------------------
-        // The dragArea covers the entire panel. Since the Loader is its child,
-        // the view's interactive elements (buttons) will receive events first.
-        // If they don't handle the event (e.g., clicking the background), it
-        // bubbles up to this MouseArea to handle dragging.
-        MouseArea {
-            id: dragArea
+        // ---- Visual structure --------------------------------------------------
+        // The main visual is a border, with the actual content provided by a Loader.
+        Rectangle {
             anchors.fill: parent
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
-            hoverEnabled: true
+            color: ThemeManager.surface
+            radius: 0
+            border.width: 1
+            border.color: ThemeManager.border
 
-            drag.target: deckContainer
-            drag.axis: Drag.XAndYAxis
-
-            onPressed: (mouse) => {
-                collapseTimer.stop(); // Stop collapse when drag starts
-            }
-
-            onReleased: (mouse) => {
-                positionStore.save(deckContainer.x, deckContainer.y);
-            }
-
-            onEntered: {
-                mediaState.expand();
-                collapseTimer.stop();
-            }
-
-            onExited: {
-                collapseTimer.start();
-            }
-
-            // Right-click to toggle signal view
-            onClicked: (mouse) => {
-                if (mouse.button === Qt.RightButton) {
-                    mediaState.toggleSignalView();
-                    mouse.accepted = true;
-                } else {
-                    mouse.accepted = false;
-                }
-            }
-
-            // Scroll up/down to navigate views
-            onWheel: (wheel) => {
-                if (wheel.angleDelta.y > 0) {
-                    mediaState.scrollUp();
-                } else if (wheel.angleDelta.y < 0) {
-                    mediaState.scrollDown();
-                }
-                wheel.accepted = true;
-            }
-
-            Item {
-                id: viewContainer
+            // ---- Dragging & Hover Logic ------------------------------------------
+            // The dragArea covers the entire panel. Since the Loader is its child,
+            // the view's interactive elements (buttons) will receive events first.
+            // If they don't handle the event (e.g., clicking the background), it
+            // bubbles up to this MouseArea to handle dragging.
+            MouseArea {
+                id: dragArea
                 anchors.fill: parent
-                clip: true
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                hoverEnabled: true
 
-                Loader {
-                    id: compactLoader
-                    anchors.fill: parent
-                    source: "views/CompactView.qml"
-                    visible: mediaState.currentState === mediaState.stateCompact
-                    active: visible
-                    onLoaded: {
-                        item.mprisService = mprisService
-                        if (item.hasOwnProperty("gifManager")) item.gifManager = gifManager
-                        if (item.hasOwnProperty("realAudioSource")) item.realAudioSource = realAudioSource
+                drag.target: deckContainer
+                drag.axis: Drag.XAndYAxis
+
+                onPressed: (mouse) => {
+                    collapseTimer.stop(); // Stop collapse when drag starts
+                }
+
+                onReleased: (mouse) => {
+                    var cx = deckContainer.x
+                    var cy = deckContainer.y
+                    if (mediaState.isExpanded) {
+                        if (deckContainer.x + 460 / 2 > root.width / 2) {
+                            cx += (460 - 320)
+                        }
+                        if (deckContainer.y + 240 / 2 > root.height / 2) {
+                            cy += (240 - 90)
+                        }
+                    }
+                    positionStore.save(cx, cy)
+                }
+
+                onEntered: {
+                    mediaState.expand();
+                    collapseTimer.stop();
+                }
+
+                onExited: {
+                    collapseTimer.start();
+                }
+
+                // Right-click to toggle signal view
+                onClicked: (mouse) => {
+                    if (mouse.button === Qt.RightButton) {
+                        mediaState.toggleSignalView();
+                        mouse.accepted = true;
+                    } else {
+                        mouse.accepted = false;
                     }
                 }
 
+                // Scroll up/down to navigate views
+                onWheel: (wheel) => {
+                    if (wheel.angleDelta.y > 0) {
+                        mediaState.scrollUp();
+                    } else if (wheel.angleDelta.y < 0) {
+                        mediaState.scrollDown();
+                    }
+                    wheel.accepted = true;
+                }
+
                 Item {
-                    id: expandedSignalContainer
+                    id: viewContainer
                     anchors.fill: parent
-                    visible: mediaState.currentState !== mediaState.stateCompact
+                    clip: true
+
+                    Loader {
+                        id: compactLoader
+                        anchors.fill: parent
+                        source: "views/CompactView.qml"
+                        visible: mediaState.currentState === mediaState.stateCompact
+                        active: visible
+                        onLoaded: {
+                            item.mprisService = mprisService
+                            if (item.hasOwnProperty("gifManager")) item.gifManager = gifManager
+                            if (item.hasOwnProperty("realAudioSource")) item.realAudioSource = realAudioSource
+                        }
+                    }
 
                     Item {
-                        id: slideContent
-                        width: parent.width
-                        height: parent.height * 2
-                        // Slide up by parent.height when stateSignal is active
-                        y: mediaState.currentState === mediaState.stateSignal ? -parent.height : 0
-                        
-                        Behavior on y {
-                            NumberAnimation { duration: 350; easing.type: Easing.OutCubic }
-                        }
+                        id: expandedSignalContainer
+                        anchors.fill: parent
+                        visible: mediaState.currentState !== mediaState.stateCompact
 
-                        Loader {
-                            id: expandedLoader
+                        Item {
+                            id: slideContent
                             width: parent.width
-                            height: parent.height / 2
-                            y: 0
-                            source: "views/ExpandedView.qml"
-                            active: expandedSignalContainer.visible
-                            onLoaded: {
-                                item.mprisService = mprisService
-                                item.mediaState = mediaState
-                                if (item.hasOwnProperty("gifManager")) item.gifManager = gifManager
-                                if (item.hasOwnProperty("realAudioSource")) item.realAudioSource = realAudioSource
+                            height: parent.height * 2
+                            // Slide up by parent.height when stateSignal is active
+                            y: mediaState.currentState === mediaState.stateSignal ? -parent.height : 0
+                            
+                            Behavior on y {
+                                NumberAnimation { duration: 350; easing.type: Easing.OutCubic }
                             }
-                        }
 
-                        Loader {
-                            id: signalLoader
-                            width: parent.width
-                            height: parent.height / 2
-                            y: parent.height / 2
-                            source: "views/SignalView.qml"
-                            active: expandedSignalContainer.visible
-                            onLoaded: {
-                                item.mprisService = mprisService
-                                item.mediaState = mediaState
-                                if (item.hasOwnProperty("gifManager")) item.gifManager = gifManager
-                                if (item.hasOwnProperty("realAudioSource")) item.realAudioSource = realAudioSource
+                            Loader {
+                                id: expandedLoader
+                                width: parent.width
+                                height: parent.height / 2
+                                y: 0
+                                source: "views/ExpandedView.qml"
+                                active: expandedSignalContainer.visible
+                                onLoaded: {
+                                    item.mprisService = mprisService
+                                    item.mediaState = mediaState
+                                    if (item.hasOwnProperty("gifManager")) item.gifManager = gifManager
+                                    if (item.hasOwnProperty("realAudioSource")) item.realAudioSource = realAudioSource
+                                }
+                            }
+
+                            Loader {
+                                id: signalLoader
+                                width: parent.width
+                                height: parent.height / 2
+                                y: parent.height / 2
+                                source: "views/SignalView.qml"
+                                active: expandedSignalContainer.visible
+                                onLoaded: {
+                                    item.mprisService = mprisService
+                                    item.mediaState = mediaState
+                                    if (item.hasOwnProperty("gifManager")) item.gifManager = gifManager
+                                    if (item.hasOwnProperty("realAudioSource")) item.realAudioSource = realAudioSource
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    }
     }
 
     // ---- Global Control --------------------------------------------------
