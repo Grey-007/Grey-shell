@@ -14,6 +14,7 @@ import "utils/recording" as RecordingUtils
 import "utils/clipboard" as ClipboardUtils
 import "utils/widgets/clockwidget" as ClockWidgetModule
 import "colors/theme_switcher_ui" as ThemeSwitcherModule
+import "osd" as OsdModule
 
 ShellRoot {
     function lockSession() {
@@ -103,6 +104,10 @@ ShellRoot {
 
     ClockWidgetModule.ClockWidget {
         id: clockWidget
+    }
+
+    OsdModule.OsdManager {
+        id: osdManager
     }
 
     Connections {

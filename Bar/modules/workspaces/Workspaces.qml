@@ -81,10 +81,10 @@ Row {
                 height: 6
                 radius: height / 2
                 color:  wsDot.isActive
-                            ? root.ThemeManager.accent
+                            ? ThemeManager.accent
                             : wsDot.exists
-                                ? root.ThemeManager.fgMid
-                                : root.ThemeManager.fgDim
+                                ? ThemeManager.fgMid
+                                : ThemeManager.fgDim
                 antialiasing: true
 
                 Behavior on width { NumberAnimation { duration: 350; easing.type: Easing.OutQuint } }

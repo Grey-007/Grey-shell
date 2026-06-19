@@ -139,7 +139,7 @@ Singleton {
     function _save() {
         saveProc.exec(["sh", "-c",
             "printf '%s' " + JSON.stringify(JSON.stringify({ theme: activeTheme })) +
-            " > " + JSON.stringify(_statePath) + " && hyprctl reload"
+            " > " + JSON.stringify(_statePath) + " && python3 ~/.config/quickshell/colors/update_kitty_theme.py && hyprctl reload"
         ])
     }
 

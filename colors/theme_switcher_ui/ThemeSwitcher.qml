@@ -2,6 +2,7 @@
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import Qt.labs.folderlistmodel
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -99,17 +100,23 @@ PanelWindow {
                 }
             }
 
-            // ── Theme list ───────────────────────────────────────────────────────
+            FolderListModel {
+                id: themesModel
+                folder: "file://" + Quickshell.env("HOME") + "/.config/quickshell/colors/themes"
+                nameFilters: ["*.qml"]
+                showDirs: false
+            }
+
             ListView {
                 id: listView
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
 
-                property var themesList: ["Sepia", "GruvboxDark", "GruvboxLight", "CatppuccinMocha", "CatppuccinLatte", "TokyoNightDark", "TokyoNightLight"]
-                model: themesList
+                model: themesModel
 
                 delegate: Rectangle {
+                    property string themeName: fileName ? fileName.replace(".qml", "") : ""
                     width: listView.width
                     height: 48
                     color: index === listView.currentIndex ? ThemeManager.accent : "transparent"
@@ -119,7 +126,7 @@ PanelWindow {
                         hoverEnabled: true
                         onEntered: listView.currentIndex = index
                         onClicked: {
-                            ThemeManager.setTheme(modelData)
+                            ThemeManager.setTheme(themeName)
                             root.visible = false
                         }
                     }
@@ -130,7 +137,7 @@ PanelWindow {
                             leftMargin: 16
                             verticalCenter: parent.verticalCenter
                         }
-                        text: modelData
+                        text: themeName
                         color: index === listView.currentIndex ? ThemeManager.fgInverted : ThemeManager.fg
                         font.family: "monospace"
                         font.pixelSize: 14
@@ -142,7 +149,7 @@ PanelWindow {
                             rightMargin: 16
                             verticalCenter: parent.verticalCenter
                         }
-                        text: ThemeManager.activeTheme === modelData ? "Active" : ""
+                        text: ThemeManager.activeTheme === themeName ? "Active" : ""
                         color: index === listView.currentIndex ? ThemeManager.fgInverted : ThemeManager.accent
                         font.family: "monospace"
                         font.pixelSize: 12
@@ -152,7 +159,10 @@ PanelWindow {
                 Keys.onEscapePressed: root.visible = false
                 Keys.onReturnPressed: {
                     if (currentIndex >= 0 && currentIndex < count) {
-                        ThemeManager.setTheme(model[currentIndex])
+                        var fName = themesModel.get(currentIndex, "fileName")
+                        if (fName) {
+                            ThemeManager.setTheme(fName.replace(".qml", ""))
+                        }
                         root.visible = false
                     }
                 }
@@ -237,9 +247,6 @@ PanelWindow {
 
             onCanceled: visible = false
             onImported: function(themeName) {
-                var newList = listView.themesList.slice()
-                newList.push(themeName)
-                listView.themesList = newList
                 visible = false
                 ThemeManager.setTheme(themeName)
                 root.visible = false
