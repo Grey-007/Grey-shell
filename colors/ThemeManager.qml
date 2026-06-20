@@ -116,9 +116,13 @@ Singleton {
     property var _t: Sepia {}
 
     // ── Theme switch ───────────────────────────────────────────────
-    function setTheme(name) {
-        if (name === activeTheme) return
-        var comp = Qt.createComponent("themes/" + name + ".qml")
+    function setTheme(name, force) {
+        if (name === activeTheme && !force) return
+        var url = "themes/" + name + ".qml"
+        if (force) {
+            url = "file://" + Quickshell.env("HOME") + "/.config/quickshell/colors/themes/" + name + ".qml?v=" + Date.now()
+        }
+        var comp = Qt.createComponent(url)
         if (comp.status !== Component.Ready) {
             console.warn("ThemeManager: cannot load theme '" + name + "': " + comp.errorString())
             return
@@ -127,6 +131,9 @@ Singleton {
         if (!obj) {
             console.warn("ThemeManager: createObject failed for theme '" + name + "'")
             return
+        }
+        if (_t && _t.destroy) {
+            _t.destroy()
         }
         _t = obj
         activeTheme = name
@@ -139,7 +146,7 @@ Singleton {
     function _save() {
         saveProc.exec(["sh", "-c",
             "printf '%s' " + JSON.stringify(JSON.stringify({ theme: activeTheme })) +
-            " > " + JSON.stringify(_statePath) + " && python3 ~/.config/quickshell/colors/update_kitty_theme.py && hyprctl reload"
+            " > " + JSON.stringify(_statePath) + " && python3 ~/.config/quickshell/colors/update_kitty_theme.py && python3 ~/.config/quickshell/colors/apply_system_theme.py && hyprctl reload"
         ])
     }
 

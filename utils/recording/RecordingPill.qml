@@ -18,6 +18,12 @@ PanelWindow {
     property int elapsedSeconds: 0
     property string currentMode: ""
     
+    IpcHandler {
+        target: "recordingpill"
+        function showPill() { win.showPill(); }
+        function hidePill() { win.hidePill(); }
+    }
+    
     // Only visible when recording has been requested
     visible: isRecording || isPaused
 
@@ -45,47 +51,22 @@ PanelWindow {
 
     margins.bottom: currentBottomMargin
 
-    // Process handling wf-recorder
-    Process {
-        id: recorderProcess
-        
-        onRunningChanged: {
-            if (!running && win.isRecording) {
-                // If it crashed or stopped unexpectedly, or slurp was cancelled
-                win.isRecording = false;
-                win.isPaused = false;
-                timer.stop();
-            }
-        }
-    }
-
-    function startRecording(mode) {
-        currentMode = mode;
+    function showPill() {
         elapsedSeconds = 0;
         isPaused = false;
-        
-        var cmd = "";
-        if (mode === "output") {
-            cmd = "mkdir -p ~/Videos; exec wf-recorder -f ~/Videos/recording_$(date +%Y-%m-%d_%H-%M-%S).mp4";
-        } else if (mode === "region") {
-            cmd = "mkdir -p ~/Videos; geometry=$(slurp); if [ -n \"$geometry\" ]; then exec wf-recorder -g \"$geometry\" -f ~/Videos/recording_$(date +%Y-%m-%d_%H-%M-%S).mp4; fi";
-        } else if (mode === "window") {
-            cmd = "mkdir -p ~/Videos; geometry=$(hyprctl clients -j | jq -r '.[] | select(.hidden==false and .mapped==true) | \"\\(.at[0]),\\(.at[1]) \\(.size[0])x\\(.size[1])\"' | slurp); if [ -n \"$geometry\" ]; then exec wf-recorder -g \"$geometry\" -f ~/Videos/recording_$(date +%Y-%m-%d_%H-%M-%S).mp4; fi";
-        }
-        
-        recorderProcess.command = ["bash", "-c", cmd];
-        recorderProcess.running = true;
         isRecording = true;
         timer.start();
     }
 
-    function stopRecording() {
-        Quickshell.execDetached(["pkill", "-INT", "wf-recorder"]);
-        
-        // Let the onRunningChanged handle the rest, but we can assume it stopped
+    function hidePill() {
         isRecording = false;
         isPaused = false;
         timer.stop();
+    }
+
+    function stopRecording() {
+        Quickshell.execDetached(["pkill", "-INT", "wf-recorder"]);
+        hidePill();
         Quickshell.execDetached(["notify-send", "-t", "3000", "Recording Finished", "Saved to ~/Videos"]);
     }
 

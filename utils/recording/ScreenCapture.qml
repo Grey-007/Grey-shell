@@ -4,6 +4,8 @@ import QtQuick.Layouts
 import QtQuick.Shapes
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Io
+import "../../colors"
 
 PanelWindow {
     id: win
@@ -23,7 +25,7 @@ PanelWindow {
 
     property bool isOpen: false
     property var pill: null
-    visible: win.isOpen || container.y < win.height
+    visible: win.isOpen || bottomMarginAnim.running
 
     function toggle() {
         isOpen = !isOpen
@@ -61,7 +63,7 @@ PanelWindow {
         Text {
             anchors.centerIn: parent
             text: btnRoot.icon
-            color: "#1c1510" // Dark text for contrast
+            color: ThemeManager.fgInverted
             font.pixelSize: 20
         }
 
@@ -86,7 +88,7 @@ PanelWindow {
         anchors.bottomMargin: win.isOpen ? 0 : -height
 
         Behavior on anchors.bottomMargin {
-            NumberAnimation { duration: 450; easing.type: Easing.OutBack; easing.overshoot: 1.2 }
+            NumberAnimation { id: bottomMarginAnim; duration: 450; easing.type: Easing.OutBack; easing.overshoot: 1.2 }
         }
 
         // Eat clicks so they don't close the menu
@@ -99,8 +101,8 @@ PanelWindow {
             anchors.fill: parent
             
             ShapePath {
-                fillColor: "#241D18"   // Sepia surface
-                strokeColor: "#5A4736" // Sepia border
+                fillColor: ThemeManager.surface
+                strokeColor: ThemeManager.border
                 strokeWidth: 2
                 
                 // Start bottom-left, flat against the bottom edge
@@ -157,17 +159,17 @@ PanelWindow {
             // ── Screenshots (Hyprshot) ────────────────────────────────────
             CaptureButton {
                 icon: "󰍹" // Fullscreen
-                bgColor: "#d4a45a"
+                bgColor: ThemeManager.primary
                 onClicked: { Quickshell.execDetached(["hyprshot", "-m", "output"]); win.close() }
             }
             CaptureButton {
                 icon: "󰖲" // Window
-                bgColor: "#a0784a"
+                bgColor: ThemeManager.secondary
                 onClicked: { Quickshell.execDetached(["hyprshot", "-m", "window"]); win.close() }
             }
             CaptureButton {
                 icon: "󰒉" // Region
-                bgColor: "#8a7055"
+                bgColor: ThemeManager.tertiary
                 onClicked: { Quickshell.execDetached(["hyprshot", "-m", "region"]); win.close() }
             }
 
@@ -175,7 +177,7 @@ PanelWindow {
             Rectangle {
                 width: 2
                 height: 32
-                color: "#5A4736"
+                color: ThemeManager.border
                 radius: 1
                 Layout.alignment: Qt.AlignVCenter
                 Layout.leftMargin: 8
@@ -185,18 +187,18 @@ PanelWindow {
             // ── Screen Recording (wf-recorder) ─────────────────────────────
             CaptureButton {
                 icon: "󰕧" // Video Fullscreen
-                bgColor: "#d45a5a"
-                onClicked: { if (win.pill) win.pill.startRecording("output"); win.close() }
+                bgColor: ThemeManager.error
+                onClicked: { Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.config/quickshell/utils/recording/record.sh", "output"]); win.close() }
             }
             CaptureButton {
                 icon: "󰖲" // Video Window
-                bgColor: "#a04a4a"
-                onClicked: { if (win.pill) win.pill.startRecording("window"); win.close() }
+                bgColor: ThemeManager.errorSoft
+                onClicked: { Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.config/quickshell/utils/recording/record.sh", "window"]); win.close() }
             }
             CaptureButton {
                 icon: "󰒉" // Video Region
-                bgColor: "#8a3535"
-                onClicked: { if (win.pill) win.pill.startRecording("region"); win.close() }
+                bgColor: ThemeManager.errorContainer
+                onClicked: { Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.config/quickshell/utils/recording/record.sh", "region"]); win.close() }
             }
         }
     }

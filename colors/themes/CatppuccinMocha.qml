@@ -1,6 +1,11 @@
 import QtQuick
 // CatppuccinMocha.qml — Catppuccin Mocha (dark) theme
 QtObject {
+    // ── System theming ─────────────────────────────────────────────
+    readonly property string gtkTheme:    "catppuccin-mocha-standard+default"
+    readonly property string kvTheme:     "Catppuccin-Mocha"
+    readonly property string colorScheme: "prefer-dark"
+
     // ── Surface hierarchy ──────────────────────────────────────────
     readonly property color bg:              "#1e1e2e"
     readonly property color surface:         "#181825"

@@ -1,6 +1,11 @@
 import QtQuick
 // CatppuccinLatte.qml — Catppuccin Latte (light) theme
 QtObject {
+    // ── System theming ─────────────────────────────────────────────
+    readonly property string gtkTheme:    "catppuccin-latte-standard+default"
+    readonly property string kvTheme:     "Catppuccin-Latte"
+    readonly property string colorScheme: "default"
+
     // ── Surface hierarchy ──────────────────────────────────────────
     readonly property color bg:              "#eff1f5"
     readonly property color surface:         "#e6e9ef"

@@ -21,11 +21,39 @@ def parse_color_file(filepath):
                 colors[m.group(1)] = m.group(2)
     return colors
 
+def hex_to_rgb(hex_str):
+    hex_str = hex_str.lstrip('#')
+    if len(hex_str) == 3:
+        hex_str = ''.join(c + c for c in hex_str)
+    return tuple(int(hex_str[i:i+2], 16) for i in (0, 2, 4))
+
+def rgb_to_hex(rgb):
+    return '#{:02x}{:02x}{:02x}'.format(*rgb)
+
+def mix_colors(hex1, hex2, ratio=0.5):
+    try:
+        rgb1 = hex_to_rgb(hex1)
+        rgb2 = hex_to_rgb(hex2)
+        mixed = tuple(int(rgb1[i] * (1 - ratio) + rgb2[i] * ratio) for i in range(3))
+        return rgb_to_hex(mixed)
+    except:
+        return hex1
+
 def map_to_theme(colors):
     # Base fallback mapping
     bg = colors.get('background', colors.get('color0', '#1c1c1c'))
     fg = colors.get('foreground', colors.get('color15', '#ffffff'))
     accent = colors.get('accent', colors.get('color4', '#888888')) # blue/accent fallback
+    
+    # Calculate surfaces to ensure they don't clash with dim text
+    surface = mix_colors(bg, fg, 0.04)
+    surfaceHigh = mix_colors(bg, fg, 0.08)
+    surfaceTop = mix_colors(bg, fg, 0.12)
+    border = mix_colors(bg, fg, 0.15)
+    
+    # Text
+    fgMid = colors.get('color7', mix_colors(fg, bg, 0.3))
+    fgDim = colors.get('color8', mix_colors(fg, bg, 0.5))
     
     # Try to build the Quickshell Theme format
     theme_data = f"""import QtQuick
@@ -34,18 +62,18 @@ QtObject {{
     property string name: "Custom Theme"
 
     readonly property color bg:              "{bg}"
-    readonly property color surface:         "{colors.get('color0', bg)}"
-    readonly property color surfaceHigh:     "{colors.get('color8', bg)}"
-    readonly property color surfaceTop:      "{colors.get('color0', bg)}"
+    readonly property color surface:         "{surface}"
+    readonly property color surfaceHigh:     "{surfaceHigh}"
+    readonly property color surfaceTop:      "{surfaceTop}"
     
     readonly property color accent:          "{accent}"
     readonly property color accentSoft:      "{colors.get('color12', accent)}"
-    readonly property color border:          "{colors.get('color8', '#555555')}"
+    readonly property color border:          "{border}"
     readonly property color accentDim:       "{colors.get('color4', accent)}"
 
     readonly property color fg:              "{fg}"
-    readonly property color fgMid:           "{colors.get('color7', fg)}"
-    readonly property color fgDim:           "{colors.get('color8', fg)}"
+    readonly property color fgMid:           "{fgMid}"
+    readonly property color fgDim:           "{fgDim}"
     readonly property color fgInverted:      "{colors.get('background', '#000000')}"
 
     readonly property color error:           "{colors.get('color1', '#ff0000')}"
@@ -70,17 +98,17 @@ QtObject {{
     readonly property color errorContainerFg: "{fg}"
     readonly property color errorFg: "{bg}"
     
-    readonly property color surfaceDim: "{colors.get('color0', bg)}"
-    readonly property color surfaceBright: "{colors.get('color8', bg)}"
+    readonly property color surfaceDim: "{bg}"
+    readonly property color surfaceBright: "{surfaceHigh}"
     readonly property color surfaceContainerLowest: "{bg}"
     readonly property color surfaceContainerLow: "{bg}"
-    readonly property color surfaceContainer: "{colors.get('color0', bg)}"
-    readonly property color surfaceContainerHigh: "{colors.get('color8', bg)}"
-    readonly property color surfaceContainerHighest: "{colors.get('color8', bg)}"
+    readonly property color surfaceContainer: "{surface}"
+    readonly property color surfaceContainerHigh: "{surfaceHigh}"
+    readonly property color surfaceContainerHighest: "{surfaceTop}"
     readonly property color surfaceFg: "{fg}"
-    readonly property color surfaceVariantFg: "{colors.get('color7', fg)}"
-    readonly property color outline: "{colors.get('color8', '#555555')}"
-    readonly property color outlineVariant: "{colors.get('color8', '#555555')}"
+    readonly property color surfaceVariantFg: "{fgMid}"
+    readonly property color outline: "{border}"
+    readonly property color outlineVariant: "{mix_colors(border, bg, 0.5)}"
     
     property color scrimTop: "transparent"
     property color scrimBottom: "#aa000000"

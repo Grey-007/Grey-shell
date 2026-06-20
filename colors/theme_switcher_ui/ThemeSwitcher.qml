@@ -248,7 +248,7 @@ PanelWindow {
             onCanceled: visible = false
             onImported: function(themeName) {
                 visible = false
-                ThemeManager.setTheme(themeName)
+                ThemeManager.setTheme(themeName, true)
                 root.visible = false
             }
         }

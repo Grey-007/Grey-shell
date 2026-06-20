@@ -30,7 +30,7 @@ Item {
         text: root.timeString
         color: ThemeManager.alpha(ThemeManager.bg, 0.4)
         font.family: root.fontFamily
-        font.pixelSize: root.fontSize
+        font.pixelSize: (root.fontSize > 0 ? root.fontSize : 12)
         font.weight: Font.Bold
         style: Text.Normal
     }
@@ -41,7 +41,7 @@ Item {
         text: root.timeString
         color: ThemeManager.accent
         font.family: root.fontFamily
-        font.pixelSize: root.fontSize
+        font.pixelSize: (root.fontSize > 0 ? root.fontSize : 12)
         font.weight: Font.Bold
     }
 }

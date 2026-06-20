@@ -1,6 +1,11 @@
 import QtQuick
 // Sepia.qml — default theme, the original warm sepia/parchment palette
 QtObject {
+    // ── System theming ─────────────────────────────────────────────
+    readonly property string gtkTheme:    "Adwaita-dark"
+    readonly property string kvTheme:     ""
+    readonly property string colorScheme: "prefer-dark"
+
     // ── Surface hierarchy ──────────────────────────────────────────
     readonly property color bg:              "#1c1510"
     readonly property color surface:         "#241D18"

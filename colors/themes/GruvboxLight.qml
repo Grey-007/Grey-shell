@@ -1,6 +1,11 @@
 import QtQuick
 // GruvboxLight.qml — Gruvbox Light (hard) theme
 QtObject {
+    // ── System theming ─────────────────────────────────────────────
+    readonly property string gtkTheme:    "Gruvbox-Light-Hard"
+    readonly property string kvTheme:     "GruvboxLight"
+    readonly property string colorScheme: "default"
+
     // ── Surface hierarchy ──────────────────────────────────────────
     readonly property color bg:              "#f9f5d7"
     readonly property color surface:         "#fbf1c7"

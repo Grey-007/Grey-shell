@@ -90,7 +90,7 @@ ShellRoot {
 
     RecordingUtils.ScreenCapture {
         id: screenCapture
-        property var pill: recordingPill
+        pill: recordingPill
     }
 
     RecordingUtils.RecordingPill {

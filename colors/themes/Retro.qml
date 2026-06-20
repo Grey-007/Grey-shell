@@ -8,7 +8,7 @@ QtObject {
     readonly property color surfaceHigh:     "#1d1707"
     readonly property color surfaceTop:      "#271d07"
     
-    readonly property color accent:          "#CC9900"
+    readonly property color accent:          "#4ade7f"
     readonly property color accentSoft:      "#FFBB00"
     readonly property color border:          "#2e2206"
     readonly property color accentDim:       "#CC9900"
@@ -25,8 +25,8 @@ QtObject {
     readonly property color success:         "#FFCC00"
 
     // Material 3 placeholders mapping to base colors
-    readonly property color seed: "#CC9900"
-    readonly property color primary: "#CC9900"
+    readonly property color seed: "#4ade7f"
+    readonly property color primary: "#4ade7f"
     readonly property color primaryFg: "#0A0A08"
     readonly property color primaryContainer: "#CC9900"
     readonly property color primaryContainerFg: "#FFB000"

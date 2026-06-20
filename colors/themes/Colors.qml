@@ -3,6 +3,11 @@ import QtQuick
 QtObject {
     property string name: "Custom Theme"
 
+    // ── System theming ─────────────────────────────────────────────
+    readonly property string gtkTheme:    "Adwaita-dark"
+    readonly property string kvTheme:     ""
+    readonly property string colorScheme: "prefer-dark"
+
     property color bg:              "#f3e4cb"
     property color surface:         "#f3e4cb"
     property color surfaceHigh:     "#9f8253"

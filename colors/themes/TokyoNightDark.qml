@@ -1,6 +1,11 @@
 import QtQuick
 // TokyoNightDark.qml — Tokyo Night dark theme
 QtObject {
+    // ── System theming ─────────────────────────────────────────────
+    readonly property string gtkTheme:    "Tokyonight-Dark-BL"
+    readonly property string kvTheme:     "Tokyonight-Dark"
+    readonly property string colorScheme: "prefer-dark"
+
     // ── Surface hierarchy ──────────────────────────────────────────
     readonly property color bg:              "#1a1b26"
     readonly property color surface:         "#24283b"

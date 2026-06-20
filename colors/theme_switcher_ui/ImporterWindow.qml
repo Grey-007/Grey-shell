@@ -58,17 +58,58 @@ Rectangle {
             textRole: "fileName"
             
             background: Rectangle {
-                color: "transparent"
-                border.color: themeCombo.activeFocus ? ThemeManager.accent : ThemeManager.border
-                border.width: 2
+                implicitHeight: 32
+                color: themeCombo.hovered ? ThemeManager.surfaceHigh : "transparent"
+                border.color: ThemeManager.border
+                border.width: 1
             }
+
             contentItem: Text {
+                leftPadding: 8
+                rightPadding: 24
                 text: themeCombo.displayText
                 color: ThemeManager.fg
                 font.family: "monospace"
                 font.pixelSize: 12
                 verticalAlignment: Text.AlignVCenter
-                leftPadding: 8
+            }
+            
+            delegate: ItemDelegate {
+                width: themeCombo.width
+                height: 32
+                highlighted: themeCombo.highlightedIndex === index
+                
+                contentItem: Text {
+                    text: fileName
+                    color: highlighted ? ThemeManager.fgInverted : ThemeManager.fg
+                    font.family: "monospace"
+                    font.pixelSize: 12
+                    verticalAlignment: Text.AlignVCenter
+                }
+                
+                background: Rectangle {
+                    color: highlighted ? ThemeManager.accent : "transparent"
+                }
+            }
+
+            popup: Popup {
+                y: themeCombo.height - 1
+                width: themeCombo.width
+                implicitHeight: contentItem.implicitHeight > 200 ? 200 : contentItem.implicitHeight
+                padding: 1
+
+                contentItem: ListView {
+                    clip: true
+                    implicitHeight: contentHeight
+                    model: themeCombo.popup.visible ? themeCombo.delegateModel : null
+                    currentIndex: themeCombo.highlightedIndex
+                    ScrollIndicator.vertical: ScrollIndicator { }
+                }
+
+                background: Rectangle {
+                    border.color: ThemeManager.border
+                    color: ThemeManager.bg
+                }
             }
         }
         
@@ -178,9 +219,4 @@ Rectangle {
         }
     }
 
-    onVisibleChanged: {
-        if (visible) {
-            themeCombo.forceActiveFocus()
-        }
-    }
 }

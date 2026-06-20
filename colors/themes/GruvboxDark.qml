@@ -1,6 +1,11 @@
 import QtQuick
 // GruvboxDark.qml — Gruvbox Dark (hard) theme
 QtObject {
+    // ── System theming ─────────────────────────────────────────────
+    readonly property string gtkTheme:    "Gruvbox-Dark-Hard"
+    readonly property string kvTheme:     "Gruvbox"
+    readonly property string colorScheme: "prefer-dark"
+
     // ── Surface hierarchy ──────────────────────────────────────────
     readonly property color bg:              "#1d2021"
     readonly property color surface:         "#282828"
