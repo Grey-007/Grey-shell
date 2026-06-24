@@ -57,10 +57,10 @@ Singleton {
     // ── Motion ───────────────────────────────────────────────────────
     // Material 3 "emphasized" easing curves, expressed as bezierCurve
     // arrays for Easing.BezierSpline.
-    readonly property var easeEmphasizedDecel: [0.05, 0.7, 0.1, 1.0, 1, 1]
-    readonly property var easeEmphasizedAccel: [0.3, 0.0, 0.8, 0.15, 1, 1]
+    readonly property var easeEmphasizedDecel: [0.05, 0.7, 0.1, 1.0]
+    readonly property var easeEmphasizedAccel: [0.3, 0.0, 0.8, 0.15]
     // Slight "expressive" overshoot for entrances/presses.
-    readonly property var easeExpressive: [0.34, 1.56, 0.64, 1.0, 1, 1]
+    readonly property var easeExpressive: [0.34, 1.56, 0.64, 1.0]
 
     property int durationFast:   150
     property int durationMedium: 320

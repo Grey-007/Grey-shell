@@ -1,0 +1,2 @@
+singleton SettingsManager 1.0 SettingsManager.qml
+SettingsStore 1.0 SettingsStore.qml

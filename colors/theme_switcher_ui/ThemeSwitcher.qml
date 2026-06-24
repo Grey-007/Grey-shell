@@ -33,7 +33,7 @@ PanelWindow {
     // ── Dim overlay (closes switcher on outside click) ─────────────────────────
     Rectangle {
         anchors.fill: parent
-        color: ThemeManager.alpha(ThemeManager.bg, 0.33)
+        color: "transparent"
 
         MouseArea {
             anchors.fill: parent
@@ -226,7 +226,7 @@ PanelWindow {
         // ── Dim overlay for the ImporterWindow ─────────────────────────
         Rectangle {
             anchors.fill: parent
-            color: ThemeManager.alpha(ThemeManager.bg, 0.5)
+            color: "transparent"
             visible: importerWindow.visible
             z: 9
 

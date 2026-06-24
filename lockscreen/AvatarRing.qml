@@ -60,7 +60,7 @@ Item {
             text: root.initial
             color: ThemeManager.primaryContainerFg
             font.family: Config.fontFamily
-            font.pixelSize: (parent.width > 0 ? parent.width * 0.42 : 12)
+            font.pixelSize: Math.max(1, parent.width > 0 ? parent.width * 0.42 : 12)
             font.weight: Font.Medium
         }
     }

@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import "themes"
+import "../Settings/Models"
 
 // ─────────────────────────────────────────────────────────────────────────
 // ThemeManager — the single source of truth for all colors in quickshell.
@@ -20,65 +21,87 @@ Singleton {
     // ── Active theme name ──────────────────────────────────────────
     property string activeTheme: "Sepia"
 
-    // ── Convenience function ───────────────────────────────────────
+    // ── Dynamic Inversion Logic ────────────────────────────────────
+    property bool isThemeLight: {
+        if (!_t) return false;
+        var c = _t.bg;
+        var lum = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+        return lum > 0.5;
+    }
+
+    property bool wantsLight: SettingsManager.store.themeMode === "Light"
+    property bool shouldInvert: isThemeLight !== wantsLight
+
+    function invertColor(c) {
+        return Qt.hsla(c.hslHue, c.hslSaturation, 1.0 - c.hslLightness, c.a);
+    }
+
+    function applyColor(c, a, invert) {
+        var col = invert ? invertColor(c) : c;
+        if (a !== undefined) {
+            return Qt.rgba(col.r, col.g, col.b, a);
+        }
+        return col;
+    }
+
     function alpha(c, a) {
         return Qt.rgba(c.r, c.g, c.b, a)
     }
 
     // ── Public color tokens (with animated transitions) ────────────
     // Surface hierarchy
-    property color bg:              _t.bg
-    property color surface:         _t.surface
-    property color surfaceHigh:     _t.surfaceHigh
-    property color surfaceTop:      _t.surfaceTop
+    property color bg:              applyColor(_t.bg, SettingsManager.store.transparency / 100, shouldInvert)
+    property color surface:         applyColor(_t.surface, SettingsManager.store.transparency / 100, shouldInvert)
+    property color surfaceHigh:     applyColor(_t.surfaceHigh, SettingsManager.store.transparency / 100, shouldInvert)
+    property color surfaceTop:      applyColor(_t.surfaceTop, SettingsManager.store.transparency / 100, shouldInvert)
 
     // Accents
-    property color accent:          _t.accent
-    property color accentSoft:      _t.accentSoft
-    property color border:          _t.border
-    property color accentDim:       _t.accentDim
+    property color accent:          applyColor(_t.accent, undefined, shouldInvert)
+    property color accentSoft:      applyColor(_t.accentSoft, undefined, shouldInvert)
+    property color border:          applyColor(_t.border, undefined, shouldInvert)
+    property color accentDim:       applyColor(_t.accentDim, undefined, shouldInvert)
 
     // Text
-    property color fg:              _t.fg
-    property color fgMid:           _t.fgMid
-    property color fgDim:           _t.fgDim
-    property color fgInverted:      _t.fgInverted
+    property color fg:              applyColor(_t.fg, undefined, shouldInvert)
+    property color fgMid:           applyColor(_t.fgMid, undefined, shouldInvert)
+    property color fgDim:           applyColor(_t.fgDim, undefined, shouldInvert)
+    property color fgInverted:      applyColor(_t.fgInverted, undefined, shouldInvert)
 
     // Semantic
-    property color error:           _t.error
-    property color errorText:       _t.errorText
-    property color errorSoft:       _t.errorSoft
-    property color warning:         _t.warning
-    property color success:         _t.success
+    property color error:           applyColor(_t.error, undefined, shouldInvert)
+    property color errorText:       applyColor(_t.errorText, undefined, shouldInvert)
+    property color errorSoft:       applyColor(_t.errorSoft, undefined, shouldInvert)
+    property color warning:         applyColor(_t.warning, undefined, shouldInvert)
+    property color success:         applyColor(_t.success, undefined, shouldInvert)
 
     // Lockscreen Material 3 tokens
-    property color seed:                    _t.seed
-    property color primary:                 _t.primary
-    property color primaryFg:               _t.primaryFg
-    property color primaryContainer:        _t.primaryContainer
-    property color primaryContainerFg:      _t.primaryContainerFg
-    property color secondary:               _t.secondary
-    property color secondaryFg:             _t.secondaryFg
-    property color secondaryContainer:      _t.secondaryContainer
-    property color secondaryContainerFg:    _t.secondaryContainerFg
-    property color tertiary:                _t.tertiary
-    property color tertiaryFg:              _t.tertiaryFg
-    property color errorContainer:          _t.errorContainer
-    property color errorContainerFg:        _t.errorContainerFg
-    property color errorFg:                 _t.errorFg
-    property color surfaceDim:              _t.surfaceDim
-    property color surfaceBright:           _t.surfaceBright
-    property color surfaceContainerLowest:  _t.surfaceContainerLowest
-    property color surfaceContainerLow:     _t.surfaceContainerLow
-    property color surfaceContainer:        _t.surfaceContainer
-    property color surfaceContainerHigh:    _t.surfaceContainerHigh
-    property color surfaceContainerHighest: _t.surfaceContainerHighest
-    property color surfaceFg:               _t.surfaceFg
-    property color surfaceVariantFg:        _t.surfaceVariantFg
-    property color outline:                 _t.outline
-    property color outlineVariant:          _t.outlineVariant
-    property color scrimTop:                _t.scrimTop
-    property color scrimBottom:             _t.scrimBottom
+    property color seed:                    applyColor(_t.seed, undefined, shouldInvert)
+    property color primary:                 applyColor(_t.primary, undefined, shouldInvert)
+    property color primaryFg:               applyColor(_t.primaryFg, undefined, shouldInvert)
+    property color primaryContainer:        applyColor(_t.primaryContainer, undefined, shouldInvert)
+    property color primaryContainerFg:      applyColor(_t.primaryContainerFg, undefined, shouldInvert)
+    property color secondary:               applyColor(_t.secondary, undefined, shouldInvert)
+    property color secondaryFg:             applyColor(_t.secondaryFg, undefined, shouldInvert)
+    property color secondaryContainer:      applyColor(_t.secondaryContainer, undefined, shouldInvert)
+    property color secondaryContainerFg:    applyColor(_t.secondaryContainerFg, undefined, shouldInvert)
+    property color tertiary:                applyColor(_t.tertiary, undefined, shouldInvert)
+    property color tertiaryFg:              applyColor(_t.tertiaryFg, undefined, shouldInvert)
+    property color errorContainer:          applyColor(_t.errorContainer, undefined, shouldInvert)
+    property color errorContainerFg:        applyColor(_t.errorContainerFg, undefined, shouldInvert)
+    property color errorFg:                 applyColor(_t.errorFg, undefined, shouldInvert)
+    property color surfaceDim:              applyColor(_t.surfaceDim, undefined, shouldInvert)
+    property color surfaceBright:           applyColor(_t.surfaceBright, undefined, shouldInvert)
+    property color surfaceContainerLowest:  applyColor(_t.surfaceContainerLowest, undefined, shouldInvert)
+    property color surfaceContainerLow:     applyColor(_t.surfaceContainerLow, undefined, shouldInvert)
+    property color surfaceContainer:        applyColor(_t.surfaceContainer, undefined, shouldInvert)
+    property color surfaceContainerHigh:    applyColor(_t.surfaceContainerHigh, undefined, shouldInvert)
+    property color surfaceContainerHighest: applyColor(_t.surfaceContainerHighest, undefined, shouldInvert)
+    property color surfaceFg:               applyColor(_t.surfaceFg, undefined, shouldInvert)
+    property color surfaceVariantFg:        applyColor(_t.surfaceVariantFg, undefined, shouldInvert)
+    property color outline:                 applyColor(_t.outline, undefined, shouldInvert)
+    property color outlineVariant:          applyColor(_t.outlineVariant, undefined, shouldInvert)
+    property color scrimTop:                applyColor(_t.scrimTop, undefined, shouldInvert)
+    property color scrimBottom:             applyColor(_t.scrimBottom, undefined, shouldInvert)
     property real  scrimOpacity:            _t.scrimOpacity
 
     // ── Smooth color transitions ───────────────────────────────────

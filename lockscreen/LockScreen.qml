@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import "../colors"
+import "../Settings/Models"
 
 // ─────────────────────────────────────────────────────────────────────────
 // reader-shell · LockScreen
@@ -113,6 +114,7 @@ Item {
             WeatherPill {
                 Layout.fillWidth: true
                 revealDelay: 260
+                visible: SettingsManager.store.weatherWidgetEnabled
             }
         }
     }

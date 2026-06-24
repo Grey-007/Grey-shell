@@ -84,7 +84,7 @@ PanelWindow {
         anchors.verticalCenter: parent.verticalCenter
         
         // Slide in from left
-        x: win.isOpen ? 0 : -width
+        x: win.isOpen ? 14 : -width
 
         Behavior on x {
             NumberAnimation { duration: 350; easing.type: Easing.OutCubic }
@@ -100,63 +100,18 @@ PanelWindow {
             }
         }
 
-        Shape {
+        Rectangle {
             anchors.fill: parent
-            
-            ShapePath {
-                fillColor: ThemeManager.surface   // Sepia surface
-                strokeColor: ThemeManager.border // Sepia border
-                strokeWidth: 2
-                
-                // Start top-left
-                startX: 0
-                startY: 0 
-                
-                // Top-left outward flare
-                PathQuad {
-                    controlX: 0; controlY: 20
-                    x: 20; y: 20
-                }
-                
-                // Straight horizontal top plateau
-                PathLine { x: 360; y: 20 }
-                
-                // Top-right rounded corner
-                PathQuad {
-                    controlX: 380; controlY: 20
-                    x: 380; y: 40
-                }
-                
-                // Straight vertical right side
-                PathLine { x: 380; y: 600 }
-                
-                // Bottom-right rounded corner
-                PathQuad {
-                    controlX: 380; controlY: 620
-                    x: 360; y: 620
-                }
-                
-                // Straight horizontal bottom plateau
-                PathLine { x: 20; y: 620 }
-                
-                // Bottom-left outward flare
-                PathQuad {
-                    controlX: 0; controlY: 620
-                    x: 0; y: 640
-                }
-                
-                // Close shape along left edge
-                PathLine { x: 0; y: 0 }
-            }
+            color: ThemeManager.surfaceHigh
+            border.color: ThemeManager.border
+            border.width: 1
+            radius: 0
         }
 
         Item {
             anchors {
                 fill: parent
-                topMargin: 20
-                bottomMargin: 20
-                leftMargin: 2
-                rightMargin: 20
+                margins: 14
             }
             clip: true
 
@@ -176,9 +131,11 @@ PanelWindow {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "Clipboard History"
-                        color: ThemeManager.accentSoft
-                        font.pixelSize: 18
-                        font.weight: Font.Bold
+                        color: ThemeManager.accent
+                        font.pixelSize: 13
+                        font.family: "monospace"
+                        font.weight: Font.DemiBold
+                        font.letterSpacing: 1
                     }
                     Rectangle {
                         anchors.bottom: parent.bottom
@@ -191,7 +148,7 @@ PanelWindow {
                 delegate: Rectangle {
                     width: listView.width
                     height: 50
-                    radius: 8
+                    radius: 0
                     color: itemMouseArea.containsMouse ? ThemeManager.border : "transparent"
                     border.color: itemMouseArea.containsMouse ? ThemeManager.accent : "transparent"
                     border.width: 1

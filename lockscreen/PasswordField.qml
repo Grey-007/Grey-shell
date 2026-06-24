@@ -14,8 +14,9 @@ Card {
 
     readonly property bool engaged: input.activeFocus || input.text.length > 0 || Auth.unlocking
     readonly property int dotCount: Math.min(input.text.length, 12)
-    readonly property real dotsShift: dotCount > 0 ? Math.min(dotCount * 2.6, 20) : 0
-    readonly property real caretShift: dotCount > 0 ? Math.min(dotCount * 1.35, 10) : 0
+    readonly property real dotsRowWidth: dotCount > 0 ? (dotCount * 9 + (dotCount - 1) * 8) : 0
+    readonly property real dotsShift: dotCount > 0 ? 12 : 0
+    readonly property real caretShift: dotCount > 0 ? (dotsShift + dotsRowWidth + 6) : (engaged ? 4 : 0)
     property bool failed: false
 
     radius: Config.radiusPill

@@ -8,6 +8,7 @@ import "modules/clock"
 import "modules/metrics"
 import "modules/tray"
 import "../colors"
+import "../Settings/Models"
 
 // Bar.qml — floating top panel for Hyprland — sepia theme
 PanelWindow {
@@ -25,13 +26,15 @@ PanelWindow {
     // ── Sepia palette ──────────────────────────────────────────────
                                 
     anchors {
-        top:   true
+        top:   SettingsManager.store.barPosition !== "Bottom"
+        bottom: SettingsManager.store.barPosition === "Bottom"
         left:  true
         right: true
     }
 
     margins {
-        top:   topInset
+        top:   SettingsManager.store.barPosition !== "Bottom" ? topInset : 0
+        bottom: SettingsManager.store.barPosition === "Bottom" ? topInset : 0
         left:  edgeInset
         right: edgeInset
     }
@@ -153,7 +156,7 @@ PanelWindow {
                     color:  Qt.rgba(ThemeManager.accent.r, ThemeManager.accent.g, ThemeManager.accent.b, 0.30)
                 }
 
-                Workspaces {}
+                Workspaces { visible: SettingsManager.store.barWorkspacesEnabled }
             }
         }
 
@@ -175,6 +178,7 @@ PanelWindow {
                 ThemeManager.accent.r, ThemeManager.accent.g, ThemeManager.accent.b, 0.22)
             border.width: 1
             antialiasing: true
+            visible: SettingsManager.store.barClockEnabled
 
             Clock {
                 id: clockWidget
@@ -230,7 +234,7 @@ PanelWindow {
                 Cpu { onBarClicked: systemPopup.toggle() }
                 Ram { onBarClicked: systemPopup.toggle() }
                 Volume { onBarClicked: systemPopup.toggle() }
-                Battery {}
+                Battery { visible: SettingsManager.store.barBatteryEnabled }
             }
         }
     }

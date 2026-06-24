@@ -15,6 +15,8 @@ import "utils/clipboard" as ClipboardUtils
 import "utils/widgets/clockwidget" as ClockWidgetModule
 import "colors/theme_switcher_ui" as ThemeSwitcherModule
 import "osd" as OsdModule
+import "Settings" as SettingsModule
+import "Settings/Models"
 
 ShellRoot {
     function lockSession() {
@@ -86,6 +88,7 @@ ShellRoot {
 
     MediaDeck {
         id: mediadeck 
+        visible: SettingsManager.store.musicWidgetEnabled
     }
 
     RecordingUtils.ScreenCapture {
@@ -104,10 +107,15 @@ ShellRoot {
 
     ClockWidgetModule.ClockWidget {
         id: clockWidget
+        visible: SettingsManager.store.clockWidgetEnabled
     }
 
     OsdModule.OsdManager {
         id: osdManager
+    }
+
+    SettingsModule.SettingsWindow {
+        id: settingsWindow
     }
 
     Connections {
@@ -310,6 +318,23 @@ ShellRoot {
         }
 
         target: "themeswitcher"
+    }
+
+    // ── IPC: settings ─────────────────────────────────────────────────
+    IpcHandler {
+        function toggle() {
+            settingsWindow.toggle();
+        }
+
+        function open() {
+            settingsWindow.open();
+        }
+
+        function close() {
+            settingsWindow.close();
+        }
+
+        target: "settings"
     }
 
 }

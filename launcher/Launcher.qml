@@ -50,7 +50,7 @@ PanelWindow {
     // ── Dim overlay (closes launcher on outside click) ─────────────────────────
     Rectangle {
         anchors.fill: parent
-        color: ThemeManager.alpha(ThemeManager.bg, 0.33)
+        color: "transparent"
 
         // Click outside the box → close
         MouseArea {

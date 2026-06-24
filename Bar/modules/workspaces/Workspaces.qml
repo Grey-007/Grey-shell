@@ -68,8 +68,8 @@ Row {
             height:  8
             opacity: shouldShow ? 1 : 0
 
-            Behavior on width   { NumberAnimation { duration: 350; easing.type: Easing.OutQuint } }
-            Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutQuint } }
+            Behavior on width   { NumberAnimation { duration: 350; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }
+            Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
 
             // The visible dot/pill — sits left-aligned so gaps stay clean
             Rectangle {
@@ -87,12 +87,11 @@ Row {
                                 : ThemeManager.fgDim
                 antialiasing: true
 
-                Behavior on width { NumberAnimation { duration: 350; easing.type: Easing.OutQuint } }
-                Behavior on color { ColorAnimation  { duration: 250; easing.type: Easing.OutQuint } }
+                Behavior on width { NumberAnimation { duration: 350; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }
+                Behavior on color { ColorAnimation  { duration: 250; easing.type: Easing.OutCubic } }
 
                 // Gleam stripe on active pill
                 Rectangle {
-                    visible: wsDot.isActive
                     anchors {
                         top:         parent.top
                         left:        parent.left
@@ -104,7 +103,8 @@ Row {
                     height:  1
                     radius:  1
                     color:   "#ffffff"
-                    opacity: 0.35
+                    opacity: wsDot.isActive ? 0.35 : 0
+                    Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
                 }
             }
 

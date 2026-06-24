@@ -2,6 +2,7 @@ import "."
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
+import "../Settings/Models"
 
 // SepiaShell Control Centre – outer PanelWindow
 PanelWindow {
@@ -15,8 +16,8 @@ PanelWindow {
     readonly property int openX:   screenWidth - panelWidth - 14
     readonly property int closedX: screenWidth + 20          // fully off-screen right
 
-    // Animation duration must match the Behavior on x below
-    readonly property int animDuration: 300
+    // Animation duration uses SettingsManager to sync with user preferences
+    readonly property int animDuration: SettingsManager.animDuration
 
     // ── Visibility gating ────────────────────────────────────────────────
     // panelVisible stays TRUE for the full slide-out animation after close,

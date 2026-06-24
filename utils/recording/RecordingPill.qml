@@ -31,6 +31,7 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
     aboveWindows: true
+    color: "transparent"
 
     implicitWidth: layout.width + 32
     implicitHeight: 44

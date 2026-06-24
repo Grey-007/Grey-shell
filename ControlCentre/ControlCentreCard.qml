@@ -4,6 +4,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell.Services.Pipewire
 import "../colors"
+import "../Settings/Models"
 
 // SepiaShell – main control centre card content
 Item {
@@ -213,31 +214,53 @@ Item {
                         }
                     }
 
-                    // Expanded sub-panel (wifi / bt / audio) inline
-                    Loader {
-                        id: expandedLoader
-                        Layout.fillWidth: true
-                        active: ControlCentreState.expandedSection !== ""
-
-                        opacity: active ? 1 : 0
-                        Behavior on opacity {
-                            NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
-                        }
-
-                        sourceComponent: ControlCentreState.expandedSection === "wifi"
-                                       ? wifiPanel
-                                       : ControlCentreState.expandedSection === "bluetooth"
-                                         ? bluetoothPanel
-                                         : audioPanel
-                    }
+                    // Expanded sub-panel moved to a popup overlay outside Flickable
                 }
             }
-
-
 
             // Bottom spacer so last card has breathing room
             Item { implicitHeight: 8 }
         }
+    }
+
+    // ── Popup Overlay (Dim Background) ───────────────────────────────────
+    Rectangle {
+        id: popupDimOverlay
+        anchors.fill: parent
+        color: root.ThemeManager.surfaceHigh
+        opacity: ControlCentreState.expandedSection !== "" ? 0.8 : 0
+        visible: opacity > 0
+        Behavior on opacity {
+            NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: ControlCentreState.expandedSection = ""
+        }
+    }
+
+    // ── Expanded sub-panel popup (wifi / bt / audio) ─────────────────────
+    Loader {
+        id: expandedLoader
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.margins: 14
+        anchors.bottomMargin: 24
+
+        active: ControlCentreState.expandedSection !== ""
+
+        opacity: active ? 1 : 0
+        Behavior on opacity {
+            NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
+        }
+
+        sourceComponent: ControlCentreState.expandedSection === "wifi"
+                       ? wifiPanel
+                       : ControlCentreState.expandedSection === "bluetooth"
+                         ? bluetoothPanel
+                         : audioPanel
     }
 
     // ── Wi-Fi panel ───────────────────────────────────────────────────────
